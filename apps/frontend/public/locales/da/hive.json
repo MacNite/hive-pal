@@ -1,1 +1,18 @@
-{}
+{
+    "fields": {
+        "status": "Status",
+        "installationDate": "Dato for tilsætning"
+    },
+    "status": {
+        "active": "Aktiv",
+        "dead": "Død",
+        "unknown": "Ukendt"
+    },
+    "actions": {
+        "addQueen": "Tilføj dronning"
+    },
+    "form": {
+        "selectHive": "Vælg et stade",
+        "pickDate": "Vælg en dato"
+    }
+}
