@@ -1,1 +1,10 @@
-{}
+{
+    "fields": {
+        "hive": "Stade",
+        "status": "Status"
+    },
+    "form": {
+        "selectHive": "Vælg et stade",
+        "pickDate": "Vælg en dato"
+    }
+}
