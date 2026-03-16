@@ -1,7 +1,23 @@
 {
     "fields": {
         "status": "Status",
-        "installationDate": "Dato for tilsætning"
+        "installationDate": "Dato for tilsætning",
+        "name": "Navn",
+        "label": "Mærke",
+        "number": "Stade nummer",
+        "type": "Stade type",
+        "location": "Placering",
+        "notes": "Noter",
+        "queen": "Dronning",
+        "lastInspection": "Seneste inspektion",
+        "established": "Etableret",
+        "boxes": "Magasiner",
+        "frames": "Rammer",
+        "position": "Placering",
+        "apiary": "Bigård",
+        "notSpecified": "Ikke angivet",
+        "noInspectionYet": "Endnu ikke inspiceret",
+        "noNotes": "Ingen noter"
     },
     "status": {
         "active": "Aktiv",
@@ -14,5 +30,83 @@
     "form": {
         "selectHive": "Vælg et stade",
         "pickDate": "Vælg en dato"
+    },
+    "title": "Stader",
+    "singular": "Stade",
+    "plural": "Stader",
+    "list": {
+        "title": "Stade liste",
+        "caption": "Liste med alle dine stader",
+        "captionFiltered": "Viser {{count}} {{status}} stade",
+        "captionFilteredPlural": "Viser {{count}} {{status}} stader",
+        "searchPlaceholder": "Søg i stader...",
+        "filterByStatus": "Filtrer på status",
+        "allStatuses": "Alle status",
+        "noHives": "Ingen stader fundet",
+        "noHivesMatchingBoth": "Ingen {{status}} stader fundet, der indeholder \"{{searchTerm}}\"",
+        "noHivesMatchingSearch": "Ingen stader fundet, der indeholder \"{{searchTerm}}\"",
+        "noHivesWithStatus": "Ingen {{status}} stader fundet",
+        "clearFilters": "Nulstil filtre",
+        "createFirst": "Opret dit første stade"
+    },
+    "create": {
+        "title": "Opret nyt stade",
+        "success": "Stadet er oprettet"
+    },
+    "edit": {
+        "title": "Rediger stade",
+        "success": "Ændring af stadet er gemt"
+    },
+    "delete": {
+        "confirm": "Er du sikker på at du vil slette dette stade?",
+        "success": "Stadet er blevet slettet"
+    },
+    "boxConfigurator": {
+        "title": "Magasin opbygning",
+        "description": "Visualisering og opbygning af stadets magasiner. Magasiner viser fra bund til top.",
+        "editConfiguration": "Rediger opbygning",
+        "cancel": "Afbryd",
+        "save": "Gem",
+        "addBox": "Tilføj magasin",
+        "noBoxes": "Ingen magasiner tilføjet endnu",
+        "clickToAdd": "Klik på \"Tilføj magassin\" for at opbygge dit stade",
+        "saveSuccess": "Magasin konfiguration er gemt",
+        "saveError": "Der opstod en fejl ved arkivering af opbygning",
+        "boxProperties": "Egenskaber for magasin",
+        "purpose": "Formål",
+        "boxType": "Magasin type",
+        "frames": "Rammer",
+        "maximumFrames": "Maksimal antal rammer",
+        "color": "Farve",
+        "colorPresets": "Farve forvalg",
+        "queenExcluder": "Dronningegitter over dette magasin",
+        "boxTypes": {
+            "brood": "Yngel magasin",
+            "honey": "Honning magasin",
+            "feeder": "Foder magasin"
+        },
+        "boxVariants": {
+            "langstrothDeep": "Langstroth normal",
+            "langstrothShallow": "Langstroth lav",
+            "bDeep": "B normal",
+            "bShallow": "B lav",
+            "dadant": "Dadant",
+            "nationalDeep": "National normal",
+            "nationalShallow": "National lav",
+            "warre": "Warré",
+            "topBar": "Topbar",
+            "custom": "Tilpasset"
+        }
+    },
+    "card": {
+        "showDetails": "Vis detaljer",
+        "lastInspected": "Senest inspiceret {{date}}",
+        "noInspection": "Endnu ikke inspiceret",
+        "score": "Score:",
+        "feeding": "Foder:"
+    },
+    "scores": {
+        "overall": "Alt i alt",
+        "overallScore": "Samlet score"
     }
 }
