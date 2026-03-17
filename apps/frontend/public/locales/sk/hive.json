@@ -86,6 +86,22 @@
       "custom": "Vlastný"
     }
   },
+  "card": {
+    "showDetails": "Zobraziť podrobnosti",
+    "lastInspected": "Posledná prehliadka {{date}}",
+    "noInspection": "Zatiaľ žiadna prehliadka",
+    "score": "Skóre:",
+    "feeding": "Kŕmenie:"
+  },
+  "scores": {
+    "overall": "Celkové",
+    "overallScore": "Celkové skóre",
+    "population": "Populácia",
+    "populationShort": "Pop",
+    "stores": "Zásoby",
+    "queen": "Matka",
+    "queenScore": "Skóre matky"
+  },
   "status": {
     "active": "Aktívny",
     "inactive": "Neaktívny",

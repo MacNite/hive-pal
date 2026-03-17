@@ -66,6 +66,23 @@
     "noApiarySelected": "Žiadna včelnica nie je vybraná",
     "selectOrCreate": "Vyberte alebo vytvorte včelnicu"
   },
+  "map": {
+    "selectLocation": "Vybrať polohu včelnice",
+    "selectedLocation": "Vybraná poloha",
+    "apiaryLocation": "Poloha včelnice"
+  },
+  "calendarSubscription": {
+    "title": "Odber kalendára",
+    "description": "Prihláste sa na odber plánu prehliadok tejto včelnice vo vašej kalendárovej aplikácii",
+    "addToCalendar": "Pridať do kalendára",
+    "regenerateUrl": "Obnoviť URL",
+    "regenerated": "URL odberu bolo obnovené",
+    "regenerateFailed": "Nepodarilo sa obnoviť URL odberu",
+    "copied": "URL odberu bolo skopírované do schránky",
+    "copyFailed": "Nepodarilo sa skopírovať do schránky",
+    "readOnlyNote": "Táto URL poskytuje prístup len na čítanie k vášmu plánu prehliadok. Obnovenie URL zneplatní predchádzajúce.",
+    "copyUrl": "Kopírovať URL"
+  },
   "form": {
     "namePlaceholder": "Názov včelnice",
     "locationPlaceholder": "Popis polohy"
