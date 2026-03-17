@@ -13,28 +13,11 @@ import { Share2 } from 'lucide-react';
 import { isCloudMode } from '@/utils/feature-flags';
 import { useCreateShareLink } from '@/api/hooks/useShares';
 import { ShareDialog } from './share-dialog';
+import { setSharePromptDismissed } from './share-prompt-utils';
 import {
   ShareResourceType,
   ShareLinkResponse,
 } from 'shared-schemas';
-
-const STORAGE_KEY = 'hivepal-share-prompt-dismissed';
-
-function isDismissed(): boolean {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === 'true';
-  } catch {
-    return false;
-  }
-}
-
-function setDismissed(): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, 'true');
-  } catch {
-    // silently fail
-  }
-}
 
 interface SharePromptDialogProps {
   open: boolean;
@@ -77,7 +60,7 @@ export function SharePromptDialog({
 
   const handleSkip = () => {
     if (dontShowAgain) {
-      setDismissed();
+      setSharePromptDismissed();
     }
     onOpenChange(false);
   };
@@ -139,5 +122,3 @@ export function SharePromptDialog({
     </>
   );
 }
-
-export { isDismissed as isSharePromptDismissed };

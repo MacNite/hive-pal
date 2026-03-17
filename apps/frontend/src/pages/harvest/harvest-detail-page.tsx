@@ -42,10 +42,8 @@ import { useUnitFormat } from '@/hooks/use-unit-format';
 import { isCloudMode } from '@/utils/feature-flags';
 import { ShareResourceType, ShareLinkResponse } from 'shared-schemas';
 import { useCreateShareLink } from '@/api/hooks/useShares';
-import {
-  SharePromptDialog,
-  isSharePromptDismissed,
-} from '@/components/share/share-prompt-dialog';
+import { SharePromptDialog } from '@/components/share/share-prompt-dialog';
+import { isSharePromptDismissed } from '@/components/share/share-prompt-utils';
 import { ShareDialog } from '@/components/share/share-dialog';
 
 export const HarvestDetailPage = () => {
