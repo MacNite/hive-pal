@@ -113,7 +113,13 @@
         "exportCSV": "Eksporter til CSV",
         "dataOptions": "Data muligheder",
         "cancel": "Afbryd",
-        "scheduleInspection": "Planlæg inspektion"
+        "scheduleInspection": "Planlæg inspektion",
+        "createInspection": "Opret inspektion",
+        "printList": "Udskriv liste",
+        "shareList": "Del liste",
+        "doInspection": "Udfør inspektion",
+        "reschedule": "Omlægge",
+        "completeInspection": "Færdiggør inspektion"
     },
     "messages": {
         "exportComingSoon": "Funktionen \"eksporter\" kommer snart",
@@ -182,12 +188,23 @@
             "sluggish": "Træg",
             "thriving": "Trives"
         },
-        "reminderObservations": "Påmindelser"
+        "reminderObservations": "Påmindelser",
+        "reminder": {
+            "honey_bound": "Honningfyldt yngelleje",
+            "overcrowded": "Overfyldt",
+            "needs_super": "Behov for honningmagasin",
+            "queen_issues": "Problemer med dronning",
+            "requires_treatment": "Kræver behandling",
+            "low_stores": "Lav beholdning",
+            "prepare_for_winter": "Klargør vinterleje"
+        }
     },
     "statusCard": {
         "actions": "Handlinger",
         "markCompleted": "Marker som færdiggjort",
-        "cancelInspection": "Afbryd inspektion"
+        "cancelInspection": "Afbryd inspektion",
+        "title": "Status",
+        "currentStatus": "Aktuel status"
     },
     "weatherCard": {
         "title": "Vejr",
@@ -256,6 +273,104 @@
         "noForecast": "Ingen vejrudsigt tilgængelig",
         "noWeatherData": "Ingen vejrdata",
         "showFewerDays": "Vis færre dage",
-        "showMoreDays": "Vis flere dage (+7)"
+        "showMoreDays": "Vis flere dage (+7)",
+        "inspectionDetails": "Inspektions detaljer",
+        "schedulingCount": "Planlægger {{count}} inspektion den {{date}}",
+        "schedulingCountPlural": "Planlægger {{count}} inspektioner den {{date}}",
+        "selectedHives": "Valgte stader:",
+        "createAsBatch": "Opret som en samlet inspektion",
+        "batchDescription": "Gennemfør inspektioner i rækkefølge med en guidet arbejdsgang",
+        "batchName": "Navn på samling",
+        "batchNamePlaceholder": "F.eks., Forår 2025 inspektion",
+        "notesOptional": "Noter (Frivilligt)",
+        "notesPlaceholder": "Tilføj flere noter for denne planlagte inspektion...",
+        "batchInfo": "Denne samling bliver oprettet og gjort klar til afvikling",
+        "scheduledInfo": "Denne inspektion vil blive planlagt til en senere dato",
+        "batchStartInfo": "Du kan starte på den samlede inspektion med det samme, eller vente til senere.",
+        "scheduledStartInfo": "Du kan tilføje detaljer, og færdiggøre inspektionen, på den planlagte dato.",
+        "createBatchInspection": "Opret samlet inspektion",
+        "scheduleCount": "Planlæg {{count}} inspektion",
+        "scheduleCountPlural": "Planlæg {{count}} inspektioner",
+        "batchCreated": "Samlet inspektion er blevet oprettet: {{name}}",
+        "batchCreateFailed": "Oprettelse af samlet inspektion fejlede",
+        "scheduledSuccess": "Planlagde {{count}} inspektion",
+        "scheduledSuccessPlural": "Planlagde {{count}} inspektioner",
+        "scheduledFailed": "Planlægning af {{count}} inspektion fejlede",
+        "scheduledFailedPlural": "Planlægning af {{count}} inspektioner fejlede",
+        "noApiary": "Ude af stand til at bestemme bigård for de valgte stader"
+    },
+    "sidebar": {
+        "actions": "Handlinger",
+        "views": "Visninger",
+        "allInspections": "Alle inspektioner",
+        "recentInspections": "Seneste inspektioner",
+        "upcomingInspections": "Kommende inspektioner",
+        "printInspectionList": "Udskriv inspektionsliste",
+        "shareInspectionList": "Del inspektions liste"
+    },
+    "scheduled": {
+        "title": "Planlagte inspektioner",
+        "overdueInspections": "Overskredne inspektioner",
+        "todaysInspections": "Dagens inspektioner",
+        "upcomingInspections": "Kommende inspektioner",
+        "otherUpcomingInspections": "Øvrige kommende inspektioner",
+        "doInspection": "Udfør inspektion",
+        "reschedule": "Omlægge",
+        "cancel": "Afbryd",
+        "today": "I dag",
+        "overdue": "Overskredet"
+    },
+    "dialogs": {
+        "cancelInspection": {
+            "title": "Afbryd inspektion",
+            "description": "Er du sikker på at du vil afbryde inspektionen af {{hiveName}} planlagt til den {{date}}? Denne handling kan ikke fortrydes.",
+            "keepInspection": "Behold inspektion",
+            "cancelInspection": "Afbryd inspektion"
+        },
+        "reschedule": {
+            "title": "Omlægning af inspektion",
+            "description": "Vælg en ny dato til inspektion af {{hiveName}}. Vejrudsigten for den næste kan ses her.",
+            "newDate": "Ny dato til inspektion: {{date}}",
+            "cancel": "Afbryd",
+            "reschedule": "Omlæg inspektion",
+            "showFewerDays": "Vis færre dage",
+            "showMoreDays": "Vis flere dage (+7)",
+            "noForecast": "Ingen prognose tilgængelig",
+            "noWeatherData": "Ingen vejrdata"
+        },
+        "completingScheduled": {
+            "title": "Gennemfør den planlagte inspektion fra {{date}}",
+            "description": "Denne inspektion vil blive markeret som afsluttet når du gemmer dine ændringer."
+        }
+    },
+    "weather": {
+        "sunny": "Solskin",
+        "clear": "Ryd",
+        "partlyCloudy": "Delvist overskyet",
+        "cloudy": "Skyet",
+        "overcast": "Gråvejr",
+        "rain": "Regn"
+    },
+    "detail": {
+        "loading": "Henter inspektion...",
+        "error": "Fejl",
+        "errorDescription": "Detaljer om inspektion kunne ikke hentes.",
+        "goBack": "Tilbage",
+        "notFound": "Inspektion ikke fundet",
+        "back": "Tilbage",
+        "share": "Del",
+        "shareFailed": "Oprettelse af link til deling fejlede",
+        "viewHive": "Vis stade"
+    },
+    "edit": {
+        "completingFrom": "Gennemfører planlagt inspektion fra {{date}}",
+        "markedCompleted": "Denne inspektion vil blive markeret som gennemført når du gemmer dine ændringer."
+    },
+    "dashboard": {
+        "title": "Status på inspektion",
+        "overdue": "Overskredet",
+        "dueToday": "Forfalder i dag",
+        "overdueCount": "{{count}} inspektion{{count, plural, one {} other{s}}} overskredet",
+        "dueTodayCount": "{{count}} inspektion{{count, plural, one {} other{s}}} forfalder i dag"
     }
 }
