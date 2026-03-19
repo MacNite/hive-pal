@@ -41,7 +41,7 @@
         "tabs": {
             "overview": "Oversigt",
             "hives": "Stader",
-            "location": "Lokation"
+            "location": "Placering"
         },
         "apiaryInformation": "Bigårds information",
         "locationMap": "Kort over lokation",

@@ -76,7 +76,11 @@
         "confirmDelete": "Er du sikker på at du vil slette denne?",
         "changesSaved": "Ændringer er blevet gemt",
         "errorOccurred": "Der opstod en fejl",
-        "noData": "Ingen data tilgængelig"
+        "noData": "Ingen data tilgængelig",
+        "required": "Dette felt er påkrævet",
+        "invalidEmail": "Ugyldig email adresse",
+        "invalidFormat": "Ugyldig format",
+        "notificationsComingSoon": "Funktionen \"notifikationer\" kommer snart"
     },
     "feedback": {
         "selectType": "Vælg type af feedback",
@@ -93,7 +97,11 @@
         "submit": "Indsend feedback",
         "thankYou": "Mange tak!",
         "submittedMessage": "Din feedback er blevet modtaget. Vi sætter pris på din tilbagemelding og vil snarest kigge den igennem.",
-        "submitAnother": "Indsend yderligere feedback"
+        "submitAnother": "Indsend yderligere feedback",
+        "title": "Indsend feedback",
+        "description": "Tak for dit feedback. Hjælp os med at gøre HivePal endnu bedre ved at dele dine tanker, rapportere fejl, eller foreslå ny funktionalitet.",
+        "sendFeedback": "Indsend feedback",
+        "type": "Type af feedback"
     },
     "alerts": {
         "alert": "advarsel",
@@ -115,7 +123,7 @@
         "deleteFailed": "Der opsted en fejl ved sletning af hurtigt check"
     },
     "timeline": {
-        "recentActivity": "Seneste aktivitet",
+        "recentActivity": "Nylig aktivitet",
         "noActivity": "Der er endnu ikke registreret en aktivitet",
         "noActivityApiary": "Der er endnu ikke registreret en aktivitet for denne bigård",
         "noMatchingFilters": "Der er ingen begivenhed, der matcher hvad der filtreres på",
@@ -195,5 +203,75 @@
             "viewReports": "Vis rapporter",
             "noApiary": "Vælg et stade for at se statistik"
         }
+    },
+    "releaseNotes": {
+        "title": "Sidste nyt i HivePal",
+        "version": "Version {{version}}",
+        "released": "Frigivet den {{date}}",
+        "newVersionAvailable": "Ny version v{{version}} er tilgængelig!",
+        "checkLatestFeatures": "Tjek de nyeste funktioner og forbedringer.",
+        "whatsNew": "Seneste nyt",
+        "dismiss": "Afvis"
+    },
+    "time": {
+        "today": "I dag",
+        "yesterday": "I går",
+        "tomorrow": "I morgen",
+        "week": "Uge",
+        "month": "Måned",
+        "year": "År",
+        "date": "Dato",
+        "time": "Tidspunkt",
+        "days": "Dage",
+        "hours": "Timer",
+        "minutes": "Minutter",
+        "seconds": "Sekunder"
+    },
+    "weather": {
+        "selectHiveToView": "Vælg et stade i en bigård for at se vejrudsigten",
+        "unableToLoad": "Hentning af vejrudsigt fejlede",
+        "noWeatherData": "Ingen vejrdata tilgængelig",
+        "currentWeather": "Vejret lige nu",
+        "feelsLike": "Føles som {{temperature}}°C",
+        "humidity": "Fugtighed",
+        "wind": "Vind",
+        "nextHours": "Næste 5 timer",
+        "dayForecast": "7-dages prognose",
+        "weatherForecast": "Vejrudsigt"
+    },
+    "settings": {
+        "managePreferences": "Administrer din konto og dine applikations indstillinger",
+        "generalSettings": "Generelle indstillinger",
+        "configureLanguageRegional": "Konfigurer dine sprogline og regionale indstillinger",
+        "dateFormat": "Datoformat",
+        "unitsOfMeasurement": "Måleenhed",
+        "metric": "Metrisk (kg, km, °C)",
+        "imperial": "Imperial (lbs, miles, °F)",
+        "displayPreferences": "Vis indstillinger",
+        "customizeAppearance": "Tilret udseende af applikationen",
+        "theme": "Tema",
+        "light": "Lys",
+        "dark": "Mørk",
+        "system": "System",
+        "notificationPreferences": "Indstillinger for notifikationer",
+        "chooseNotificationMethod": "Angiv hvordan du vil modtage notifikationer for vigtige begivenheder",
+        "emailNotifications": "Email notifikationer",
+        "receiveEmailUpdates": "Modtag opdateringer via email",
+        "pushNotifications": "Push notifikationer",
+        "receiveBrowserNotifications": "Modtag push notifikationer i browseren",
+        "inspectionReminders": "Inspektions påmindelser",
+        "upcomingInspectionsNotify": "Modtag notifikationer om kommende inspektioner",
+        "harvestReminders": "Påmindelse om høst",
+        "harvestSchedulesNotify": "Modtag notifikationer hos planlagt høst",
+        "accountSettings": "Konto indstillinger",
+        "manageAccountInfo": "Administrer dine konto indstillinger",
+        "name": "Navn",
+        "enterName": "Indtast dit navn",
+        "email": "Email",
+        "enterEmail": "Indtast din email",
+        "password": "Password",
+        "changePassword": "Skift password på din konto",
+        "saveSettings": "Gem indstillinger",
+        "preferencesUpdated": "Dine indstillinger er blevet gemt."
     }
 }
