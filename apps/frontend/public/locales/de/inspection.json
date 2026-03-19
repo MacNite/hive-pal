@@ -1,1 +1,12 @@
-{}
+{
+    "actions": {
+        "details": "Details",
+        "refreshData": "Daten aktualisieren",
+        "exportCSV": "Als CSV exportieren",
+        "dataOptions": "Datenoptionen"
+    },
+    "messages": {
+        "exportComingSoon": "Exportfunktion bald verfügbar",
+        "shareComingSoon": "Freigabefunktion bald verfügbar"
+    }
+}
