@@ -50,7 +50,6 @@ const QueenActionsMenu: React.FC<{
 }> = ({ queen, hiveId, onTransferClick, onQueenUpdated }) => {
   const { t } = useTranslation('queen');
   const navigate = useNavigate();
-  const { mutateAsync: updateQueen } = useUpdateQueen();
 
   const handleMarkQueenState = async (newState: 'DEAD' | 'REPLACED') => {
     await updateQueen({

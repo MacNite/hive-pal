@@ -91,6 +91,8 @@ model Hive {
   documents            Document[]
   featurePhotoId       String?      @unique
   featurePhoto         Photo?       @relation("HiveFeaturePhoto", fields: [featurePhotoId], references: [id], onDelete: SetNull)
+  queenMovementsFrom   QueenMovement[] @relation("MovementFromHive")
+  queenMovementsTo     QueenMovement[] @relation("MovementToHive")
 
   // Create index for quick lookup by apiaryId - used in authorization checks
   @@index([apiaryId])
