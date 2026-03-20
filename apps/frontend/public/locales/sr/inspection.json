@@ -12,7 +12,8 @@
         "shareComingSoon": "Функционалност дељења ускоро стиже"
     },
     "fields": {
-        "status": "Статус"
+        "status": "Статус",
+        "hive": "Кошница"
     },
     "scores": {
         "overall": "Укупно",
@@ -26,5 +27,9 @@
     },
     "status": {
         "completed": "Завршено"
+    },
+    "timeline": {
+        "notesAvailable": "Белешке доступне",
+        "cancelled": "Отказано"
     }
 }
