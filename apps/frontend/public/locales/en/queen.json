@@ -47,6 +47,7 @@
     "unknown": "Unknown"
   },
   "actions": {
+    "transferQueen": "Transfer Queen",
     "replaceQueen": "Replace Queen",
     "markAsDead": "Mark as Dead",
     "markAsLostMissing": "Mark as Lost/Missing",

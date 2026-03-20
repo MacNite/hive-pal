@@ -164,7 +164,8 @@ const MinimapHive = ({ hive, onClick }: MinimapHiveProps) => {
 
 export const HiveMinimap = ({ apiaryId, className }: HiveMinimapProps) => {
   const navigate = useNavigate();
-  const { data: allHives = [] } = useHivesWithBoxes({ apiaryId });
+  const { data: rawHives = [] } = useHivesWithBoxes({ apiaryId, includeInactive: true });
+  const allHives = rawHives.filter((h) => h.status !== 'ARCHIVED');
 
   // Filter only positioned hives and organize by position
   const { hivesGrid, minRow, minCol, maxRow, maxCol, hasHives } =

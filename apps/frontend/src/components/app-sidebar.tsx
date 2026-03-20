@@ -10,6 +10,7 @@ import {
   Calendar,
   BarChart3,
   MessageSquare,
+  Crown,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -55,6 +56,18 @@ const getNavData = (t: (key: string) => string) => ({
         {
           title: t('navigation.allHives'),
           url: '/hives',
+        },
+      ],
+    },
+    {
+      title: t('navigation.queens'),
+      url: '/queens',
+      icon: Crown,
+      isActive: true,
+      items: [
+        {
+          title: t('navigation.allQueens'),
+          url: '/queens',
         },
       ],
     },

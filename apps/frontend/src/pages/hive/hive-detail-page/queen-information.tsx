@@ -55,7 +55,7 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTransferOpen(true)}>
-          Transfer Queen
+          {t('actions.transferQueen')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate(`/queens/${activeQueen.id}/edit`)}>
           {t('actions.editQueen')}

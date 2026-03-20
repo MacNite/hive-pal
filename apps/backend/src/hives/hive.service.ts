@@ -166,7 +166,11 @@ export class HiveService {
           id: filter.apiaryId,
           userId: filter.userId,
         },
-        status: filter.includeInactive ? undefined : 'ACTIVE',
+        status: filter.status
+          ? (filter.status as HiveStatus)
+          : filter.includeInactive
+            ? undefined
+            : 'ACTIVE',
       },
       include: includeConfig,
     });

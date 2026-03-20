@@ -54,13 +54,38 @@ Implements full queen lifecycle management for Hive Pal (issue #29). Beekeepers 
 #### Backend
 - **`queens.service.ts`** — major refactor; new `recordTransfer()` logic automatically marks any ACTIVE queen in the destination hive as `REPLACED` before assigning the transferred queen
 - **`queens.controller.ts`** — added three new route handlers; existing endpoints unchanged
+- **`hive.service.ts`** — fixed `findAll()` to respect an explicit `status` filter parameter; previously ignored in favour of the `includeInactive` flag only
 
 #### Frontend
 - **`queen-information.tsx`** (Hive Detail) — added "Transfer Queen" menu action that opens `QueenTransferDialog` inline
-- **`hive-detail-page/page.tsx`** — added "Queen History" tab rendering `<QueenHistoryTab />`
+- **`hive-detail-page/page.tsx`** — added "Queen History" tab rendering `<QueenHistoryTab />`; replaced static status badge with interactive `HiveStatusButton`
 - **`routes/index.tsx`** — registered all new queen routes (`/queens`, `/queens/create`, `/queens/:id`, `/queens/:id/edit`, `/hives/:hiveId/queens/create`)
 - **`useQueens.ts`** — added new query keys (`history`, `hiveHistory`) and three new hooks alongside existing ones
 - **`register-page.tsx`** — fixed "something went wrong" error screen appearing during signup; removed conflicting `navigate('/login')` after successful registration (auth provider already redirects to `/onboarding`); moved `isLoggedIn` redirect into a `useEffect` to prevent illegal render-phase navigation
+- **`hive-list-page.tsx`** — status filter now fetches all hive statuses (`includeInactive: true`) so client-side filtering works across all statuses
+- **`hives-layout.tsx`** (Apiary detail grid) — now fetches all statuses and filters out only `ARCHIVED` hives; Dead, Inactive, Sold and Unknown hives remain visible and placeable in the grid
+- **`hive-minimap.tsx`** (Dashboard hive layout card) — same rule as apiary grid: all statuses except `ARCHIVED` are shown
+
+---
+
+### Added (post-review fixes)
+
+#### Backend
+- **`queens.service.ts`** — `recordTransfer()` wrapped in a Prisma `$transaction` to prevent partial writes on failure
+- **`queens.service.ts`** — `findAll()` includes unassigned queens (hiveId = null) with ownership verified via movement history
+- **`queens.service.ts`** — `getQueenHistory()` can now find queens that have been removed from all hives
+- **`queens.service.ts`** — `getHiveQueenHistory()` uses movement-derived installed/replaced dates per hive, and sorts by most recent movement
+- **`hive.service.ts`** — `findAll()` now correctly applies an explicit `status` query parameter
+
+#### Frontend
+- **`HiveStatusButton`** component — inline dropdown on Hive Detail page to change hive status (Active / Inactive / Dead / Sold / Unknown / Archived) with instant save via `PATCH /hives/:id`
+- **`QueenColorBadge`** component — shared colour swatch + label used across queen list and history views
+- **`app-sidebar.tsx`** — Queens nav item (Crown icon) added to the left sidebar linking to `/queens`
+- **`queen-utils.ts`** — shared constants and helpers (`QUEEN_STATUS_VARIANTS`, `QUEEN_COLOR_CLASSES`, `getQueenColorClass`, `getQueenDisplayName`) extracted to eliminate duplication across queen pages
+
+#### i18n
+- `queen.json` — added `actions.transferQueen` key
+- `common.json` — added `navigation.allQueens` key
 
 ---
 

@@ -110,7 +110,7 @@ export const useUpdateQueen = () => {
 export const useRecordQueenTransfer = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ queenId, data }: { queenId: string; data: RecordQueenTransfer }) => {
+    mutationFn: async ({ queenId, data }: { queenId: string; data: RecordQueenTransfer; fromHiveId?: string | null }) => {
       const response = await apiClient.post<QueenDetail>(`/api/queens/${queenId}/transfer`, data);
       return response.data;
     },
@@ -121,6 +121,10 @@ export const useRecordQueenTransfer = () => {
       if (data.hiveId) {
         await queryClient.invalidateQueries({ queryKey: ['hives', 'detail', data.hiveId] });
         await queryClient.invalidateQueries({ queryKey: QUEENS_KEYS.hiveHistory(data.hiveId) });
+      }
+      if (variables.fromHiveId) {
+        await queryClient.invalidateQueries({ queryKey: ['hives', 'detail', variables.fromHiveId] });
+        await queryClient.invalidateQueries({ queryKey: QUEENS_KEYS.hiveHistory(variables.fromHiveId) });
       }
     },
   });

@@ -31,7 +31,7 @@ import { HiveResponse, HiveStatus as HiveStatusEnum } from 'shared-schemas';
 
 export const HiveListPage = () => {
   const { t } = useTranslation(['hive', 'common']);
-  const { data: hivesResponse, isLoading, refetch } = useHives();
+  const { data: hivesResponse, isLoading, refetch } = useHives({ includeInactive: true });
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');

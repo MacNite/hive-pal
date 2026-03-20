@@ -41,7 +41,7 @@ export const QueenTransferDialog: React.FC<QueenTransferDialogProps> = ({
   open,
   onOpenChange,
 }) => {
-  const [toHiveId, setToHiveId] = useState<string | null>(queen.hiveId ?? null);
+  const [toHiveId, setToHiveId] = useState<string | null>(null);
   const [movedAt, setMovedAt] = useState<Date>(new Date());
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
@@ -49,10 +49,13 @@ export const QueenTransferDialog: React.FC<QueenTransferDialogProps> = ({
   const { data: hives } = useHives();
   const { mutateAsync: recordTransfer, isPending } = useRecordQueenTransfer();
 
+  const isNoOp = toHiveId === queen.hiveId;
+
   const handleSubmit = async () => {
     try {
       await recordTransfer({
         queenId: queen.id,
+        fromHiveId: queen.hiveId,
         data: {
           toHiveId: toHiveId,
           movedAt: movedAt.toISOString(),
@@ -146,7 +149,7 @@ export const QueenTransferDialog: React.FC<QueenTransferDialogProps> = ({
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isPending}>
+          <Button onClick={handleSubmit} disabled={isPending || isNoOp}>
             {isPending ? 'Transferring...' : 'Transfer Queen'}
           </Button>
         </DialogFooter>
