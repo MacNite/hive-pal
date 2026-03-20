@@ -11,7 +11,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useHiveQueenHistory } from '@/api/hooks';
-import { QUEEN_STATUS_VARIANTS, getQueenColorClass, getQueenDisplayName } from '@/lib/queen-utils';
+import { QUEEN_STATUS_VARIANTS, getQueenDisplayName } from '@/lib/queen-utils';
+import { QueenColorBadge } from '@/pages/queen/components/queen-color-badge';
 
 export const QueenHistoryTab: React.FC<QueenHistoryTabProps> = ({ hiveId }) => {
   const { data: queens, isLoading } = useHiveQueenHistory(hiveId);
@@ -48,7 +49,6 @@ export const QueenHistoryTab: React.FC<QueenHistoryTabProps> = ({ hiveId }) => {
         </TableHeader>
         <TableBody>
           {queens.map((queen) => {
-            const colorClass = getQueenColorClass(queen.color);
             return (
               <TableRow key={queen.id}>
                 <TableCell>
@@ -57,12 +57,7 @@ export const QueenHistoryTab: React.FC<QueenHistoryTabProps> = ({ hiveId }) => {
                   </Link>
                 </TableCell>
                 <TableCell>
-                  {queen.color && (
-                    <div className="flex items-center gap-2">
-                      <div className={`h-4 w-4 rounded-full border border-gray-400 ${colorClass}`} />
-                      <span className="capitalize text-sm">{queen.color}</span>
-                    </div>
-                  )}
+                  <QueenColorBadge color={queen.color} />
                 </TableCell>
                 <TableCell>{queen.year ?? '—'}</TableCell>
                 <TableCell>

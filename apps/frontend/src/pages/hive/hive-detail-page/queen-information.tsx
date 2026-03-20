@@ -20,6 +20,7 @@ import {
 import { ActiveQueen, QueenResponse } from 'shared-schemas';
 import { useState } from 'react';
 import { QueenTransferDialog } from '@/pages/queen/components/queen-transfer-dialog';
+import { getQueenColorClass } from '@/lib/queen-utils';
 
 type QueenInformationProps = {
   hiveId?: string;
@@ -35,32 +36,6 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
   const navigate = useNavigate();
   const [transferOpen, setTransferOpen] = useState(false);
 
-  const getColor = (color?: string | null) => {
-    switch (color?.toLowerCase()) {
-      case 'green':
-        return 'bg-green-500';
-      case 'yellow':
-        return 'bg-yellow-500';
-      case 'red':
-        return 'bg-red-500';
-      case 'blue':
-        return 'bg-blue-500';
-      case 'purple':
-        return 'bg-purple-500';
-      case 'indigo':
-        return 'bg-indigo-500';
-      case 'pink':
-        return 'bg-pink-500';
-      case 'gray':
-        return 'bg-gray-500';
-      case 'black':
-        return 'bg-black';
-      case 'white':
-        return 'bg-white border border-gray-200';
-      default:
-        return 'bg-white';
-    }
-  };
   const handleMarkQueenState = (newState: 'DEAD' | 'REPLACED') => {
     console.log(`Mark queen as ${newState.toLowerCase()}`, activeQueen?.id);
     // In a real implementation, we would call the API here
@@ -73,6 +48,31 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
     navigate(`/hives/${hiveId}/queens/create`);
   };
 
+  const queenActionsMenu = activeQueen ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <MoreHorizontal className="h-4 w-4 text-muted-foreground cursor-pointer" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTransferOpen(true)}>
+          Transfer Queen
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate(`/queens/${activeQueen.id}/edit`)}>
+          {t('actions.editQueen')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleReplaceQueen}>
+          {t('actions.replaceQueen')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMarkQueenState('DEAD')}>
+          {t('actions.markAsDead')}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleMarkQueenState('REPLACED')}>
+          {t('actions.markAsLostMissing')}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : null;
+
   return (
     <Card className="p-3 sm:p-0">
       {/* Mobile compact view */}
@@ -81,7 +81,7 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div
-                className={`h-4 w-4 rounded-full border border-gray-600 ${getColor(activeQueen?.color)}`}
+                className={`h-4 w-4 rounded-full border border-gray-600 ${getQueenColorClass(activeQueen?.color, 'bg-white')}`}
               />
               <span className="text-sm font-medium">
                 {activeQueen?.marking} • {activeQueen?.year}
@@ -97,36 +97,7 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
                 </span>
               )}
             </div>
-            {activeQueen && (
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <MoreHorizontal className="h-4 w-4 text-muted-foreground cursor-pointer" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                   <DropdownMenuItem onClick={() => setTransferOpen(true)}>
-                     Transfer Queen
-                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigate(`/queens/${activeQueen.id}/edit`)}
-                  >
-                    {t('actions.editQueen')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleReplaceQueen}>
-                    {t('actions.replaceQueen')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleMarkQueenState('DEAD')}
-                  >
-                    {t('actions.markAsDead')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleMarkQueenState('REPLACED')}
-                  >
-                    {t('actions.markAsLostMissing')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            {activeQueen && queenActionsMenu}
           </div>
         ) : (
           <div className="flex items-center justify-between">
@@ -151,43 +122,14 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-lg font-medium flex items-center gap-3">
             <div
-              className={`h-5 w-5 rounded-full border border-gray-600 ${getColor(activeQueen?.color)}`}
+              className={`h-5 w-5 rounded-full border border-gray-600 ${getQueenColorClass(activeQueen?.color, 'bg-white')}`}
             />
             {t('singular')} {activeQueen?.marking}
           </CardTitle>
 
           <div className="flex items-center space-x-2">
             <BeeIcon className="h-4 w-4 text-muted-foreground" />
-            {activeQueen && (
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <MoreHorizontal className="h-4 w-4 text-muted-foreground cursor-pointer" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setTransferOpen(true)}>
-                    Transfer Queen
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => navigate(`/queens/${activeQueen.id}/edit`)}
-                  >
-                    {t('actions.editQueen')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleReplaceQueen}>
-                    {t('actions.replaceQueen')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleMarkQueenState('DEAD')}
-                  >
-                    {t('actions.markAsDead')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleMarkQueenState('REPLACED')}
-                  >
-                    {t('actions.markAsLostMissing')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+            {activeQueen && queenActionsMenu}
           </div>
         </CardHeader>
         <CardContent>
