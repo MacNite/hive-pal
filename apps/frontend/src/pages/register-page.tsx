@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/context/auth-context';
 import { useNavigate, Link } from 'react-router-dom';
@@ -43,9 +43,7 @@ const RegisterPage = () => {
         privacyPolicyConsent,
         newsletterConsent,
       );
-      if (success) {
-        navigate('/login');
-      } else {
+      if (!success) {
         setError(t('register.registrationFailed'));
       }
     } catch (err) {
@@ -54,9 +52,11 @@ const RegisterPage = () => {
     }
   };
 
-  if (isLoggedIn) {
-    navigate('/');
-  }
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/');
+    }
+  }, [isLoggedIn, navigate]);
 
   return (
     <div className="w-full min-h-screen flex flex-col justify-center relative overflow-hidden">

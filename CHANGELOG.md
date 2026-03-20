@@ -60,10 +60,11 @@ Implements full queen lifecycle management for Hive Pal (issue #29). Beekeepers 
 - **`hive-detail-page/page.tsx`** — added "Queen History" tab rendering `<QueenHistoryTab />`
 - **`routes/index.tsx`** — registered all new queen routes (`/queens`, `/queens/create`, `/queens/:id`, `/queens/:id/edit`, `/hives/:hiveId/queens/create`)
 - **`useQueens.ts`** — added new query keys (`history`, `hiveHistory`) and three new hooks alongside existing ones
+- **`register-page.tsx`** — fixed "something went wrong" error screen appearing during signup; removed conflicting `navigate('/login')` after successful registration (auth provider already redirects to `/onboarding`); moved `isLoggedIn` redirect into a `useEffect` to prevent illegal render-phase navigation
 
 ---
 
-### Files Changed (13)
+### Files Changed (14)
 
 ```
 apps/backend/prisma/schema.prisma
@@ -78,5 +79,6 @@ apps/frontend/src/pages/queen/index.ts
 apps/frontend/src/pages/queen/queen-detail-page.tsx                         (new)
 apps/frontend/src/pages/queen/queen-list-page.tsx                           (new)
 apps/frontend/src/routes/index.tsx
+apps/frontend/src/pages/register-page.tsx
 packages/shared-schemas/src/queens/queen.schema.ts
 ```

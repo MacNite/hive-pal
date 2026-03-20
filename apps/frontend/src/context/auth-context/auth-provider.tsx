@@ -102,8 +102,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .then(data => {
           if (data.access_token) {
             localStorage.setItem(TOKEN_KEY, data.access_token);
-
-            setToken(data.access_token);
             window.location.href = '/onboarding';
             return true;
           }
