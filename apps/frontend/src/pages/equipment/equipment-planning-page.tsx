@@ -20,7 +20,6 @@ import { Separator } from '@/components/ui/separator';
 import { EquipmentTable } from './components/equipment-table';
 import { ShoppingList } from './components/shopping-list';
 import { useTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
 
 const StatsCards = ({ planData }: { planData: EquipmentPlan }) => {
   const totalNeeded = planData.items.reduce(
@@ -82,14 +81,14 @@ const EquipmentActionSidebar = ({
     multiplier,
     onMultiplierChange,
     isUpdatingMultiplier,
-    t
   }: {
     onRefresh: () => void;
     multiplier: number;
     onMultiplierChange: (value: number) => void;
     isUpdatingMultiplier: boolean;
-    t: TFunction;
-  }) => (
+  }) => {
+  const { t } = useTranslation('hives');
+  return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
@@ -148,6 +147,7 @@ const EquipmentActionSidebar = ({
       </Card>
     </div>
   );
+  };
 
 const SaveChangesSection = ({
   hasChanges,
@@ -202,6 +202,7 @@ export const EquipmentPlanningPage = () => {
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const [deletingItems, setDeletingItems] = useState<Set<string>>(new Set());
   const [isCreating, setIsCreating] = useState<boolean>(false);
+  const { t } = useTranslation('hives');
 
   // Sync multiplier from API when loaded
   useEffect(() => {
@@ -347,7 +348,6 @@ export const EquipmentPlanningPage = () => {
   };
 
   const hasChanges = localItems.length > 0;
-  const { t } = useTranslation('hives');
   return (
     <PageGrid>
       <MainContent>
@@ -409,7 +409,6 @@ export const EquipmentPlanningPage = () => {
           multiplier={localMultiplier}
           onMultiplierChange={handleMultiplierChange}
           isUpdatingMultiplier={updateMultiplier.isPending}
-          t={t}
         />
         <ShoppingList items={displayItems} />
       </PageAside>
