@@ -607,7 +607,7 @@ export const EquipmentTable = ({
                 ) : (
                   <Save className="h-3 w-3" />
                 )}
-                {t('hive:equipment.table.save', { defaultValue: 'Save' })}
+                Save
               </Button>
               <Button
                 size="sm"
