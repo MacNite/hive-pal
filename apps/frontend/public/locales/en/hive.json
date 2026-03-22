@@ -135,6 +135,11 @@
     "llmPrompt": "LLM Prompt",
     "removeHive": "Remove Hive"
   },
+  "manage": {
+    "title": "Manage Hive",
+    "llmPrompt": "LLM Prompt",
+    "removeHive": "Remove Hive"
+  },
   "form": {
     "selectHive": "Select a hive",
     "hivePlaceholder": "hive 01",
