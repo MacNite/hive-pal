@@ -252,7 +252,7 @@ export const CalendarPage = () => {
               {t('common:calendar.sevenDayViewTitle', {
                 date: formatLongDate(selectedDate),
                 defaultValue:
-                  "{format(selectedDate, 'EEEE, MMMM d, yyyy')} - 7 Day View", //{{date}} - 7 Day View",
+                  "{format(selectedDate, 'EEEE, MMMM d, yyyy')} - 7 Day View",
               })}
             </h1>
             <div className="flex items-center gap-2">
