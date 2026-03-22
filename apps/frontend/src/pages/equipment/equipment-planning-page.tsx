@@ -407,7 +407,6 @@ export const EquipmentPlanningPage = () => {
           multiplier={localMultiplier}
           onMultiplierChange={handleMultiplierChange}
           isUpdatingMultiplier={updateMultiplier.isPending}
-          t={t}
         />
         <ShoppingList items={displayItems} />
       </PageAside>
