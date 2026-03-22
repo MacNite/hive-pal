@@ -1,3 +1,4 @@
+import { de, enGB, type Locale } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calendar } from '@/components/ui/calendar';
@@ -34,6 +35,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { getDateLocale } from '@/utils/locale-utils.ts';
+
+const localeMap: Record<string, Locale> = {
+  de: de,
+  en: enGB,
+};
 
 export const CalendarPage = () => {
   const { t, i18n } = useTranslation('common');
