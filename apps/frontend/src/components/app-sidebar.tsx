@@ -88,7 +88,7 @@ const getNavData = (t: (key: string) => string) => ({
       ],
     },
     {
-      title: t('navigation.calendar', { defaultValue: 'Calendar' }),
+      title: t('navigation.calendar'),
       url: '/calendar',
       icon: Calendar,
       isActive: true,
@@ -106,18 +106,18 @@ const getNavData = (t: (key: string) => string) => ({
       isActive: true,
     },
     {
-      title: t('navigation.actions', { defaultValue: 'Actions' }),
+      title: t('navigation.actions'),
       url: '/actions/bulk',
       icon: ClipboardList,
       isActive: true,
     },
     {
-      title: t('navigation.files', { defaultValue: 'Files' }),
+      title: t('navigation.files'),
       url: '/files',
       icon: FolderOpen,
     },
     {
-      title: t('navigation.equipment', { defaultValue: 'Equipment' }),
+      title: t('navigation.equipment'),
       url: '/equipment',
       icon: Package,
     },

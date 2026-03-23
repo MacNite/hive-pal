@@ -341,8 +341,7 @@ export const CalendarSidebar = () => {
                                 date: formatDayHeader(
                                   new Date(inspection.date),
                                 ),
-                                defaultValue:
-                                  "{format(new Date(inspection.date), 'MMM d')}",
+                                defaultValue: '{{date}}',
                               })}
                             </Badge>
                           </div>

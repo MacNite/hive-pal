@@ -127,7 +127,8 @@
     "print": "Bienenstockliste drucken",
     "share": "Bienenstockliste teilen",
     "dataOptions": "Datenoptionen",
-    "createNewHive": "Neuen Bienenstock erstellen"
+    "createNewHive": "Neuen Bienenstock erstellen",
+    "qr": "QR Code"
   },
   "manage": {
     "title": "Bienenstockverwaltung",
@@ -166,7 +167,7 @@
     "cancelChanges": "Änderungen verwerfen",
     "saveAllChanges": "Alle Änderungen speichern",
     "equipmentPlanningOverview": "Übersicht über die Ausstattungsplanung",
-    "trackCurrentEquipment": "Behalte den Überblick über deinen aktuellen Bestand und planen deine saisonale Erweiterungen",
+    "trackCurrentEquipment": "Behalte den Überblick über deinen aktuellen Bestand und plane deine saisonalen Erweiterungen",
     "table":{
       "title": "Ausstattung",
       "addEquipment": "Ausstattung hinzufügen",
