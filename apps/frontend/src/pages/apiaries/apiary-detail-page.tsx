@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Section } from '@/components/common/section';
 import { ApiaryActionSidebar, HivesLayout } from './components';
@@ -11,7 +11,7 @@ import {
   PageAside,
   PageGrid,
 } from '@/components/layout/page-grid-layout';
-import { useApiary } from '@/api/hooks';
+import { useApiary, useHives } from '@/api/hooks';
 
 // Lazy load the map component (heavy ~200KB)
 const MapPicker = lazy(() => import('@/components/common/map-picker'));
@@ -27,7 +27,10 @@ function MapLoader() {
 export const ApiaryDetailPage = () => {
   const { t } = useTranslation(['apiary', 'common']);
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') ?? 'overview';
   const { data: apiary, isLoading, refetch } = useApiary(id ?? '');
+  const { data: hives = [] } = useHives({ apiaryId: id ?? '' });
 
   if (isLoading) {
     return <div>{t('common:status.loading')}</div>;
@@ -47,7 +50,7 @@ export const ApiaryDetailPage = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="overview" className="mb-6">
+        <Tabs defaultValue={defaultTab} className="mb-6">
           <TabsList className="mb-4">
             <TabsTrigger value="overview">
               {t('apiary:detail.tabs.overview')}
@@ -90,31 +93,22 @@ export const ApiaryDetailPage = () => {
                     </div>
                     <div>
                       <span className="font-medium">{t('hive:plural')}:</span>{' '}
-                      {0}
+                      {hives.length}
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
               {apiary.latitude && apiary.longitude && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>{t('apiary:detail.locationMap')}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[200px]">
-                      <Suspense fallback={<MapLoader />}>
-                        <MapPicker
-                          initialLocation={{
-                            lat: apiary.latitude,
-                            lng: apiary.longitude,
-                          }}
-                          readOnly
-                        />
-                      </Suspense>
-                    </div>
-                  </CardContent>
-                </Card>
+                <Suspense fallback={<MapLoader />}>
+                  <MapPicker
+                    initialLocation={{
+                      lat: apiary.latitude,
+                      lng: apiary.longitude,
+                    }}
+                    readOnly
+                  />
+                </Suspense>
               )}
             </div>
 
@@ -128,17 +122,15 @@ export const ApiaryDetailPage = () => {
           <TabsContent value="location">
             <Section title={t('apiary:detail.apiaryLocation')}>
               {apiary.latitude && apiary.longitude ? (
-                <div className="h-[400px]">
-                  <Suspense fallback={<MapLoader />}>
-                    <MapPicker
-                      initialLocation={{
-                        lat: apiary.latitude,
-                        lng: apiary.longitude,
-                      }}
-                      readOnly
-                    />
-                  </Suspense>
-                </div>
+                <Suspense fallback={<MapLoader />}>
+                  <MapPicker
+                    initialLocation={{
+                      lat: apiary.latitude,
+                      lng: apiary.longitude,
+                    }}
+                    readOnly
+                  />
+                </Suspense>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   {t('apiary:detail.noCoordinates')}
