@@ -490,7 +490,7 @@ export const EquipmentTable = ({
     EquipmentCategory.EXTRACTION,
     EquipmentCategory.CUSTOM,
   ];
-  const { t } = useTranslation('hives');
+  const { t } = useTranslation('hive');
   return (
     <div className="space-y-6">
       {/* Add Equipment Button */}
@@ -630,7 +630,11 @@ export const EquipmentTable = ({
 
       {/* Table Header */}
       <div className="grid grid-cols-7 gap-4 pb-3 border-b font-semibold text-sm">
-        <div>Equipment</div>
+        <div>
+          {t('hive:equipment.table.title', {
+            defaultValue: 'Equipment',
+          })}
+        </div>
         <div className="text-center">
           {t('hive:equipment.table.inUse', {
             defaultValue: 'In Use',

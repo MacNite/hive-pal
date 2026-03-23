@@ -168,6 +168,7 @@
     "equipmentPlanningOverview": "Equipment Planning Overview",
     "trackCurrentEquipment": "Track your current equipment and plan for seasonal expansion",
     "table":{
+      "title": "Equipment",
       "addEquipment": "Add Equipment",
       "equipmentName": "Equipment Name",
       "save": "Save",

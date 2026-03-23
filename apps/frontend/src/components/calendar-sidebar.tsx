@@ -208,7 +208,7 @@ export const CalendarSidebar = () => {
               <h4 className="text-sm font-medium">
                 {t('common:calendar.dayHeader', {
                   date: formatDayHeader(selectedDate),
-                  defaultValue: "{format(MMM d')}",
+                  defaultValue: '{{date}}',
                 })}
                 {isSameDay(selectedDate, new Date()) && (
                   <Badge variant="outline" className="ml-2 text-xs">
@@ -314,7 +314,7 @@ export const CalendarSidebar = () => {
                     {t('common:calendar.overdueInspections', {
                       overdueInspectionsSize: overdueInspections.length,
                       defaultValue:
-                        'Overdue Inspections ({overdueInspections.length})',
+                        'Overdue Inspections ({{overdueInspectionsSize}})',
                     })}
                   </h4>
                 </div>

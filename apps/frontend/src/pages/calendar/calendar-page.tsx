@@ -251,8 +251,7 @@ export const CalendarPage = () => {
             <h1 className="text-2xl font-bold">
               {t('common:calendar.sevenDayViewTitle', {
                 date: formatLongDate(selectedDate),
-                defaultValue:
-                  "{format(selectedDate, 'EEEE, MMMM d, yyyy')} - 7 Day View",
+                defaultValue: '{{date}} - 7 Day View',
               })}
             </h1>
             <div className="flex items-center gap-2">
@@ -333,7 +332,7 @@ export const CalendarPage = () => {
                         <span className="flex items-center gap-2">
                           {t('common:calendar.dayHeader', {
                             date: formatDayHeader(day),
-                            defaultValue: "{format(day, 'EEEE, MMMM d')}",
+                            defaultValue: '{{date}}',
                           })}
                           {isToday && (
                             <Badge variant="outline" className="text-xs">

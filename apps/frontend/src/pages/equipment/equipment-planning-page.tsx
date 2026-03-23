@@ -27,7 +27,7 @@ const StatsCards = ({ planData }: { planData: EquipmentPlan }) => {
       sum + (item.toPurchase && item.toPurchase > 0 ? item.toPurchase : 0),
     0,
   );
-  const { t } = useTranslation('hives');
+  const { t } = useTranslation('hive');
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -87,7 +87,7 @@ const EquipmentActionSidebar = ({
     onMultiplierChange: (value: number) => void;
     isUpdatingMultiplier: boolean;
   }) => {
-  const { t } = useTranslation('hives');
+  const { t } = useTranslation('hive');
   return (
     <div className="space-y-6">
       <Card>
@@ -138,7 +138,7 @@ const EquipmentActionSidebar = ({
               <p className="text-xs text-muted-foreground">
                 {t('hive:equipment.targetMultiplierResult', {
                   multiplier: multiplier,
-                  defaultValue: 'Target Hives = Current × {multiplier}',
+                  defaultValue: 'Target Hives = Current × {{multiplier}}',
                 })}
               </p>
             </div>
@@ -160,7 +160,7 @@ const SaveChangesSection = ({
   onSave: () => void;
   isPending: boolean;
 }) => {
-  const { t } = useTranslation('hives');
+  const { t } = useTranslation('hive');
   if (!hasChanges) return null;
   return (
     <Card>
@@ -202,7 +202,7 @@ export const EquipmentPlanningPage = () => {
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const [deletingItems, setDeletingItems] = useState<Set<string>>(new Set());
   const [isCreating, setIsCreating] = useState<boolean>(false);
-  const { t } = useTranslation('hives');
+  const { t } = useTranslation('hive');
 
   // Sync multiplier from API when loaded
   useEffect(() => {
