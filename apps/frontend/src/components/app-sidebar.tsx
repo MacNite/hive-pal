@@ -11,6 +11,7 @@ import {
   BarChart3,
   MessageSquare,
   Crown,
+  FolderOpen,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -122,6 +123,11 @@ const getNavData = (t: (key: string) => string) => ({
       url: '/actions/bulk',
       icon: ClipboardList,
       isActive: true,
+    },
+    {
+      title: t('navigation.files', { defaultValue: 'Files' }),
+      url: '/files',
+      icon: FolderOpen,
     },
     {
       title: 'Equipment',

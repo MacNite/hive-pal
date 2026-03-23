@@ -25,7 +25,7 @@
         "notes": "Белешке",
         "queen": "Матица",
         "lastInspection": "Последњи преглед",
-        "installationDate": "Датум постављања",
+        "installationDate": "Датум инсталације",
         "established": "Успостављена",
         "boxes": "Наставци",
         "frames": "Рамови",
@@ -42,8 +42,8 @@
         "inspect": "Прегледај",
         "addBox": "Додај наставак",
         "removeBox": "Уклони наставак",
-        "addQueen": "Додај матицу",
-        "archive": "Архивирана",
+        "addQueen": "Додај Матицу",
+        "archive": "Архива",
         "restore": "Врати",
         "print": "Штампај листу кошница",
         "share": "Подели листу кошница",
@@ -122,7 +122,7 @@
         "queenScore": "Оцена матице"
     },
     "status": {
-        "active": "Активна",
+        "active": "Активно",
         "inactive": "Неактивна",
         "queenless": "Без матице",
         "weak": "Слаба",
