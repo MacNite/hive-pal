@@ -135,11 +135,6 @@
     "llmPrompt": "Anweisung für LLM",
     "removeHive": "Bienenstock entfernen"
   },
-  "manage": {
-    "title": "Bienenstockverwaltung",
-    "llmPrompt": "Anweisung für LLM",
-    "removeHive": "Bienenstock entfernen"
-  },
   "form": {
     "selectHive": "Bienenstock auswählen",
     "hivePlaceholder": "Bienenstock 01",
