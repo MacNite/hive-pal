@@ -42,9 +42,7 @@ const getNavData = (t: (key: string) => string) => ({
           url: '/apiaries',
         },
         {
-          title: t('navigation.createApiary', {
-            defaultValue: 'Create Apiary',
-          }),
+          title: t('navigation.createApiary', { defaultValue: 'Create Apiary' }),
           url: '/apiaries/create',
         },
       ],
