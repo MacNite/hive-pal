@@ -1,4 +1,5 @@
 import * as React from 'react';
+import type { TFunction } from 'i18next';
 import {
   HomeIcon,
   PieChart,
@@ -29,7 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 
 // Navigation data factory function
-const getNavData = (t: (key: string) => string) => ({
+const getNavData = (t: TFunction<'common'>) => ({
   navMain: [
     {
       title: t('navigation.apiaries', { defaultValue: 'Apiaries' }),
