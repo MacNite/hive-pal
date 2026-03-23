@@ -91,7 +91,7 @@ const getNavData = (t: TFunction<'common'>) => ({
       ],
     },
     {
-      title: t('navigation.calendar'),
+      title: t('navigation.calendar', { defaultValue: 'Calendar' }),
       url: '/calendar',
       icon: Calendar,
       isActive: true,
@@ -109,18 +109,18 @@ const getNavData = (t: TFunction<'common'>) => ({
       isActive: true,
     },
     {
-      title: t('navigation.actions'),
+      title: t('navigation.actions', { defaultValue: 'Actions' }),
       url: '/actions/bulk',
       icon: ClipboardList,
       isActive: true,
     },
     {
-      title: t('navigation.files'),
+      title: t('navigation.files', { defaultValue: 'Files' }),
       url: '/files',
       icon: FolderOpen,
     },
     {
-      title: t('navigation.equipment'),
+      title: t('navigation.equipment', { defaultValue: 'Equipment' }),
       url: '/equipment',
       icon: Package,
     },
