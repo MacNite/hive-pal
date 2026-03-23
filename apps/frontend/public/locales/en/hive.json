@@ -127,7 +127,8 @@
     "print": "Print Hive List",
     "share": "Share Hive List",
     "dataOptions": "Data Options",
-    "createNewHive": "Create New Hive"
+    "createNewHive": "Create New Hive",
+    "qr": "QR Code"
   },
   "manage": {
     "title": "Manage Hive",

@@ -226,7 +226,7 @@
   "document": {
     "title": "Dokument hinzufügen",
     "description": "PDF oder gescanntes Dokument hochladen.",
-    "titleField": "Title",
+    "titleField": "Titel",
     "titlePlaceholder": "Dokumenttitel",
     "notes": "Anmerkungen",
     "optional": "optional",
