@@ -148,7 +148,7 @@ export const ActionSideBar: React.FC<ActionSideBarProps> = ({
             icon={<TrashIcon className="h-4 w-4" />}
             label={t('hive:manage.removeHive', { defaultValue: 'Remove Hive' })}
             onClick={() => alert('Remove functionality coming soon')}
-            tooltip={t('hive:manage.removeHive', { defaultValue: 'Remove Hive', })}
+            tooltip={t('hive:manage.removeHive', { defaultValue: 'Remove Hive' })}
             disabled={!hiveId}
           />
         </ActionSidebarGroup>
