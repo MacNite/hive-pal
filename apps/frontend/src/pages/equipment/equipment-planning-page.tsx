@@ -82,72 +82,70 @@ const EquipmentActionSidebar = ({
   multiplier,
   onMultiplierChange,
   isUpdatingMultiplier,
-  t
+  t,
 }: {
   onRefresh: () => void;
   multiplier: number;
   onMultiplierChange: (value: number) => void;
   isUpdatingMultiplier: boolean;
   t: TFunction<'common'>;
-}) =>  (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wrench className="h-5 w-5" />
-            {t('hive:equipment.equipmentManagement', {
-              defaultValue: 'Equipment Management',
+}) => (
+  <div className="space-y-6">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Wrench className="h-5 w-5" />
+          {t('hive:equipment.equipmentManagement', {
+            defaultValue: 'Equipment Management',
+          })}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Button onClick={onRefresh} className="w-full">
+          {t('hive:actions.refreshData', { defaultValue: 'Refresh Data' })}
+        </Button>
+        <Button variant="outline" className="w-full" asChild>
+          <Link to="/equipment/settings">
+            {t('hive:equipment.equipmentSettings', {
+              defaultValue: 'Equipment Settings',
             })}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Button onClick={onRefresh} className="w-full">
-            {t('hive:actions.refreshData', {
-              defaultValue: 'Refresh Data',
-            })}
-          </Button>
-          <Button variant="outline" className="w-full" asChild>
-            <Link to="/equipment/settings">
-              {t('hive:equipment.equipmentSettings', {
-                defaultValue: 'Equipment Settings',
+          </Link>
+        </Button>
+        <Separator />
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              {t('hive:equipment.targetMultiplier', {
+                defaultValue: 'Target Multiplier',
               })}
-            </Link>
-          </Button>
-          <Separator />
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {t('hive:equipment.targetMultiplier', {
-                  defaultValue: 'Target Multiplier',
-                })}
-              </label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={multiplier}
-                  onChange={e =>
-                    onMultiplierChange(parseFloat(e.target.value) || 1)
-                  }
-                  min="0.1"
-                  max="10"
-                  step="0.1"
-                  className="w-20 text-center"
-                  disabled={isUpdatingMultiplier}
-                />
-                <span className="text-xs text-muted-foreground">×</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {t('hive:equipment.targetMultiplierResult', {
-                  multiplier: multiplier,
-                  defaultValue: 'Target Hives = Current × {{multiplier}}',
-                })}
-              </p>
+            </label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                value={multiplier}
+                onChange={e =>
+                  onMultiplierChange(parseFloat(e.target.value) || 1)
+                }
+                min="0.1"
+                max="10"
+                step="0.1"
+                className="w-20 text-center"
+                disabled={isUpdatingMultiplier}
+              />
+              <span className="text-xs text-muted-foreground">×</span>
             </div>
+            <p className="text-xs text-muted-foreground">
+              {t('hive:equipment.targetMultiplierResult', {
+                multiplier: multiplier,
+                defaultValue: 'Target Hives = Current × {{multiplier}}',
+              })}
+            </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+);
 
 const SaveChangesSection = ({
   hasChanges,
