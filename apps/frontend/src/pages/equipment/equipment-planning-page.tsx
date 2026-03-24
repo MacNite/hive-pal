@@ -20,7 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { EquipmentTable } from './components/equipment-table';
 import { ShoppingList } from './components/shopping-list';
 import { useTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
+import type { TFunction } from 'i18next';
 
 const StatsCards = ({ planData }: { planData: EquipmentPlan }) => {
   const totalNeeded = planData.items.reduce(
@@ -88,7 +88,7 @@ const EquipmentActionSidebar = ({
   multiplier: number;
   onMultiplierChange: (value: number) => void;
   isUpdatingMultiplier: boolean;
-  t: TFunction<'common'>;
+  t: TFunction<'hive'>;
 }) => (
   <div className="space-y-6">
     <Card>

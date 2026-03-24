@@ -1,4 +1,3 @@
-import { de, enGB, da, it, sk, sr, type Locale } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calendar } from '@/components/ui/calendar';
@@ -34,15 +33,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-
-const localeMap: Record<string, Locale> = {
-  de: de,
-  en: enGB,
-  da: da,
-  it: it,
-  sk: sk,
-  sr: sr,
-};
+import { getDateLocale } from '@/utils/locale-utils.ts';
 
 export const CalendarPage = () => {
   const { t, i18n } = useTranslation('common');
@@ -241,7 +232,7 @@ export const CalendarPage = () => {
       day: 'numeric',
     }).format(date);
 
-  const dateLocale = localeMap[i18n.language] ?? enGB;
+  const dateLocale = getDateLocale(i18n.language);
 
   return (
     <PageGrid>

@@ -15,7 +15,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { de, enGB, da, it, sk, sr, type Locale } from 'date-fns/locale';
+import { getDateLocale } from '@/utils/locale-utils.ts';
 
 export const CalendarSidebar = () => {
   const { t, i18n } = useTranslation('common');
@@ -38,18 +38,9 @@ export const CalendarSidebar = () => {
     endDate: monthEnd,
   });
 
-  const localeMap: Record<string, Locale> = {
-    de: de,
-    en: enGB,
-    da: da,
-    it: it,
-    sk: sk,
-    sr: sr,
-  };
-
   const formatDayHeader = (date: Date) => format(date, 'MMM d', { locale: dateLocale });
 
-  const dateLocale = localeMap[i18n.language] ?? enGB;
+  const dateLocale = getDateLocale(i18n.language);
 
   // Fetch overdue inspections
   const { data: overdueInspections } = useOverdueInspections();
