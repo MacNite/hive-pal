@@ -1,152 +1,152 @@
 {
-  "title": "Bienenstöcke",
-  "singular": "Bienenstock",
-  "plural": "Bienenstöcke",
-  "list": {
-    "title": "Bienenstockliste",
-    "caption": "Eine Liste aller Bienenstöcke",
-    "captionFiltered": "{{count}} {{status}} Bienenstock wird angezeigt",
-    "captionFilteredPlural": "{{count}} {{status}} Bienenstöcke werden angezeigt",
-    "searchPlaceholder": "Bienenstöcke suchen...",
-    "filterByStatus": "Nach Status filtern",
-    "allStatuses": "Alle Status",
-    "noHives": "Keine Bienenstöcke gefunden",
-    "noHivesMatchingBoth": "Keine {{status}} Bienenstöcke gefunden für \"{{searchTerm}}\"",
-    "noHivesMatchingSearch": "Keine Bienenstöcke gefunden für \"{{searchTerm}}\"",
-    "noHivesWithStatus": "Keine {{status}} Bienenstöcke gefunden",
-    "clearFilters": "Filter zurücksetzen",
-    "createFirst": "Erstellen Sie Ihren ersten Bienenstock"
-  },
-  "create": {
-    "title": "Neuen Bienenstock erstellen",
-    "success": "Bienenstock erfolgreich erstellt"
-  },
-  "edit": {
-    "title": "Bienenstock bearbeiten",
-    "success": "Bienenstock erfolgreich aktualisiert"
-  },
-  "delete": {
-    "confirm": "Möchten Sie diesen Bienenstock wirklich löschen?",
-    "success": "Bienenstock erfolgreich gelöscht"
-  },
-  "fields": {
-    "name": "Name",
-    "label": "Bezeichnung",
-    "number": "Bienenstock-Nummer",
-    "type": "Bienenstocktyp",
-    "status": "Status",
-    "location": "Standort",
-    "notes": "Notizen",
-    "queen": "Königin",
-    "lastInspection": "Letzte Inspektion",
-    "installationDate": "Aufstellungsdatum",
-    "established": "Etabliert",
-    "boxes": "Zargen",
-    "frames": "Rähmchen",
-    "position": "Position",
-    "apiary": "Bienenstand",
-    "notSpecified": "Nicht angegeben",
-    "noInspectionYet": "Noch keine Inspektion",
-    "noNotes": "Keine Notizen"
-  },
-  "boxConfigurator": {
-    "title": "Zargenkonfiguration",
-    "description": "Visualisieren und konfigurieren Sie den Aufbau Ihres Bienenstocks. Die Zargen werden von unten nach oben angezeigt.",
-    "editConfiguration": "Konfiguration bearbeiten",
-    "cancel": "Abbrechen",
-    "save": "Speichern",
-    "addBox": "Zarge hinzufügen",
-    "noBoxes": "Noch keine Zargen konfiguriert",
-    "clickToAdd": "Klicken Sie auf \"Zarge hinzufügen\", um Ihren Bienenstock aufzubauen",
-    "saveSuccess": "Zargenkonfiguration erfolgreich gespeichert",
-    "saveError": "Zargenkonfiguration konnte nicht gespeichert werden",
-    "boxProperties": "Zargeneigenschaften",
-    "purpose": "Verwendungszweck",
-    "boxType": "Zargentyp",
-    "frames": "Rähmchen",
-    "maximumFrames": "Maximale Rähmchenanzahl",
-    "color": "Farbe",
-    "colorPresets": "Farbvorgaben",
-    "queenExcluder": "Absperrgitter über dieser Zarge",
-    "boxTypes": {
-      "brood": "Brutzarge",
-      "honey": "Honigraum",
-      "feeder": "Futterzarge"
+    "title": "Bienenstöcke",
+    "singular": "Bienenstock",
+    "plural": "Bienenstöcke",
+    "list": {
+        "title": "Bienenstockliste",
+        "caption": "Eine Liste aller Bienenstöcke",
+        "captionFiltered": "{{count}} {{status}} Bienenstock wird angezeigt",
+        "captionFilteredPlural": "{{count}} {{status}} Bienenstöcke werden angezeigt",
+        "searchPlaceholder": "Bienenstöcke suchen...",
+        "filterByStatus": "Nach Status filtern",
+        "allStatuses": "Alle Status",
+        "noHives": "Keine Bienenstöcke gefunden",
+        "noHivesMatchingBoth": "Keine {{status}} Bienenstöcke gefunden für \"{{searchTerm}}\"",
+        "noHivesMatchingSearch": "Keine Bienenstöcke gefunden für \"{{searchTerm}}\"",
+        "noHivesWithStatus": "Keine {{status}} Bienenstöcke gefunden",
+        "clearFilters": "Filter zurücksetzen",
+        "createFirst": "Erstellen Sie Ihren ersten Bienenstock"
     },
-    "boxVariants": {
-      "langstrothDeep": "Langstroth Deep",
-      "langstrothShallow": "Langstroth Shallow",
-      "bDeep": "B Deep",
-      "bShallow": "B Shallow",
-      "dadant": "Dadant",
-      "nationalDeep": "National Deep",
-      "nationalShallow": "National Shallow",
-      "warre": "Warré",
-      "topBar": "Top-Bar",
-      "custom": "Benutzerdefiniert"
+    "create": {
+        "title": "Neuen Bienenstock erstellen",
+        "success": "Bienenstock erfolgreich erstellt"
+    },
+    "edit": {
+        "title": "Bienenstock bearbeiten",
+        "success": "Bienenstock erfolgreich aktualisiert"
+    },
+    "delete": {
+        "confirm": "Möchten Sie diesen Bienenstock wirklich löschen?",
+        "success": "Bienenstock erfolgreich gelöscht"
+    },
+    "fields": {
+        "name": "Name",
+        "label": "Bezeichnung",
+        "number": "Bienenstock-Nummer",
+        "type": "Bienenstocktyp",
+        "status": "Status",
+        "location": "Standort",
+        "notes": "Notizen",
+        "queen": "Königin",
+        "lastInspection": "Letzte Inspektion",
+        "installationDate": "Aufstellungsdatum",
+        "established": "Etabliert",
+        "boxes": "Zargen",
+        "frames": "Rähmchen",
+        "position": "Position",
+        "apiary": "Bienenstand",
+        "notSpecified": "Nicht angegeben",
+        "noInspectionYet": "Noch keine Inspektion",
+        "noNotes": "Keine Notizen"
+    },
+    "boxConfigurator": {
+        "title": "Zargenkonfiguration",
+        "description": "Visualisieren und konfigurieren Sie den Aufbau Ihres Bienenstocks. Die Zargen werden von unten nach oben angezeigt.",
+        "editConfiguration": "Konfiguration bearbeiten",
+        "cancel": "Abbrechen",
+        "save": "Speichern",
+        "addBox": "Zarge hinzufügen",
+        "noBoxes": "Noch keine Zargen konfiguriert",
+        "clickToAdd": "Klicken Sie auf \"Zarge hinzufügen\", um Ihren Bienenstock aufzubauen",
+        "saveSuccess": "Zargenkonfiguration erfolgreich gespeichert",
+        "saveError": "Zargenkonfiguration konnte nicht gespeichert werden",
+        "boxProperties": "Zargeneigenschaften",
+        "purpose": "Verwendungszweck",
+        "boxType": "Zargentyp",
+        "frames": "Rähmchen",
+        "maximumFrames": "Maximale Rähmchenanzahl",
+        "color": "Farbe",
+        "colorPresets": "Farbvorgaben",
+        "queenExcluder": "Absperrgitter über dieser Zarge",
+        "boxTypes": {
+            "brood": "Brutzarge",
+            "honey": "Honigraum",
+            "feeder": "Futterzarge"
+        },
+        "boxVariants": {
+            "langstrothDeep": "Langstroth Deep",
+            "langstrothShallow": "Langstroth Shallow",
+            "bDeep": "B Deep",
+            "bShallow": "B Shallow",
+            "dadant": "Dadant",
+            "nationalDeep": "National Deep",
+            "nationalShallow": "National Shallow",
+            "warre": "Warré",
+            "topBar": "Top-Bar",
+            "custom": "Benutzerdefiniert"
+        }
+    },
+    "card": {
+        "showDetails": "Details anzeigen",
+        "lastInspected": "Zuletzt inspiziert am {{date}}",
+        "noInspection": "Noch keine Inspektion",
+        "score": "Bewertung:",
+        "feeding": "Fütterung:"
+    },
+    "scores": {
+        "overall": "Gesamt",
+        "overallScore": "Gesamtbewertung",
+        "population": "Volksstärke",
+        "populationShort": "Volk",
+        "stores": "Vorräte",
+        "queen": "Königin",
+        "queenScore": "Königinnenbewertung"
+    },
+    "status": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "queenless": "Ohne Königin",
+        "weak": "Schwach",
+        "strong": "Stark",
+        "dead": "Tot",
+        "sold": "Verkauft",
+        "unknown": "Unbekannt",
+        "archived": "Archiviert"
+    },
+    "actions": {
+        "inspect": "Inspektion durchführen",
+        "addBox": "Zarge hinzufügen",
+        "removeBox": "Zarge entfernen",
+        "addQueen": "Königin hinzufügen",
+        "archive": "Archivieren",
+        "restore": "Wiederherstellen",
+        "details": "Details",
+        "refreshData": "Daten aktualisieren",
+        "exportCSV": "Als CSV exportieren",
+        "print": "Bienenstockliste drucken",
+        "share": "Bienenstockliste teilen",
+        "dataOptions": "Datenoptionen",
+        "createNewHive": "Neuen Bienenstock erstellen"
+    },
+    "form": {
+        "selectHive": "Bienenstock auswählen",
+        "hivePlaceholder": "Bienenstock 01",
+        "notesPlaceholder": "Guter Bienenstock",
+        "pickDate": "Datum auswählen",
+        "submit": "Absenden"
+    },
+    "weather": {
+        "forecast": "Wettervorhersage"
+    },
+    "messages": {
+        "exportComingSoon": "Exportfunktion bald verfügbar",
+        "shareComingSoon": "Freigabefunktion bald verfügbar"
+    },
+    "layout": {
+        "title": "Bienenstock-Anordnung",
+        "grid": "Raster",
+        "unpositionedHives": "Nicht platzierte Bienenstöcke",
+        "noHivesInApiary": "Noch keine Bienenstöcke in diesem Bienenstand vorhanden.",
+        "dragToOrganize": "Fügen Sie Bienenstöcke hinzu und ziehen Sie sie in das Raster oben, um Ihren Bienenstand zu organisieren."
     }
-  },
-  "card": {
-    "showDetails": "Details anzeigen",
-    "lastInspected": "Zuletzt inspiziert am {{date}}",
-    "noInspection": "Noch keine Inspektion",
-    "score": "Bewertung:",
-    "feeding": "Fütterung:"
-  },
-  "scores": {
-    "overall": "Gesamt",
-    "overallScore": "Gesamtbewertung",
-    "population": "Volksstärke",
-    "populationShort": "Volk",
-    "stores": "Vorräte",
-    "queen": "Königin",
-    "queenScore": "Königinnenbewertung"
-  },
-  "status": {
-    "active": "Aktiv",
-    "inactive": "Inaktiv",
-    "queenless": "Ohne Königin",
-    "weak": "Schwach",
-    "strong": "Stark",
-    "dead": "Tot",
-    "sold": "Verkauft",
-    "unknown": "Unbekannt",
-    "archived": "Archiviert"
-  },
-  "actions": {
-    "inspect": "Inspektion durchführen",
-    "addBox": "Zarge hinzufügen",
-    "removeBox": "Zarge entfernen",
-    "addQueen": "Königin hinzufügen",
-    "archive": "Archivieren",
-    "restore": "Wiederherstellen",
-    "details": "Details",
-    "refreshData": "Daten aktualisieren",
-    "exportCSV": "Als CSV exportieren",
-    "print": "Bienenstockliste drucken",
-    "share": "Bienenstockliste teilen",
-    "dataOptions": "Datenoptionen",
-    "createNewHive": "Neuen Bienenstock erstellen"
-  },
-  "form": {
-    "selectHive": "Bienenstock auswählen",
-    "hivePlaceholder": "Bienenstock 01",
-    "notesPlaceholder": "Guter Bienenstock",
-    "pickDate": "Datum auswählen",
-    "submit": "Absenden"
-  },
-  "weather": {
-    "forecast": "Wettervorhersage"
-  },
-  "messages": {
-    "exportComingSoon": "Exportfunktion bald verfügbar",
-    "shareComingSoon": "Freigabefunktion bald verfügbar"
-  },
-  "layout": {
-    "title": "Bienenstock-Anordnung",
-    "grid": "Raster",
-    "unpositionedHives": "Nicht platzierte Bienenstöcke",
-    "noHivesInApiary": "Noch keine Bienenstöcke in diesem Bienenstand vorhanden.",
-    "dragToOrganize": "Fügen Sie Bienenstöcke hinzu und ziehen Sie sie in das Raster oben, um Ihren Bienenstand zu organisieren."
-  }
 }
