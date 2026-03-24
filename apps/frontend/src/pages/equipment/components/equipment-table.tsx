@@ -624,27 +624,13 @@ export const EquipmentTable = ({
 
       {/* Table Header */}
       <div className="grid grid-cols-7 gap-4 pb-3 border-b font-semibold text-sm">
-        <div>
-          {t('hive:equipment.table.title', { defaultValue: 'Equipment' })}
-        </div>
-        <div className="text-center">
-          {t('hive:equipment.table.inUse', { defaultValue: 'In Use' })}
-        </div>
-        <div className="text-center">
-          {t('hive:equipment.table.perHive', { defaultValue: 'Per Hive' })}
-        </div>
-        <div className="text-center">
-          {t('hive:equipment.table.extra', { defaultValue: 'Extra' })}
-        </div>
-        <div className="text-center">
-          {t('hive:equipment.table.needed', { defaultValue: 'Needed' })}
-        </div>
-        <div className="text-center">
-          {t('hive:equipment.table.status', { defaultValue: 'Status' })}
-        </div>
-        <div className="text-center">
-          {t('hive:equipment.table.actions', { defaultValue: 'Actions' })}
-        </div>
+        <div>{t('hive:equipment.table.title', { defaultValue: 'Equipment' })}</div>
+        <div className="text-center">{t('hive:equipment.table.inUse', { defaultValue: 'In Use' })}</div>
+        <div className="text-center">{t('hive:equipment.table.perHive', { defaultValue: 'Per Hive' })}</div>
+        <div className="text-center">{t('hive:equipment.table.extra', { defaultValue: 'Extra' })}</div>
+        <div className="text-center">{t('hive:equipment.table.needed', { defaultValue: 'Needed' })}</div>
+        <div className="text-center">{t('hive:equipment.table.status', { defaultValue: 'Status' })}</div>
+        <div className="text-center">{t('hive:equipment.table.actions', { defaultValue: 'Actions' })}</div>
       </div>
 
       {categoryOrder.map(category => {
