@@ -20,6 +20,7 @@ import { Separator } from '@/components/ui/separator';
 import { EquipmentTable } from './components/equipment-table';
 import { ShoppingList } from './components/shopping-list';
 import { useTranslation } from 'react-i18next';
+import { TFunction } from 'i18next';
 
 const StatsCards = ({ planData }: { planData: EquipmentPlan }) => {
   const totalNeeded = planData.items.reduce(
@@ -77,18 +78,18 @@ const StatsCards = ({ planData }: { planData: EquipmentPlan }) => {
 };
 
 const EquipmentActionSidebar = ({
-    onRefresh,
-    multiplier,
-    onMultiplierChange,
-    isUpdatingMultiplier,
-  }: {
-    onRefresh: () => void;
-    multiplier: number;
-    onMultiplierChange: (value: number) => void;
-    isUpdatingMultiplier: boolean;
-  }) => {
-  const { t } = useTranslation('hive');
-  return (
+  onRefresh,
+  multiplier,
+  onMultiplierChange,
+  isUpdatingMultiplier,
+  t
+}: {
+  onRefresh: () => void;
+  multiplier: number;
+  onMultiplierChange: (value: number) => void;
+  isUpdatingMultiplier: boolean;
+  t: TFunction<'common'>;
+}) =>  (
     <div className="space-y-6">
       <Card>
         <CardHeader>
@@ -147,7 +148,6 @@ const EquipmentActionSidebar = ({
       </Card>
     </div>
   );
-  };
 
 const SaveChangesSection = ({
   hasChanges,
@@ -409,6 +409,7 @@ export const EquipmentPlanningPage = () => {
           multiplier={localMultiplier}
           onMultiplierChange={handleMultiplierChange}
           isUpdatingMultiplier={updateMultiplier.isPending}
+          t={t}
         />
         <ShoppingList items={displayItems} />
       </PageAside>
