@@ -503,9 +503,7 @@ export const EquipmentTable = ({
             className="gap-2"
           >
             <Plus className="h-4 w-4" />
-            {t('hive:equipment.table.addEquipment', {
-              defaultValue: 'Add Equipment',
-            })}
+            {t('hive:equipment.table.addEquipment', { defaultValue: 'Add Equipment'})}
           </Button>
         </div>
       )}
@@ -516,9 +514,7 @@ export const EquipmentTable = ({
           <div className="grid grid-cols-7 gap-4 items-end">
             <div className="space-y-2">
               <label className="text-xs font-medium">
-                {t('hive:equipment.table.equipmentName', {
-                  defaultValue: 'Equipment Name',
-                })}
+                {t('hive:equipment.table.equipmentName', { defaultValue: 'Equipment Name'})}
               </label>
               <Input
                 value={newItemData.name}
@@ -611,9 +607,7 @@ export const EquipmentTable = ({
                 ) : (
                   <Save className="h-3 w-3" />
                 )}
-                {t('hive:equipment.table.save', {
-                  defaultValue: 'Save',
-                })}
+                {t('hive:equipment.table.save', { defaultValue: 'Save', })}
               </Button>
               <Button
                 size="sm"
@@ -631,39 +625,25 @@ export const EquipmentTable = ({
       {/* Table Header */}
       <div className="grid grid-cols-7 gap-4 pb-3 border-b font-semibold text-sm">
         <div>
-          {t('hive:equipment.table.title', {
-            defaultValue: 'Equipment',
-          })}
+          {t('hive:equipment.table.title', { defaultValue: 'Equipment'})}
         </div>
         <div className="text-center">
-          {t('hive:equipment.table.inUse', {
-            defaultValue: 'In Use',
-          })}
+          {t('hive:equipment.table.inUse', { defaultValue: 'In Use'})}
         </div>
         <div className="text-center">
-          {t('hive:equipment.table.perHive', {
-            defaultValue: 'Per Hive',
-          })}
+          {t('hive:equipment.table.perHive', { defaultValue: 'Per Hive'})}
         </div>
         <div className="text-center">
-          {t('hive:equipment.table.extra', {
-            defaultValue: 'Extra',
-          })}
+          {t('hive:equipment.table.extra', { defaultValue: 'Extra'})}
         </div>
         <div className="text-center">
-          {t('hive:equipment.table.needed', {
-            defaultValue: 'Needed',
-          })}
+          {t('hive:equipment.table.needed', { defaultValue: 'Needed'})}
         </div>
         <div className="text-center">
-          {t('hive:equipment.table.status', {
-            defaultValue: 'Status',
-          })}
+          {t('hive:equipment.table.status', { defaultValue: 'Status'})}
         </div>
         <div className="text-center">
-          {t('hive:equipment.table.actions', {
-            defaultValue: 'Actions',
-          })}
+          {t('hive:equipment.table.actions', { defaultValue: 'Actions'})}
         </div>
       </div>
 
