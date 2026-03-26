@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { BarChart, Droplet, TrendingUp, PieChart } from 'lucide-react';
+import { BarChart, Droplet, TrendingUp, PieChart, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import {
   Card,
   CardContent,
@@ -77,10 +78,19 @@ export const ReportsSummaryWidget = () => {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <PieChart className="h-5 w-5" />
-          {t('reports.widget.title')}
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <PieChart className="h-5 w-5" />
+            {t('reports.widget.title')}
+          </CardTitle>
+          <Link
+            to={`/apiaries/${activeApiaryId}`}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {t('reports.widget.apiaryDetails')}
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Statistics Grid */}

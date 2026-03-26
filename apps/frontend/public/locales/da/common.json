@@ -70,7 +70,8 @@
         "harvests": "Høst",
         "allHarvests": "Alle høst",
         "reports": "Rapporter",
-        "metrics": "Målinger"
+        "metrics": "Målinger",
+        "files": "Filer"
     },
     "messages": {
         "confirmDelete": "Er du sikker på at du vil slette denne?",
@@ -115,12 +116,12 @@
         "actions": "Handlinger"
     },
     "quickCheck": {
-        "title": "Hurtig check",
-        "description": "Denne handling kan ikke fortrydes. Den vil permanent slette dette hurtige check og dets billeder.",
-        "deleteTitle": "Slet hurtigt check?",
-        "deleteDescription": "Denne handling kan ikke fortrydes. Den vil permanent slette dette hurtige check og dets billeder.",
-        "deleted": "Hurtigt check slettet",
-        "deleteFailed": "Der opsted en fejl ved sletning af hurtigt check"
+        "title": "Kort inspektion",
+        "description": "Denne handling kan ikke fortrydes. Den vil permanent slette dene korte inspektion og dens billeder.",
+        "deleteTitle": "Slet kort inspektion?",
+        "deleteDescription": "Denne handling kan ikke fortrydes. Den vil permanent slette denne korte inspektion og dens billeder.",
+        "deleted": "Kort inspektion slettet",
+        "deleteFailed": "Der opsted en fejl ved sletning af kort inspektion"
     },
     "timeline": {
         "recentActivity": "Nylig aktivitet",
@@ -133,7 +134,7 @@
         "treatments": "Behandlinger",
         "harvests": "Høst",
         "notes": "Noter",
-        "quickChecks": "Hurtigt check",
+        "quickChecks": "Korte inspektioner",
         "other": "Andet",
         "allTime": "Alle tidspunkter",
         "lastMonth": "Sidste måned",
@@ -153,7 +154,9 @@
         "strength": "Styrke",
         "honey": "Honning",
         "queenSeen": "Dronning observeret",
-        "queenNotSeen": "Dronning ikke observerret"
+        "queenNotSeen": "Dronning ikke observerret",
+        "photos": "Fotos",
+        "documents": "Dokumenter"
     },
     "reports": {
         "title": "Rappoter",
@@ -273,5 +276,62 @@
         "changePassword": "Skift password på din konto",
         "saveSettings": "Gem indstillinger",
         "preferencesUpdated": "Dine indstillinger er blevet gemt."
+    },
+    "quickAdd": {
+        "title": "Opret ny post",
+        "quickCheck": "Kort inspektion",
+        "action": "Handling",
+        "photo": "Foto",
+        "document": "Dokument"
+    },
+    "photo": {
+        "title": "Tilføj foto",
+        "description": "Upload foto, med en frivillig beskrivelse.",
+        "caption": "Beskrivelse",
+        "optional": "frivillig",
+        "captionPlaceholder": "Beskrive fotoet...",
+        "selectPhoto": "Vælg et foto",
+        "upload": "Upload foto",
+        "uploading": "Uploader...",
+        "uploadSuccess": "Foto uploaded",
+        "uploadFailed": "Upload af foto fejlede",
+        "deleteTitle": "Slet foto?",
+        "deleteDescription": "Denne handling kan ikke fortrydes. Dette sletter dit foto permanent.",
+        "deleted": "Foto slettet",
+        "deleteFailed": "Sletning af foto fejlede"
+    },
+    "document": {
+        "title": "Tilføj dokument",
+        "description": "Upload en PDF eller et indscannet dokument.",
+        "titleField": "Titel",
+        "titlePlaceholder": "Titel på dokument",
+        "notes": "Noter",
+        "optional": "frivillig",
+        "notesPlaceholder": "Tilføj noter om dette dokument...",
+        "selectFile": "Vælg en fil (PDF, JPEG, PNG)",
+        "upload": "Upload dokument",
+        "uploading": "Uploader...",
+        "uploadSuccess": "Dokument uploaded",
+        "uploadFailed": "Upload af dokument fejlede",
+        "deleteTitle": "Slet dokument?",
+        "deleteDescription": "Denne handling kan ikke fortrydes. Dette sletter dit dokument permanent.",
+        "deleted": "Dokument slettet",
+        "deleteFailed": "Sletning af dokument fejlede"
+    },
+    "files": {
+        "title": "Filer",
+        "allFiles": "Alle filer",
+        "photos": "Fotos",
+        "documents": "Dokumenter",
+        "search": "Søg i filer...",
+        "filterByHive": "Filtrer på stade",
+        "filterByType": "Filtrer på type",
+        "noFiles": "Ingen filer uploadet endnu",
+        "name": "Navn",
+        "type": "Type",
+        "hive": "Stade",
+        "size": "Størrelse",
+        "download": "Download",
+        "delete": "Slet"
     }
 }
