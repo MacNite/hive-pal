@@ -7,6 +7,8 @@ This prototype uses
 - python with faster-whister for Speech-to-Text and transcribing
 - Ollama for analyzing the transscript and creating the .json
 
+Note: If you change app.py you have to restart the container.
+
 Currently the folder-setup below is expected:
 
 ```js
@@ -60,7 +62,7 @@ services:
       - ollama
 ```
 
-After running the container for the first time you have to download the model:
+After running the container for the first time you have to download the model. The model has a size of about 6 GB so the download may take some time.
 
 ```js
 curl http://serverip:11434/api/pull -d '{
@@ -68,7 +70,9 @@ curl http://serverip:11434/api/pull -d '{
   "stream": false
 }'
 ```
-
+Use the command below to see if  everything is running correctly:
+curl http://serverip:8008/health
+```js
 
 After that you can put audio-files into the folder "incoming". You can start analyzing with
 
@@ -82,6 +86,6 @@ curl -X POST http://serverip:8008/process \
 You can process all audio files in the "incoming" folder with
 
 ```js
-curl -X POST http://TRUENAS-IP:8008/process_incoming
+curl -X POST http://serverip:8008/process_incoming
 ```
 
