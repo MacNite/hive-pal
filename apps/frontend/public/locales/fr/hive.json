@@ -1,0 +1,184 @@
+{
+  "title": "Ruches",
+  "singular": "Ruche",
+  "plural": "Ruches",
+  "list": {
+    "title": "Liste des ruches",
+    "caption": "Liste de toutes vos ruches",
+    "captionFiltered": "Affichage de {{count}} ruche {{status}}",
+    "captionFilteredPlural": "Affichage de {{count}} ruches {{status}}",
+    "searchPlaceholder": "Rechercher des ruches...",
+    "filterByStatus": "Filtrer par statut",
+    "allStatuses": "Tous les statuts",
+    "noHives": "Aucune ruche trouvée",
+    "noHivesMatchingBoth": "Aucune ruche {{status}} trouvée correspondant à \"{{searchTerm}}\"",
+    "noHivesMatchingSearch": "Aucune ruche trouvée correspondant à \"{{searchTerm}}\"",
+    "noHivesWithStatus": "Aucune ruche {{status}} trouvée",
+    "clearFilters": "Effacer les filtres",
+    "createFirst": "Créez votre première ruche"
+  },
+  "create": {
+    "title": "Créer une nouvelle ruche",
+    "success": "Ruche créée avec succès"
+  },
+  "edit": {
+    "title": "Modifier la ruche",
+    "success": "Ruche mise à jour avec succès"
+  },
+  "delete": {
+    "confirm": "Êtes-vous sûr de vouloir supprimer cette ruche ?",
+    "success": "Ruche supprimée avec succès"
+  },
+  "fields": {
+    "name": "Nom",
+    "label": "Étiquette",
+    "number": "Numéro de ruche",
+    "type": "Type de ruche",
+    "status": "Statut",
+    "location": "Localisation",
+    "notes": "Notes",
+    "queen": "Reine",
+    "lastInspection": "Dernière inspection",
+    "installationDate": "Date d'installation",
+    "established": "Installée",
+    "boxes": "Hausses",
+    "frames": "Cadres",
+    "position": "Position",
+    "apiary": "Rucher",
+    "notSpecified": "Non spécifié",
+    "noInspectionYet": "Aucune inspection",
+    "noNotes": "Aucune note"
+  },
+  "boxConfigurator": {
+    "title": "Configuration des hausses",
+    "description": "Visualisez et configurez l'empilement des hausses. Les hausses sont affichées du bas vers le haut.",
+    "editConfiguration": "Modifier la configuration",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "addBox": "Ajouter une hausse",
+    "noBoxes": "Aucune hausse configurée",
+    "clickToAdd": "Cliquez sur \"Ajouter une hausse\" pour commencer",
+    "saveSuccess": "Configuration enregistrée",
+    "saveError": "Échec de l'enregistrement",
+    "boxProperties": "Propriétés de la hausse",
+    "purpose": "Utilisation",
+    "boxType": "Type de hausse",
+    "frames": "Cadres",
+    "maximumFrames": "Nombre max de cadres",
+    "color": "Couleur",
+    "colorPresets": "Couleurs prédéfinies",
+    "queenExcluder": "Grille à reine au-dessus de cette hausse",
+    "boxTypes": {
+      "brood": "Corps de ruche",
+      "honey": "Hausse à miel",
+      "feeder": "Nourrisseur"
+    },
+    "boxVariants": {
+      "langstrothDeep": "Langstroth profonde",
+      "langstrothShallow": "Langstroth demi-hauteur",
+      "bDeep": "B profonde",
+      "bShallow": "B demi-hauteur",
+      "dadant": "Dadant",
+      "nationalDeep": "National profonde",
+      "nationalShallow": "National demi-hauteur",
+      "warre": "Warré",
+      "topBar": "Ruche horizontale",
+      "custom": "Personnalisé"
+    }
+  },
+  "card": {
+    "showDetails": "Voir les détails",
+    "lastInspected": "Dernière inspection le {{date}}",
+    "noInspection": "Aucune inspection",
+    "score": "Score :",
+    "feeding": "Nourrissement :"
+  },
+  "scores": {
+    "overall": "Global",
+    "overallScore": "Score global",
+    "population": "Population",
+    "populationShort": "Pop",
+    "stores": "Réserves",
+    "queen": "Reine",
+    "queenScore": "Score de la reine"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "queenless": "Sans reine",
+    "weak": "Faible",
+    "strong": "Forte",
+    "dead": "Morte",
+    "sold": "Vendue",
+    "unknown": "Inconnu",
+    "archived": "Archivée"
+  },
+  "actions": {
+    "title": "Actions sur la ruche",
+    "inspect": "Inspecter",
+    "addBox": "Ajouter une hausse",
+    "removeBox": "Supprimer une hausse",
+    "addQueen": "Ajouter une reine",
+    "archive": "Archiver",
+    "restore": "Restaurer",
+    "details": "Détails",
+    "refreshData": "Actualiser les données",
+    "exportCSV": "Exporter en CSV",
+    "print": "Imprimer la liste des ruches",
+    "share": "Partager la liste des ruches",
+    "dataOptions": "Options de données",
+    "createNewHive": "Créer une nouvelle ruche",
+    "qr": "Code QR"
+  },
+  "manage": {
+    "title": "Gestion de la ruche",
+    "llmPrompt": "Prompt LLM",
+    "removeHive": "Supprimer la ruche"
+  },
+  "form": {
+    "selectHive": "Sélectionner une ruche",
+    "hivePlaceholder": "ruche 01",
+    "notesPlaceholder": "Bonne ruche",
+    "pickDate": "Choisir une date",
+    "submit": "Valider"
+  },
+  "weather": {
+    "forecast": "Prévisions météo"
+  },
+  "messages": {
+    "exportComingSoon": "Fonction d'export bientôt disponible",
+    "shareComingSoon": "Fonction de partage bientôt disponible"
+  },
+  "layout": {
+    "title": "Disposition des ruches",
+    "grid": "Grille",
+    "unpositionedHives": "Ruches non positionnées",
+    "noHivesInApiary": "Aucune ruche dans ce rucher.",
+    "dragToOrganize": "Ajoutez des ruches et déplacez-les pour organiser votre rucher."
+  },
+  "equipment": {
+    "currentHives": "Ruches actuelles",
+    "targetHives": "Ruches cibles",
+    "itemsNeeded": "Éléments nécessaires",
+    "equipmentManagement": "Gestion de l'équipement",
+    "equipmentSettings": "Paramètres d'équipement",
+    "targetMultiplier": "Multiplicateur cible",
+    "targetMultiplierResult": "Ruches cibles = Actuelles × {{multiplier}}",
+    "cancelChanges": "Annuler les modifications",
+    "saveAllChanges": "Enregistrer les modifications",
+    "equipmentPlanningOverview": "Vue d'ensemble de l'équipement",
+    "trackCurrentEquipment": "Suivez votre équipement et planifiez les évolutions",
+    "table": {
+      "title": "Équipement",
+      "addEquipment": "Ajouter un équipement",
+      "equipmentName": "Nom de l'équipement",
+      "save": "Enregistrer",
+      "inUse": "En utilisation",
+      "perHive": "Par ruche",
+      "extra": "Supplément",
+      "needed": "Requis",
+      "status": "Statut",
+      "actions": "Actions"
+    }
+  }
+}

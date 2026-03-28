@@ -1,0 +1,90 @@
+{
+  "title": "Ruchers",
+  "singular": "Rucher",
+  "plural": "Ruchers",
+  "list": {
+    "title": "Liste des ruchers",
+    "caption": "Liste de tous vos ruchers",
+    "searchPlaceholder": "Rechercher des ruchers...",
+    "noApiaries": "Aucun rucher trouvé",
+    "noApiariesMatching": "Aucun rucher trouvé correspondant à \"{{searchTerm}}\"",
+    "clearFilters": "Effacer les filtres"
+  },
+  "create": {
+    "title": "Créer un rucher",
+    "button": "Créer un nouveau rucher",
+    "success": "Rucher créé avec succès"
+  },
+  "edit": {
+    "title": "Modifier le rucher",
+    "success": "Rucher mis à jour avec succès"
+  },
+  "delete": {
+    "confirm": "Êtes-vous sûr de vouloir supprimer ce rucher ?",
+    "success": "Rucher supprimé avec succès"
+  },
+  "detail": {
+    "notFound": "Rucher introuvable",
+    "noLocationSpecified": "Aucune localisation spécifiée",
+    "tabs": {
+      "overview": "Vue d'ensemble",
+      "hives": "Ruches",
+      "location": "Localisation"
+    },
+    "apiaryInformation": "Informations du rucher",
+    "locationMap": "Carte de localisation",
+    "apiaryLocation": "Localisation du rucher",
+    "noCoordinates": "Aucune coordonnée disponible pour ce rucher"
+  },
+  "fields": {
+    "name": "Nom",
+    "location": "Localisation",
+    "locationDescription": "Description de la localisation",
+    "coordinates": "Coordonnées",
+    "hivesCount": "Nombre de ruches",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "notSpecified": "Non spécifié",
+    "noLocation": "Aucune localisation",
+    "noCoordinates": "Aucune coordonnée"
+  },
+  "actions": {
+    "details": "Détails",
+    "refreshData": "Actualiser les données",
+    "exportCSV": "Exporter en CSV",
+    "print": "Imprimer la liste des ruchers",
+    "share": "Partager la liste des ruchers",
+    "dataOptions": "Options des données"
+  },
+  "messages": {
+    "exportComingSoon": "Fonction d'export bientôt disponible",
+    "shareComingSoon": "Fonction de partage bientôt disponible"
+  },
+  "switcher": {
+    "teams": "Équipes",
+    "addApiary": "Ajouter un rucher",
+    "noApiarySelected": "Aucun rucher sélectionné",
+    "selectOrCreate": "Sélectionner ou créer un rucher"
+  },
+  "map": {
+    "selectLocation": "Sélectionner la localisation du rucher",
+    "selectedLocation": "Localisation sélectionnée",
+    "apiaryLocation": "Localisation du rucher"
+  },
+  "calendarSubscription": {
+    "title": "Abonnement au calendrier",
+    "description": "Abonnez-vous au planning d'inspection de ce rucher dans votre application de calendrier",
+    "addToCalendar": "Ajouter au calendrier",
+    "regenerateUrl": "Régénérer l'URL",
+    "regenerated": "URL d'abonnement régénérée",
+    "regenerateFailed": "Échec de la régénération de l'URL",
+    "copied": "URL d'abonnement copiée dans le presse-papiers",
+    "copyFailed": "Échec de la copie dans le presse-papiers",
+    "readOnlyNote": "Cette URL fournit un accès en lecture seule à votre planning d'inspection. La régénération de l'URL invalidera la précédente.",
+    "copyUrl": "Copier l'URL"
+  },
+  "form": {
+    "namePlaceholder": "Nom du rucher",
+    "locationPlaceholder": "Description de la localisation"
+  }
+}

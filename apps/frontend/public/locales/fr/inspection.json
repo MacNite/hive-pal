@@ -1,0 +1,179 @@
+{
+  "title": "Inspections",
+  "singular": "Inspection",
+  "plural": "Inspections",
+  "tabs": {
+    "all": "Toutes",
+    "recent": "Récentes",
+    "upcoming": "À venir"
+  },
+  "list": {
+    "title": "Liste des inspections",
+    "allInspections": "Toutes les inspections",
+    "recentInspections": "Inspections récentes",
+    "upcomingInspections": "Inspections à venir",
+    "searchPlaceholder": "Rechercher des inspections...",
+    "filterByHive": "Filtrer par ruche",
+    "allHives": "Toutes les ruches",
+    "noInspections": "Aucune inspection trouvée",
+    "unknownHive": "Ruche inconnue"
+  },
+  "status": {
+    "scheduled": "Planifiée",
+    "completed": "Terminée",
+    "overdue": "En retard",
+    "cancelled": "Annulée"
+  },
+  "fields": {
+    "dateTime": "Date et heure",
+    "hive": "Ruche",
+    "weather": "Météo",
+    "scoreStatus": "Score/Statut",
+    "status": "Statut",
+    "queenSeen": "Reine vue",
+    "temperature": "Température",
+    "weatherConditions": "Conditions météo",
+    "notRecorded": "Non renseigné",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "scores": {
+    "title": "Scores d'inspection",
+    "population": "Population",
+    "stores": "Réserves",
+    "queen": "Reine",
+    "overall": "Global",
+    "warnings": "Avertissements"
+  },
+  "observations": {
+    "title": "Observations",
+    "queenSeen": "Reine vue",
+    "strength": "Force",
+    "cappedBrood": "Couvain operculé",
+    "uncappedBrood": "Couvain ouvert",
+    "honeyStores": "Réserves de miel",
+    "pollenStores": "Réserves de pollen",
+    "queenCells": "Cellules royales",
+    "swarmCells": "Cellules d’essaimage",
+    "supersedureCells": "Cellules de remplacement",
+    "clearRating": "Notation claire",
+    "rateAs": "Noter comme {{value}}",
+    "broodPattern": "Répartition du couvain",
+    "selectBroodPattern": "Sélectionner la répartition",
+    "broodPatternOptions": {
+      "solid": "Uniforme",
+      "spotty": "Dispersé",
+      "scattered": "Éparpillé",
+      "patchy": "Inégal",
+      "excellent": "Excellent",
+      "poor": "Mauvais"
+    },
+    "additionalObservations": "Observations supplémentaires",
+    "additional": {
+      "calm": "Calme",
+      "defensive": "Défensive",
+      "aggressive": "Agressive",
+      "nervous": "Nerveuse",
+      "varroa_present": "Présence de varroas",
+      "small_hive_beetle": "Petit coléoptère",
+      "wax_moths": "Fausse teigne",
+      "ants_present": "Présence de fourmis",
+      "healthy": "Saine",
+      "active": "Active",
+      "sluggish": "Lente",
+      "thriving": "Robuste"
+    },
+    "reminderObservations": "Rappels",
+    "reminder": {
+      "honey_bound": "Surchargée de miel",
+      "overcrowded": "Surpeuplée",
+      "needs_super": "Besoin de hausse",
+      "queen_issues": "Problème de reine",
+      "requires_treatment": "Traitement requis",
+      "low_stores": "Réserves faibles",
+      "prepare_for_winter": "Préparer pour l’hiver"
+    }
+  },
+  "actions": {
+    "details": "Détails",
+    "createInspection": "Créer une inspection",
+    "addInspection": "Ajouter une inspection",
+    "scheduleInspection": "Planifier une inspection",
+    "refreshData": "Actualiser les données",
+    "exportCSV": "Exporter en CSV",
+    "printList": "Imprimer la liste",
+    "shareList": "Partager la liste",
+    "dataOptions": "Options de données",
+    "doInspection": "Effectuer l’inspection",
+    "reschedule": "Replanifier",
+    "cancel": "Annuler",
+    "completeInspection": "Terminer l’inspection"
+  },
+  "sidebar": {
+    "actions": "Actions",
+    "views": "Vues",
+    "allInspections": "Toutes les inspections",
+    "recentInspections": "Inspections récentes",
+    "upcomingInspections": "Inspections à venir",
+    "printInspectionList": "Imprimer la liste",
+    "shareInspectionList": "Partager la liste"
+  },
+  "messages": {
+    "exportComingSoon": "Fonction d’export bientôt disponible",
+    "shareComingSoon": "Fonction de partage bientôt disponible"
+  },
+  "scheduled": {
+    "title": "Inspections planifiées",
+    "overdueInspections": "Inspections en retard",
+    "todaysInspections": "Inspections du jour",
+    "upcomingInspections": "Inspections à venir",
+    "otherUpcomingInspections": "Autres inspections à venir",
+    "doInspection": "Effectuer l’inspection",
+    "reschedule": "Replanifier",
+    "cancel": "Annuler",
+    "today": "Aujourd’hui",
+    "overdue": "En retard"
+  },
+  "dialogs": {
+    "cancelInspection": {
+      "title": "Annuler l’inspection",
+      "description": "Êtes-vous sûr de vouloir annuler l’inspection de {{hiveName}} prévue le {{date}} ? Cette action est irréversible.",
+      "keepInspection": "Conserver",
+      "cancelInspection": "Annuler l’inspection"
+    },
+    "reschedule": {
+      "title": "Replanifier l’inspection",
+      "description": "Choisissez une nouvelle date pour l’inspection de {{hiveName}}.",
+      "newDate": "Nouvelle date : {{date}}",
+      "cancel": "Annuler",
+      "reschedule": "Replanifier",
+      "showFewerDays": "Voir moins",
+      "showMoreDays": "Voir plus (+7)",
+      "noForecast": "Aucune prévision",
+      "noWeatherData": "Aucune donnée météo"
+    },
+    "completingScheduled": {
+      "title": "Finalisation de l’inspection prévue le {{date}}",
+      "description": "Cette inspection sera marquée comme terminée lors de l’enregistrement."
+    }
+  },
+  "weather": {
+    "sunny": "Ensoleillé",
+    "clear": "Dégagé",
+    "partlyCloudy": "Partiellement nuageux",
+    "cloudy": "Nuageux",
+    "overcast": "Couvert",
+    "rain": "Pluie"
+  },
+  "detail": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "errorDescription": "Impossible de charger les détails.",
+    "goBack": "Retour",
+    "notFound": "Inspection introuvable",
+    "back": "Retour",
+    "share": "Partager",
+    "shareFailed": "Échec du partage",
+    "viewHive": "Voir la ruche"
+  }
+}
