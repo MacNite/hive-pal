@@ -6,6 +6,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ApiaryRole } from '@/prisma/client';
 
 @Injectable()
 export class ApiaryContextGuard implements CanActivate {
@@ -16,6 +17,7 @@ export class ApiaryContextGuard implements CanActivate {
       headers: Record<string, string>;
       query: Record<string, string>;
       apiaryId: string | undefined;
+      apiaryRole: ApiaryRole | undefined;
       user?: { id: string };
     } = context.switchToHttp().getRequest();
 
@@ -26,11 +28,24 @@ export class ApiaryContextGuard implements CanActivate {
       throw new ForbiddenException('User is not authenticated');
     }
 
-    // Find the apiary and check if it belongs to the user
+    // Find the apiary and check if user is owner or active member
     const apiary = await this.prisma.apiary.findFirst({
       where: {
         id: apiaryId,
-        userId: request.user.id,
+        OR: [
+          { userId: request.user.id },
+          {
+            members: {
+              some: { userId: request.user.id, status: 'ACTIVE' },
+            },
+          },
+        ],
+      },
+      include: {
+        members: {
+          where: { userId: request.user.id, status: 'ACTIVE' },
+          select: { role: true },
+        },
       },
     });
 
@@ -40,8 +55,11 @@ export class ApiaryContextGuard implements CanActivate {
       );
     }
 
-    // Add apiary to request context
+    // Add apiary context to request
     request.apiaryId = apiaryId ? apiary.id : undefined;
+    request.apiaryRole =
+      apiary.userId === request.user.id ? 'OWNER' : apiary.members[0]?.role;
+
     return true;
   }
 }

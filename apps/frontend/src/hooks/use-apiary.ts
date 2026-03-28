@@ -45,13 +45,20 @@ export const useApiary = () => {
     );
 
   // Redirect to onboarding wizard if no apiaries exist
+  // Skip if user has a pending join request (waiting for owner approval)
   useEffect(() => {
+    const hasPendingJoin = localStorage.getItem('hive_pal_pending_join');
     if (
       apiaries?.length === 0 &&
       window.location.pathname !== '/onboarding' &&
-      !isAdmin
+      !isAdmin &&
+      !hasPendingJoin
     ) {
       navigate('/onboarding');
+    }
+    // Clear the flag once the user has apiaries (join was approved)
+    if (apiaries && apiaries.length > 0 && hasPendingJoin) {
+      localStorage.removeItem('hive_pal_pending_join');
     }
   }, [apiaries, navigate, isAdmin]);
 

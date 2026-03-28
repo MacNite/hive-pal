@@ -3,6 +3,8 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Section } from '@/components/common/section';
 import { ApiaryActionSidebar, HivesLayout } from './components';
+import { SharingTab } from './components/sharing-tab';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 import { CalendarSubscriptionCard } from './components/calendar-subscription-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ImagePlus } from 'lucide-react';
@@ -32,11 +34,11 @@ export const ApiaryDetailPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { setActiveApiaryId } = useApiaryStore();
 
+  const { isOwner, canEdit } = useApiaryPermission();
+
   const tabParam = searchParams.get('tab');
-  const currentTab =
-    tabParam === 'overview' || tabParam === 'hives' || tabParam === 'location'
-      ? tabParam
-      : 'overview';
+  const validTabs = ['overview', 'hives', 'location', ...(isOwner ? ['sharing'] : [])];
+  const currentTab = validTabs.includes(tabParam ?? '') ? tabParam! : 'overview';
 
   const { data: apiary, isLoading, refetch } = useApiary(id ?? '');
   const { data: hives = [] } = useHives({ apiaryId: id ?? '' });
@@ -80,6 +82,9 @@ export const ApiaryDetailPage = () => {
             <TabsTrigger value="location">
               {t('apiary:detail.tabs.location')}
             </TabsTrigger>
+            {isOwner && (
+              <TabsTrigger value="sharing">Sharing</TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="overview">
@@ -151,6 +156,12 @@ export const ApiaryDetailPage = () => {
             <HivesLayout apiaryId={apiary.id} />
           </TabsContent>
 
+          {isOwner && (
+            <TabsContent value="sharing">
+              <SharingTab apiaryId={apiary.id} />
+            </TabsContent>
+          )}
+
           <TabsContent value="location">
             <Section title={t('apiary:detail.apiaryLocation')}>
               {apiary.latitude != null && apiary.longitude != null ? (
@@ -178,6 +189,7 @@ export const ApiaryDetailPage = () => {
         <ApiaryActionSidebar
           apiaryId={apiary.id}
           onRefreshData={() => refetch()}
+          canEdit={canEdit}
         />
       </PageAside>
     </PageGrid>

@@ -16,6 +16,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
 import { RequestWithApiary } from '../interface/request-with.apiary';
 import { CustomLoggerService } from '../logger/logger.service';
 import {
@@ -25,7 +26,7 @@ import {
   DownloadUrlResponse,
 } from './inspection-audio.service';
 
-@UseGuards(JwtAuthGuard, ApiaryContextGuard)
+@UseGuards(JwtAuthGuard, ApiaryContextGuard, ApiaryPermissionGuard)
 @Controller('inspections/:inspectionId/audio')
 export class InspectionAudioController {
   constructor(

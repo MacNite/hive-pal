@@ -28,7 +28,8 @@ model User {
   frameSizes             FrameSize[]
   passwordResetTokens    PasswordResetToken[]
   shareLinks             ShareLink[]
-  
+  apiaryMemberships      ApiaryMember[]
+
   // GDPR consent fields
   privacyPolicyConsent   Boolean                @default(false)
   privacyConsentTimestamp DateTime?
@@ -39,6 +40,18 @@ model User {
 enum Role {
   USER
   ADMIN
+}
+
+enum ApiaryRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  REJECTED
 }
 
 model Apiary {
@@ -61,6 +74,8 @@ model Apiary {
   documents             Document[]
   featurePhotoId        String?             @unique
   featurePhoto          Photo?              @relation("ApiaryFeaturePhoto", fields: [featurePhotoId], references: [id], onDelete: SetNull)
+  members               ApiaryMember[]
+  invites               ApiaryInvite[]
 
   // Create index for quick lookup by userId - used in authorization checks
   @@index([userId])
@@ -763,6 +778,38 @@ model Document {
   @@index([hiveId])
   @@index([apiaryId])
   @@index([hiveId, date])
+}
+
+// Apiary sharing - membership for collaborative access
+model ApiaryMember {
+  id        String           @id @default(uuid())
+  apiaryId  String
+  apiary    Apiary           @relation(fields: [apiaryId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ApiaryRole
+  status    MembershipStatus @default(PENDING)
+  joinedAt  DateTime         @default(now())
+
+  @@unique([apiaryId, userId])
+  @@index([userId])
+  @@index([apiaryId])
+}
+
+// Apiary sharing - invite links for joining an apiary
+model ApiaryInvite {
+  id        String     @id @default(uuid())
+  token     String     @unique @default(uuid())
+  apiaryId  String
+  apiary    Apiary     @relation(fields: [apiaryId], references: [id], onDelete: Cascade)
+  role      ApiaryRole // EDITOR or VIEWER
+  createdBy String     // userId of the owner who created this invite
+  expiresAt DateTime?
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+
+  @@index([token])
+  @@index([apiaryId])
 }
 
 // Platform metrics snapshot for admin observability

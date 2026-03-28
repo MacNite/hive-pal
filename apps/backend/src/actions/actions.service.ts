@@ -289,7 +289,6 @@ export class ActionsService {
         ...(filter.apiaryId && {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         }),
       },

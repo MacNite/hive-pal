@@ -22,11 +22,12 @@ interface InspectionActionSidebarProps {
   selectedHiveId?: string;
   onChangeView: (view: string) => void;
   currentView: string;
+  canEdit?: boolean;
 }
 
 export const InspectionActionSidebar: React.FC<
   InspectionActionSidebarProps
-> = ({ onRefreshData, selectedHiveId, onChangeView, currentView }) => {
+> = ({ onRefreshData, selectedHiveId, onChangeView, currentView, canEdit = true }) => {
   const { t } = useTranslation(['inspection', 'common']);
   const navigate = useNavigate();
 
@@ -41,18 +42,22 @@ export const InspectionActionSidebar: React.FC<
   return (
     <ActionSidebarContainer>
       <ActionSidebarGroup title={t('inspection:sidebar.actions')}>
-        <MenuItemButton
-          icon={<PlusCircle className="h-4 w-4" />}
-          label={t('inspection:actions.createInspection')}
-          onClick={handleCreateInspection}
-          tooltip={t('inspection:actions.createInspection')}
-        />
-        <MenuItemButton
-          icon={<CalendarPlus className="h-4 w-4" />}
-          label={t('inspection:actions.scheduleInspection')}
-          onClick={() => navigate('/inspections/schedule')}
-          tooltip={t('inspection:actions.scheduleInspection')}
-        />
+        {canEdit && (
+          <MenuItemButton
+            icon={<PlusCircle className="h-4 w-4" />}
+            label={t('inspection:actions.createInspection')}
+            onClick={handleCreateInspection}
+            tooltip={t('inspection:actions.createInspection')}
+          />
+        )}
+        {canEdit && (
+          <MenuItemButton
+            icon={<CalendarPlus className="h-4 w-4" />}
+            label={t('inspection:actions.scheduleInspection')}
+            onClick={() => navigate('/inspections/schedule')}
+            tooltip={t('inspection:actions.scheduleInspection')}
+          />
+        )}
         <MenuItemButton
           icon={<RefreshCw className="h-4 w-4" />}
           label={t('inspection:actions.refreshData')}

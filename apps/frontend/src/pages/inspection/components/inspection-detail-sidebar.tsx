@@ -22,35 +22,40 @@ import {
 interface InspectionDetailSidebarProps {
   inspectionId: string;
   hiveId: string;
+  canEdit?: boolean;
 }
 
 export const InspectionDetailSidebar: React.FC<
   InspectionDetailSidebarProps
-> = ({ inspectionId, hiveId }) => {
+> = ({ inspectionId, hiveId, canEdit = true }) => {
   const { t } = useTranslation('inspection');
   const navigate = useNavigate();
 
   return (
     <ActionSidebarContainer>
       <ActionSidebarGroup title={t('inspection:detailSidebar.inspectionActions')}>
-        <MenuItemButton
-          icon={<Pencil className="h-4 w-4" />}
-          label={t('inspection:detailSidebar.editInspection')}
-          onClick={() => navigate(`/inspections/${inspectionId}/edit`)}
-          tooltip={t('inspection:detailSidebar.editInspection')}
-        />
+        {canEdit && (
+          <MenuItemButton
+            icon={<Pencil className="h-4 w-4" />}
+            label={t('inspection:detailSidebar.editInspection')}
+            onClick={() => navigate(`/inspections/${inspectionId}/edit`)}
+            tooltip={t('inspection:detailSidebar.editInspection')}
+          />
+        )}
         <MenuItemButton
           icon={<Printer className="h-4 w-4" />}
           label={t('inspection:detailSidebar.printDetails')}
           onClick={() => window.print()}
           tooltip={t('inspection:detailSidebar.printDetails')}
         />
-        <MenuItemButton
-          icon={<Trash className="h-4 w-4" />}
-          label={t('inspection:detailSidebar.deleteInspection')}
-          tooltip={t('inspection:detailSidebar.deleteInspection')}
-          className="text-red-600 hover:text-red-700"
-        />
+        {canEdit && (
+          <MenuItemButton
+            icon={<Trash className="h-4 w-4" />}
+            label={t('inspection:detailSidebar.deleteInspection')}
+            tooltip={t('inspection:detailSidebar.deleteInspection')}
+            className="text-red-600 hover:text-red-700"
+          />
+        )}
       </ActionSidebarGroup>
 
       <Separator className="my-2" />
@@ -62,12 +67,14 @@ export const InspectionDetailSidebar: React.FC<
           onClick={() => navigate(`/hives/${hiveId}`)}
           tooltip={t('inspection:detailSidebar.viewHive')}
         />
-        <MenuItemButton
-          icon={<PlusCircle className="h-4 w-4" />}
-          label={t('inspection:detailSidebar.newInspection')}
-          onClick={() => navigate(`/hives/${hiveId}/inspections/create`)}
-          tooltip={t('inspection:detailSidebar.newInspection')}
-        />
+        {canEdit && (
+          <MenuItemButton
+            icon={<PlusCircle className="h-4 w-4" />}
+            label={t('inspection:detailSidebar.newInspection')}
+            onClick={() => navigate(`/hives/${hiveId}/inspections/create`)}
+            tooltip={t('inspection:detailSidebar.newInspection')}
+          />
+        )}
       </ActionSidebarGroup>
 
       <Separator className="my-2" />

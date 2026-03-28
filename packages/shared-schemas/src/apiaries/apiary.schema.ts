@@ -12,10 +12,15 @@ export const createApiarySchema = z.object({
 // Schema for updating apiaries
 export const updateApiarySchema = createApiarySchema.partial();
 
+export const apiaryRoleEnum = z.enum(['OWNER', 'EDITOR', 'VIEWER']);
+export type ApiaryRole = z.infer<typeof apiaryRoleEnum>;
+
 // Schema for apiary response
 export const apiaryResponseSchema = createApiarySchema.extend({
   id: z.string().uuid(),
   featurePhotoUrl: z.string().nullish(),
+  role: apiaryRoleEnum.optional(),
+  isShared: z.boolean().optional(),
 });
 
 // Schema for apiary map point (admin view)

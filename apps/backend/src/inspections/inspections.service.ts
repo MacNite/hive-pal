@@ -72,7 +72,6 @@ export class InspectionsService {
         id: createInspectionDto.hiveId,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
     });
@@ -209,7 +208,6 @@ export class InspectionsService {
       whereClause.hive = {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       };
     }
@@ -268,7 +266,6 @@ export class InspectionsService {
         hive: {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         },
       },
@@ -324,7 +321,7 @@ export class InspectionsService {
         id,
         hive: {
           apiary: {
-            userId: filter.userId,
+            id: filter.apiaryId,
           },
         },
       },
@@ -452,7 +449,6 @@ export class InspectionsService {
         hive: {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         },
       },
@@ -506,7 +502,6 @@ export class InspectionsService {
       whereClause.hive = {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       };
     }
@@ -563,7 +558,6 @@ export class InspectionsService {
       whereClause.hive = {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       };
     }

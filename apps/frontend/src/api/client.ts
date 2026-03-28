@@ -78,6 +78,7 @@ const PUBLIC_ROUTES = [
   '/forgot-password',
   '/reset-password',
   '/shared',
+  '/join',
   '/',
 ];
 

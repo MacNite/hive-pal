@@ -14,10 +14,12 @@ import { useApiary } from '@/hooks/use-apiary';
 
 interface HiveActionSidebarProps {
   onRefreshData?: () => void;
+  canEdit?: boolean;
 }
 
 export const HiveActionSidebar: React.FC<HiveActionSidebarProps> = ({
   onRefreshData,
+  canEdit = true,
 }) => {
   const { t } = useTranslation(['hive', 'common']);
   const navigate = useNavigate();
@@ -33,12 +35,14 @@ export const HiveActionSidebar: React.FC<HiveActionSidebarProps> = ({
 
       <ActionSidebarContainer>
         <ActionSidebarGroup title={t('common:actions.actions')}>
-          <MenuItemButton
-            icon={<PlusCircle className="h-4 w-4" />}
-            label={t('hive:actions.createNewHive')}
-            onClick={() => navigate('/hives/create/')}
-            tooltip={t('hive:actions.createNewHive')}
-          />
+          {canEdit && (
+            <MenuItemButton
+              icon={<PlusCircle className="h-4 w-4" />}
+              label={t('hive:actions.createNewHive')}
+              onClick={() => navigate('/hives/create/')}
+              tooltip={t('hive:actions.createNewHive')}
+            />
+          )}
           <MenuItemButton
             icon={<RefreshCw className="h-4 w-4" />}
             label={t('hive:actions.refreshData')}

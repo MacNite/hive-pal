@@ -91,6 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       name?: string,
       privacyPolicyConsent?: boolean,
       newsletterConsent?: boolean,
+      redirectTo?: string,
     ) => {
       return mutateAsync({
         email,
@@ -102,7 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .then(data => {
           if (data.access_token) {
             localStorage.setItem(TOKEN_KEY, data.access_token);
-            window.location.href = '/onboarding';
+            window.location.href = redirectTo || '/onboarding';
             return true;
           }
           return false;

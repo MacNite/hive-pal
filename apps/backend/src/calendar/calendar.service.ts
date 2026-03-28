@@ -37,7 +37,6 @@ export class CalendarService {
       hive: {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
     };

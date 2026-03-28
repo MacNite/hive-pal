@@ -63,6 +63,13 @@ export const UserWizardPage = () => {
       return;
     }
 
+    // If user has a pending join request, skip onboarding — they're waiting for approval
+    const hasPendingJoin = localStorage.getItem('hive_pal_pending_join');
+    if (!hasApiaries && hasPendingJoin) {
+      window.location.href = '/';
+      return;
+    }
+
     if (hasApiaries) {
       // User has apiary but no hives - skip to hive creation
       const existingApiary = apiaries[0];

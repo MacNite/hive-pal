@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { RequestWithApiary } from '../interface/request-with.apiary';
 import { AlertsService } from './alerts.service';
@@ -31,7 +32,7 @@ import {
 
 @ApiTags('alerts')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard, ApiaryContextGuard)
+@UseGuards(JwtAuthGuard, ApiaryContextGuard, ApiaryPermissionGuard)
 @Controller('alerts')
 export class AlertsController {
   constructor(

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
 import { ActionsService } from './actions.service';
 import {
   ActionFilter,
@@ -27,7 +28,7 @@ import { ZodValidation } from '../common';
 import { RequestWithApiary } from '../interface/request-with.apiary';
 
 @Controller('actions')
-@UseGuards(JwtAuthGuard, ApiaryContextGuard)
+@UseGuards(JwtAuthGuard, ApiaryContextGuard, ApiaryPermissionGuard)
 export class ActionsController {
   constructor(private readonly actionsService: ActionsService) {}
 

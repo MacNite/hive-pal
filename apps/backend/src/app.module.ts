@@ -38,6 +38,7 @@ import { QuickChecksModule } from './quick-checks/quick-checks.module';
 import { SharesModule } from './shares/shares.module';
 import { PhotosModule } from './photos/photos.module';
 import { DocumentsModule } from './documents/documents.module';
+import { ApiarySharingModule } from './apiary-sharing/apiary-sharing.module';
 
 @Module({
   imports: [
@@ -75,6 +76,7 @@ import { DocumentsModule } from './documents/documents.module';
     SharesModule,
     PhotosModule,
     DocumentsModule,
+    ApiarySharingModule,
   ],
   controllers: [AppController, EnvController],
   providers: [

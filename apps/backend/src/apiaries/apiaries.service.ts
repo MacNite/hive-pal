@@ -76,10 +76,14 @@ export class ApiariesService {
 
     const apiaries = await this.prisma.apiary.findMany({
       where: {
-        userId,
+        OR: [{ userId }, { members: { some: { userId, status: 'ACTIVE' } } }],
       },
       include: {
         featurePhoto: { select: { id: true, storageKey: true } },
+        members: {
+          where: { userId, status: 'ACTIVE' },
+          select: { role: true },
+        },
       },
     });
 
@@ -89,6 +93,7 @@ export class ApiariesService {
         const featurePhotoFields = await this.mapFeaturePhotoUrl(
           apiary.featurePhoto,
         );
+        const isOwner = apiary.userId === userId;
         return {
           id: apiary.id,
           name: apiary.name,
@@ -96,6 +101,8 @@ export class ApiariesService {
           latitude: apiary.latitude,
           longitude: apiary.longitude,
           ...featurePhotoFields,
+          role: isOwner ? ('OWNER' as const) : apiary.members[0]?.role,
+          isShared: !isOwner,
         };
       }),
     );
@@ -107,10 +114,14 @@ export class ApiariesService {
     const apiary = await this.prisma.apiary.findFirst({
       where: {
         id: apiaryId,
-        userId,
+        OR: [{ userId }, { members: { some: { userId, status: 'ACTIVE' } } }],
       },
       include: {
         featurePhoto: { select: { id: true, storageKey: true } },
+        members: {
+          where: { userId, status: 'ACTIVE' },
+          select: { role: true },
+        },
       },
     });
 
@@ -124,6 +135,7 @@ export class ApiariesService {
     const featurePhotoFields = await this.mapFeaturePhotoUrl(
       apiary.featurePhoto,
     );
+    const isOwner = apiary.userId === userId;
 
     return {
       id: apiary.id,
@@ -132,6 +144,8 @@ export class ApiariesService {
       latitude: apiary.latitude,
       longitude: apiary.longitude,
       ...featurePhotoFields,
+      role: isOwner ? ('OWNER' as const) : apiary.members[0]?.role,
+      isShared: !isOwner,
     };
   }
 
@@ -145,7 +159,7 @@ export class ApiariesService {
 
     try {
       const updatedApiary = await this.prisma.apiary.update({
-        where: { id, userId },
+        where: { id },
         data: updateApiaryDto,
         include: {
           featurePhoto: { select: { id: true, storageKey: true } },

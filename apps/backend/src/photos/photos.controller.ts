@@ -17,6 +17,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
 import { RequestWithApiary } from '../interface/request-with.apiary';
 import { CustomLoggerService } from '../logger/logger.service';
 import { PhotosService } from './photos.service';
@@ -29,7 +30,7 @@ import {
   PhotoFilter,
 } from 'shared-schemas';
 
-@UseGuards(JwtAuthGuard, ApiaryContextGuard)
+@UseGuards(JwtAuthGuard, ApiaryContextGuard, ApiaryPermissionGuard)
 @Controller('photos')
 export class PhotosController {
   constructor(

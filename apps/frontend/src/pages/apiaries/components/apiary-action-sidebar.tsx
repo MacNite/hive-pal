@@ -25,11 +25,13 @@ import {
 interface ApiaryActionSidebarProps {
   apiaryId?: string;
   onRefreshData?: () => void;
+  canEdit?: boolean;
 }
 
 export const ApiaryActionSidebar: React.FC<ApiaryActionSidebarProps> = ({
   apiaryId,
   onRefreshData,
+  canEdit = true,
 }) => {
   const { t } = useTranslation(['apiary', 'common']);
   const navigate = useNavigate();
@@ -52,13 +54,15 @@ export const ApiaryActionSidebar: React.FC<ApiaryActionSidebarProps> = ({
       <ActionSidebarGroup
         title={t('common:actions.actions', { defaultValue: 'Actions' })}
       >
-        <MenuItemButton
-          icon={<PlusCircle className="h-4 w-4" />}
-          label={t('apiary:create.button')}
-          onClick={() => navigate('/apiaries/create/')}
-          tooltip={t('apiary:create.button')}
-        />
-        {apiaryId && (
+        {canEdit && (
+          <MenuItemButton
+            icon={<PlusCircle className="h-4 w-4" />}
+            label={t('apiary:create.button')}
+            onClick={() => navigate('/apiaries/create/')}
+            tooltip={t('apiary:create.button')}
+          />
+        )}
+        {canEdit && apiaryId && (
           <SidebarMenuItem>
             <QuickAddMenu apiaryId={apiaryId} variant="sidebar" />
           </SidebarMenuItem>
@@ -71,7 +75,7 @@ export const ApiaryActionSidebar: React.FC<ApiaryActionSidebarProps> = ({
         />
       </ActionSidebarGroup>
 
-      {apiaryId && (
+      {canEdit && apiaryId && (
         <ActionSidebarGroup
           title={t('apiary:manage.title', { defaultValue: 'Manage Apiary' })}
           className="mt-4"

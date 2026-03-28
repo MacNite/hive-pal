@@ -13,6 +13,7 @@ import {
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
 import { RequestWithApiary } from '../interface/request-with.apiary';
 import { RequestWithUser } from '../auth/interface/request-with-user.interface';
 import { CalendarService } from './calendar.service';
@@ -41,7 +42,7 @@ export class CalendarController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, ApiaryContextGuard)
+  @UseGuards(JwtAuthGuard, ApiaryContextGuard, ApiaryPermissionGuard)
   @ZodValidation(calendarFilterSchema)
   async getCalendarEvents(
     @Query() query: CalendarFilter,

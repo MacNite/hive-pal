@@ -42,11 +42,11 @@ export class QuickChecksService {
 
   async create(
     dto: CreateQuickCheck,
-    filter: ApiaryUserFilter,
+    _filter: ApiaryUserFilter,
   ): Promise<QuickCheckResponse> {
     // Verify apiary belongs to user
     const apiary = await this.prisma.apiary.findFirst({
-      where: { id: dto.apiaryId, userId: filter.userId },
+      where: { id: dto.apiaryId },
     });
 
     if (!apiary) {
@@ -92,7 +92,7 @@ export class QuickChecksService {
   ): Promise<QuickCheckResponse[]> {
     // Verify apiary belongs to user
     const apiary = await this.prisma.apiary.findFirst({
-      where: { id: filter.apiaryId, userId: filter.userId },
+      where: { id: filter.apiaryId },
     });
 
     if (!apiary) {
@@ -102,7 +102,7 @@ export class QuickChecksService {
     }
 
     const where: Record<string, unknown> = {
-      apiary: { id: filter.apiaryId, userId: filter.userId },
+      apiary: { id: filter.apiaryId },
     };
 
     if (filter.hiveId) {
@@ -132,7 +132,7 @@ export class QuickChecksService {
     const quickCheck = await this.prisma.quickCheck.findFirst({
       where: {
         id,
-        apiary: { id: filter.apiaryId, userId: filter.userId },
+        apiary: { id: filter.apiaryId },
       },
       include: { photos: true },
     });
@@ -148,7 +148,7 @@ export class QuickChecksService {
     const quickCheck = await this.prisma.quickCheck.findFirst({
       where: {
         id,
-        apiary: { id: filter.apiaryId, userId: filter.userId },
+        apiary: { id: filter.apiaryId },
       },
       include: { photos: { select: { storageKey: true } } },
     });
@@ -206,7 +206,7 @@ export class QuickChecksService {
     const quickCheck = await this.prisma.quickCheck.findFirst({
       where: {
         id: quickCheckId,
-        apiary: { id: filter.apiaryId, userId: filter.userId },
+        apiary: { id: filter.apiaryId },
       },
       include: { photos: { select: { id: true } } },
     });
@@ -270,7 +270,7 @@ export class QuickChecksService {
         id: photoId,
         quickCheckId,
         quickCheck: {
-          apiary: { id: filter.apiaryId, userId: filter.userId },
+          apiary: { id: filter.apiaryId },
         },
       },
     });
@@ -298,7 +298,7 @@ export class QuickChecksService {
         id: photoId,
         quickCheckId,
         quickCheck: {
-          apiary: { id: filter.apiaryId, userId: filter.userId },
+          apiary: { id: filter.apiaryId },
         },
       },
     });
