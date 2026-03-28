@@ -14,7 +14,7 @@ interface ImageDisplayState {
 export const useImageDisplayStore = create<ImageDisplayState>(set => {
   const stored = localStorage.getItem(STORAGE_KEY) as ImageDisplayMode | null;
   const initial: ImageDisplayMode =
-    stored && MODES.includes(stored) ? stored : 'banner';
+    stored && MODES.includes(stored) ? stored : 'side';
 
   return {
     mode: initial,

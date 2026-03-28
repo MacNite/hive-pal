@@ -67,8 +67,8 @@ const HiveCard: React.FC<{ hive: HiveResponse }> = ({ hive }) => {
     ) : (
       <div
         className={isSide
-          ? 'w-full sm:w-[140px] h-32 sm:h-auto min-h-[120px] opacity-60 flex-shrink-0'
-          : 'w-full h-32 opacity-60'}
+          ? 'w-full sm:w-[140px] h-32 sm:h-auto min-h-[120px]  flex-shrink-0'
+          : 'w-full h-32 '}
         style={{ background: buildBoxGradient(hiveDetails?.boxes) }}
       />
     )

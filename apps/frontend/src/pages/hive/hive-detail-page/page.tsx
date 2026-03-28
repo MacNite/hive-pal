@@ -62,13 +62,13 @@ export const HiveDetailPage = () => {
               ) : (
                 <div
                   className={isSide
-                    ? 'w-full sm:w-[150px] h-32 sm:h-auto min-h-[140px] opacity-60 flex-shrink-0'
-                    : 'w-full h-32 opacity-60'}
+                    ? 'w-full sm:w-[150px] h-32 sm:h-auto min-h-[140px]  flex-shrink-0'
+                    : 'w-full h-32 '}
                   style={{ background: buildBoxGradient(hive?.boxes) }}
                 />
               )
             )}
-            <div className="pt-3 flex-1 min-w-0">
+            <div className={`pt-3 flex-1 min-w-0 ${isSide ? 'sm:pl-4' : ''}`}>
             <div className="flex justify-between items-center mb-2">
               <h1 className="text-xl sm:text-2xl font-semibold">
                 {hive?.name}
