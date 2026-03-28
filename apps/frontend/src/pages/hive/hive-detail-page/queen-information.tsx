@@ -21,6 +21,7 @@ import { ActiveQueen, QueenResponse } from 'shared-schemas';
 import { useState } from 'react';
 import { QueenTransferDialog } from '@/pages/queen/components/queen-transfer-dialog';
 import { getQueenColorClass } from '@/lib/queen-utils';
+import { useUpdateQueen } from '@/api/hooks';
 
 type QueenInformationProps = {
   hiveId?: string;
@@ -37,13 +38,18 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
   const { t } = useTranslation('queen');
   const navigate = useNavigate();
   const [transferOpen, setTransferOpen] = useState(false);
+  const { mutateAsync: updateQueen } = useUpdateQueen();
 
-  const handleMarkQueenState = (newState: 'DEAD' | 'REPLACED') => {
-    console.log(`Mark queen as ${newState.toLowerCase()}`, activeQueen?.id);
-    // In a real implementation, we would call the API here
-    if (onQueenUpdated) {
-      onQueenUpdated();
-    }
+  const handleMarkQueenState = async (newState: 'DEAD' | 'REPLACED') => {
+    if (!activeQueen?.id) return;
+    await updateQueen({
+      id: activeQueen.id,
+      data: {
+        status: newState,
+        replacedAt: new Date().toISOString(),
+      },
+    });
+    onQueenUpdated?.();
   };
 
   const handleReplaceQueen = () => {
@@ -56,6 +62,9 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
         <MoreHorizontal className="h-4 w-4 text-muted-foreground cursor-pointer" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => navigate(`/queens/${activeQueen.id}`)}>
+          {t('actions.viewDetails')}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTransferOpen(true)}>
           {t('actions.transferQueen')}
         </DropdownMenuItem>
@@ -80,11 +89,11 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div
-              className={`h-4 w-4 rounded-full border border-gray-600 ${getColor(activeQueen?.color)}`}
+              className={`h-4 w-4 rounded-full border border-gray-600 ${getQueenColorClass(activeQueen?.color, 'bg-white')}`}
             />
-            <span className="text-sm font-medium">
+            <Link to={`/queens/${activeQueen.id}`} className="text-sm font-medium hover:underline">
               {activeQueen?.marking} • {activeQueen?.year}
-            </span>
+            </Link>
             {activeQueen?.installedAt && (
               <span className="text-xs text-muted-foreground">
                 {format(
@@ -96,33 +105,7 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
               </span>
             )}
           </div>
-          {activeQueen && (
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <MoreHorizontal className="h-4 w-4 text-muted-foreground cursor-pointer" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => navigate(`/queens/${activeQueen.id}/edit`)}
-                >
-                  {t('actions.editQueen')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleReplaceQueen}>
-                  {t('actions.replaceQueen')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleMarkQueenState('DEAD')}
-                >
-                  {t('actions.markAsDead')}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => handleMarkQueenState('REPLACED')}
-                >
-                  {t('actions.markAsLostMissing')}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          {queenActionsMenu}
         </div>
       ) : (
         <div className="flex items-center justify-between">
@@ -151,9 +134,11 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
           {activeQueen ? (
             <>
               <div
-                className={`h-4 w-4 rounded-full border border-gray-600 ${getColor(activeQueen?.color)}`}
+                className={`h-4 w-4 rounded-full border border-gray-600 ${getQueenColorClass(activeQueen?.color, 'bg-white')}`}
               />
-              <span className="text-sm font-medium">{activeQueen?.marking}</span>
+              <Link to={`/queens/${activeQueen.id}`} className="text-sm font-medium hover:underline">
+                {activeQueen?.marking}
+              </Link>
               <span className="text-xs text-muted-foreground">{activeQueen?.year}</span>
               {activeQueen?.installedAt && (
                 <>
@@ -168,31 +153,7 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
                   </span>
                 </>
               )}
-              <DropdownMenu>
-                <DropdownMenuTrigger>
-                  <MoreHorizontal className="h-4 w-4 text-muted-foreground cursor-pointer" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onClick={() => navigate(`/queens/${activeQueen.id}/edit`)}
-                  >
-                    {t('actions.editQueen')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleReplaceQueen}>
-                    {t('actions.replaceQueen')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleMarkQueenState('DEAD')}
-                  >
-                    {t('actions.markAsDead')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleMarkQueenState('REPLACED')}
-                  >
-                    {t('actions.markAsLostMissing')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {queenActionsMenu}
             </>
           ) : (
             <div className="flex items-center gap-2">

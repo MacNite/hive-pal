@@ -47,7 +47,9 @@
         "markAsDead": "Означи Угинула",
         "markAsLostMissing": "Означи као Изгубљена/Недостаје",
         "addQueen": "Додај Матицу",
-        "editQueen": "Измени Матицу"
+        "editQueen": "Измени Матицу",
+        "viewDetails": "Прикажи детаље",
+        "manageQueen": "Управљај Матицом"
     },
     "form": {
         "selectHive": "Изабери кошницу",

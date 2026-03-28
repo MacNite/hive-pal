@@ -51,7 +51,9 @@
         "markAsDead": "Als tot markieren",
         "markAsLostMissing": "Als verloren/verschollen markieren",
         "addQueen": "Königin hinzufügen",
-        "editQueen": "Königin bearbeiten"
+        "editQueen": "Königin bearbeiten",
+        "viewDetails": "Details anzeigen",
+        "manageQueen": "Königin verwalten"
     },
     "form": {
         "selectHive": "Bienenstock auswählen",

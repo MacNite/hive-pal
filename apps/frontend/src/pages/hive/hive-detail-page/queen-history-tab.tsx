@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
-import { Crown } from 'lucide-react';
+import { Crown, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Table,
   TableBody,
@@ -13,9 +14,17 @@ import {
 import { useHiveQueenHistory } from '@/api/hooks';
 import { QUEEN_STATUS_VARIANTS, getQueenDisplayName } from '@/lib/queen-utils';
 import { QueenColorBadge } from '@/pages/queen/components/queen-color-badge';
+import { useTranslation } from 'react-i18next';
+import { ActiveQueen } from 'shared-schemas';
 
-export const QueenHistoryTab: React.FC<QueenHistoryTabProps> = ({ hiveId }) => {
+type QueenHistoryTabProps = {
+  hiveId: string;
+  activeQueen?: ActiveQueen | null;
+};
+
+export const QueenHistoryTab: React.FC<QueenHistoryTabProps> = ({ hiveId, activeQueen }) => {
   const { data: queens, isLoading } = useHiveQueenHistory(hiveId);
+  const { t } = useTranslation('queen');
 
   if (isLoading) {
     return (
@@ -29,12 +38,37 @@ export const QueenHistoryTab: React.FC<QueenHistoryTabProps> = ({ hiveId }) => {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <Crown className="h-12 w-12 text-muted-foreground mb-4" />
-        <p className="text-muted-foreground">No queen history for this hive.</p>
+        <p className="text-muted-foreground mb-4">No queen history for this hive.</p>
+        <Button size="sm" asChild>
+          <Link to={`/hives/${hiveId}/queens/create`}>
+            <Plus className="mr-1 h-4 w-4" />
+            {t('actions.addQueen')}
+          </Link>
+        </Button>
       </div>
     );
   }
 
   return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">{t('title')}</h3>
+        <div className="flex gap-2">
+          {activeQueen && (
+            <Button variant="outline" size="sm" asChild>
+              <Link to={`/queens/${activeQueen.id}`}>
+                {t('actions.viewDetails')}
+              </Link>
+            </Button>
+          )}
+          <Button size="sm" asChild>
+            <Link to={`/hives/${hiveId}/queens/create`}>
+              <Plus className="mr-1 h-4 w-4" />
+              {activeQueen ? t('actions.replaceQueen') : t('actions.addQueen')}
+            </Link>
+          </Button>
+        </div>
+      </div>
     <div className="rounded-md border">
       <Table>
         <TableHeader>
@@ -76,6 +110,7 @@ export const QueenHistoryTab: React.FC<QueenHistoryTabProps> = ({ hiveId }) => {
           })}
         </TableBody>
       </Table>
+    </div>
     </div>
   );
 };

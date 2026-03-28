@@ -51,7 +51,9 @@
         "markAsDead": "Marker som død",
         "markAsLostMissing": "Marker som mistet/forsvundet",
         "addQueen": "Tilføj dronning",
-        "editQueen": "Rediger dronning"
+        "editQueen": "Rediger dronning",
+        "viewDetails": "Vis detaljer",
+        "manageQueen": "Administrer dronning"
     },
     "form": {
         "selectHive": "Vælg et stade",

@@ -51,7 +51,9 @@
     "markAsDead": "Segna come Morta",
     "markAsLostMissing": "Segna come Persa/Mancante",
     "addQueen": "Aggiungi Regina",
-    "editQueen": "Modifica Regina"
+    "editQueen": "Modifica Regina",
+    "viewDetails": "Visualizza Dettagli",
+    "manageQueen": "Gestisci Regina"
   },
   "form": {
     "selectHive": "Seleziona un'arnia",

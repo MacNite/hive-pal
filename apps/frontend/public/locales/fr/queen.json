@@ -51,7 +51,9 @@
     "markAsDead": "Marquer comme morte",
     "markAsLostMissing": "Marquer comme perdue/absente",
     "addQueen": "Ajouter une reine",
-    "editQueen": "Modifier la reine"
+    "editQueen": "Modifier la reine",
+    "viewDetails": "Voir les détails",
+    "manageQueen": "Gérer la reine"
   },
   "form": {
     "selectHive": "Sélectionner une ruche",

@@ -141,7 +141,7 @@ export const HiveDetailPage = () => {
             </TabsContent>
 
             <TabsContent value="queens">
-              {hive && <QueenHistoryTab hiveId={hive.id} />}
+              {hive && <QueenHistoryTab hiveId={hive.id} activeQueen={hive.activeQueen} />}
             </TabsContent>
           </Tabs>
         </div>

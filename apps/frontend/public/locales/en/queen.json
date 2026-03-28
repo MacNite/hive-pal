@@ -52,7 +52,9 @@
     "markAsDead": "Mark as Dead",
     "markAsLostMissing": "Mark as Lost/Missing",
     "addQueen": "Add Queen",
-    "editQueen": "Edit Queen"
+    "editQueen": "Edit Queen",
+    "viewDetails": "View Details",
+    "manageQueen": "Manage Queen"
   },
   "form": {
     "selectHive": "Select a hive",
