@@ -60,5 +60,6 @@ export const QueenHistoryTab: React.FC<QueenHistoryTabProps> = ({ hiveId, active
       </div>
       <QueenTable queens={queens} showReplaced />
     </div>
+    </div>
   );
 };
