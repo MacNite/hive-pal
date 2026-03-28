@@ -23,27 +23,38 @@ import { QueenTransferDialog } from '@/pages/queen/components/queen-transfer-dia
 import { getQueenColorClass } from '@/lib/queen-utils';
 import { useUpdateQueen } from '@/api/hooks';
 
-type QueenInformationProps = {
-  hiveId?: string;
-  activeQueen?: ActiveQueen | null;
-  onQueenUpdated?: () => void;
-  variant?: 'card' | 'inline';
-};
-export const QueenInformation: React.FC<QueenInformationProps> = ({
-  activeQueen,
-  hiveId,
-  onQueenUpdated,
-  variant = 'card',
+function formatInstalledDate(installedAt: string | Date): string {
+  return format(
+    typeof installedAt === 'string' ? parseISO(installedAt) : installedAt,
+    'PPP',
+  );
+}
+
+const QueenColorDot: React.FC<{ color?: string | null; size?: 'sm' | 'md' }> = ({
+  color,
+  size = 'sm',
 }) => {
+  const sizeClass = size === 'md' ? 'h-5 w-5' : 'h-4 w-4';
+  return (
+    <div
+      className={`${sizeClass} rounded-full border border-gray-600 ${getQueenColorClass(color, 'bg-white')}`}
+    />
+  );
+};
+
+const QueenActionsMenu: React.FC<{
+  queen: ActiveQueen;
+  hiveId?: string;
+  onTransferClick: () => void;
+  onQueenUpdated?: () => void;
+}> = ({ queen, hiveId, onTransferClick, onQueenUpdated }) => {
   const { t } = useTranslation('queen');
   const navigate = useNavigate();
-  const [transferOpen, setTransferOpen] = useState(false);
   const { mutateAsync: updateQueen } = useUpdateQueen();
 
   const handleMarkQueenState = async (newState: 'DEAD' | 'REPLACED') => {
-    if (!activeQueen?.id) return;
     await updateQueen({
-      id: activeQueen.id,
+      id: queen.id,
       data: {
         status: newState,
         replacedAt: new Date().toISOString(),
@@ -52,26 +63,22 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
     onQueenUpdated?.();
   };
 
-  const handleReplaceQueen = () => {
-    navigate(`/hives/${hiveId}/queens/create`);
-  };
-
-  const queenActionsMenu = activeQueen ? (
+  return (
     <DropdownMenu>
       <DropdownMenuTrigger>
         <MoreHorizontal className="h-4 w-4 text-muted-foreground cursor-pointer" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => navigate(`/queens/${activeQueen.id}`)}>
+        <DropdownMenuItem onClick={() => navigate(`/queens/${queen.id}`)}>
           {t('actions.viewDetails')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTransferOpen(true)}>
+        <DropdownMenuItem onClick={onTransferClick}>
           {t('actions.transferQueen')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate(`/queens/${activeQueen.id}/edit`)}>
+        <DropdownMenuItem onClick={() => navigate(`/queens/${queen.id}/edit`)}>
           {t('actions.editQueen')}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleReplaceQueen}>
+        <DropdownMenuItem onClick={() => navigate(`/hives/${hiveId}/queens/create`)}>
           {t('actions.replaceQueen')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleMarkQueenState('DEAD')}>
@@ -82,157 +89,186 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  ) : null;
-  const mobileView = (
-    <div className="sm:hidden">
-      {activeQueen ? (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div
-              className={`h-4 w-4 rounded-full border border-gray-600 ${getQueenColorClass(activeQueen?.color, 'bg-white')}`}
-            />
-            <Link to={`/queens/${activeQueen.id}`} className="text-sm font-medium hover:underline">
-              {activeQueen?.marking} • {activeQueen?.year}
-            </Link>
-            {activeQueen?.installedAt && (
-              <span className="text-xs text-muted-foreground">
-                {format(
-                  typeof activeQueen.installedAt === 'string'
-                    ? parseISO(activeQueen.installedAt)
-                    : activeQueen.installedAt,
-                  'PPP',
-                )}
-              </span>
-            )}
-          </div>
-          {queenActionsMenu}
-        </div>
-      ) : (
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">
-            {t('information.noActiveQueen')}
-          </span>
-          <Link
-            to={`/hives/${hiveId}/queens/create`}
-            className={buttonVariants({
-              size: 'sm',
-              variant: 'ghost',
-            })}
-          >
-            <BeeIcon className="mr-2 h-4 w-4" /> {t('actions.addQueen')}
-          </Link>
-        </div>
-      )}
+  );
+};
+
+const AddQueenLink: React.FC<{
+  hiveId?: string;
+  variant?: 'default' | 'ghost';
+}> = ({ hiveId, variant = 'ghost' }) => {
+  const { t } = useTranslation('queen');
+  return (
+    <Link
+      to={`/hives/${hiveId}/queens/create`}
+      className={buttonVariants({ size: 'sm', variant })}
+    >
+      <BeeIcon className="mr-2 h-4 w-4" /> {t('actions.addQueen')}
+    </Link>
+  );
+};
+
+const NoActiveQueenPrompt: React.FC<{
+  hiveId?: string;
+  layout?: 'inline' | 'centered';
+}> = ({ hiveId, layout = 'inline' }) => {
+  const { t } = useTranslation('queen');
+
+  if (layout === 'centered') {
+    return (
+      <div className="text-center py-2">
+        <p className="text-muted-foreground mb-4">
+          {t('information.noActiveQueen')}
+        </p>
+        <AddQueenLink hiveId={hiveId} variant="default" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-muted-foreground">
+        {t('information.noActiveQueen')}
+      </span>
+      <AddQueenLink hiveId={hiveId} />
     </div>
+  );
+};
+
+const QueenMobileView: React.FC<{
+  activeQueen?: ActiveQueen | null;
+  hiveId?: string;
+  asLink?: boolean;
+  onTransferClick: () => void;
+  onQueenUpdated?: () => void;
+}> = ({ activeQueen, hiveId, asLink = false, onTransferClick, onQueenUpdated }) => (
+  <div className="sm:hidden">
+    {activeQueen ? (
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <QueenColorDot color={activeQueen.color} />
+          {asLink ? (
+            <Link to={`/queens/${activeQueen.id}`} className="text-sm font-medium hover:underline">
+              {activeQueen.marking} • {activeQueen.year}
+            </Link>
+          ) : (
+            <span className="text-sm font-medium">
+              {activeQueen.marking} • {activeQueen.year}
+            </span>
+          )}
+          {activeQueen.installedAt && (
+            <span className="text-xs text-muted-foreground">
+              {formatInstalledDate(activeQueen.installedAt)}
+            </span>
+          )}
+        </div>
+        <QueenActionsMenu
+          queen={activeQueen}
+          hiveId={hiveId}
+          onTransferClick={onTransferClick}
+          onQueenUpdated={onQueenUpdated}
+        />
+      </div>
+    ) : (
+      <NoActiveQueenPrompt hiveId={hiveId} />
+    )}
+  </div>
+);
+
+type QueenInformationProps = {
+  hiveId?: string;
+  activeQueen?: ActiveQueen | null;
+  onQueenUpdated?: () => void;
+  variant?: 'card' | 'inline';
+};
+
+export const QueenInformation: React.FC<QueenInformationProps> = ({
+  activeQueen,
+  hiveId,
+  onQueenUpdated,
+  variant = 'card',
+}) => {
+  const { t } = useTranslation('queen');
+  const [transferOpen, setTransferOpen] = useState(false);
+
+  const transferDialog = activeQueen && (
+    <QueenTransferDialog
+      queen={activeQueen as QueenResponse}
+      open={transferOpen}
+      onOpenChange={setTransferOpen}
+    />
   );
 
   if (variant === 'inline') {
     return (
       <div>
-        {mobileView}
+        <QueenMobileView
+          activeQueen={activeQueen}
+          hiveId={hiveId}
+          asLink
+          onTransferClick={() => setTransferOpen(true)}
+          onQueenUpdated={onQueenUpdated}
+        />
         <div className="hidden sm:flex items-center gap-3">
           {activeQueen ? (
             <>
-              <div
-                className={`h-4 w-4 rounded-full border border-gray-600 ${getQueenColorClass(activeQueen?.color, 'bg-white')}`}
-              />
+              <QueenColorDot color={activeQueen.color} />
               <Link to={`/queens/${activeQueen.id}`} className="text-sm font-medium hover:underline">
-                {activeQueen?.marking}
+                {activeQueen.marking}
               </Link>
-              <span className="text-xs text-muted-foreground">{activeQueen?.year}</span>
-              {activeQueen?.installedAt && (
+              <span className="text-xs text-muted-foreground">{activeQueen.year}</span>
+              {activeQueen.installedAt && (
                 <>
                   <span className="text-xs text-muted-foreground">•</span>
                   <span className="text-xs text-muted-foreground">
-                    {format(
-                      typeof activeQueen.installedAt === 'string'
-                        ? parseISO(activeQueen.installedAt)
-                        : activeQueen.installedAt,
-                      'PPP',
-                    )}
+                    {formatInstalledDate(activeQueen.installedAt)}
                   </span>
                 </>
               )}
-              {queenActionsMenu}
+              <QueenActionsMenu
+                queen={activeQueen}
+                hiveId={hiveId}
+                onTransferClick={() => setTransferOpen(true)}
+                onQueenUpdated={onQueenUpdated}
+              />
             </>
           ) : (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {t('information.noActiveQueen')}
-              </span>
-              <Link
-                to={`/hives/${hiveId}/queens/create`}
-                className={buttonVariants({
-                  size: 'sm',
-                  variant: 'ghost',
-                })}
-              >
-                <BeeIcon className="mr-2 h-4 w-4" /> {t('actions.addQueen')}
-              </Link>
+              <NoActiveQueenPrompt hiveId={hiveId} />
             </div>
           )}
         </div>
+        {transferDialog}
       </div>
     );
   }
 
   return (
     <Card className="p-3 sm:p-0">
-      {/* Mobile compact view */}
-      <div className="sm:hidden">
-        {activeQueen ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div
-                className={`h-4 w-4 rounded-full border border-gray-600 ${getQueenColorClass(activeQueen?.color, 'bg-white')}`}
-              />
-              <span className="text-sm font-medium">
-                {activeQueen?.marking} • {activeQueen?.year}
-              </span>
-              {activeQueen?.installedAt && (
-                <span className="text-xs text-muted-foreground">
-                  {format(
-                    typeof activeQueen.installedAt === 'string'
-                      ? parseISO(activeQueen.installedAt)
-                      : activeQueen.installedAt,
-                    'PPP',
-                  )}
-                </span>
-              )}
-            </div>
-            {activeQueen && queenActionsMenu}
-          </div>
-        ) : (
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {t('information.noActiveQueen')}
-            </span>
-            <Link
-              to={`/hives/${hiveId}/queens/create`}
-              className={buttonVariants({
-                size: 'sm',
-                variant: 'ghost',
-              })}
-            >
-              <BeeIcon className="mr-2 h-4 w-4" /> {t('actions.addQueen')}
-            </Link>
-          </div>
-        )}
-      </div>
+      <QueenMobileView
+        activeQueen={activeQueen}
+        hiveId={hiveId}
+        onTransferClick={() => setTransferOpen(true)}
+        onQueenUpdated={onQueenUpdated}
+      />
 
       {/* Desktop view */}
       <div className="hidden sm:block">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-lg font-medium flex items-center gap-3">
-            <div
-              className={`h-5 w-5 rounded-full border border-gray-600 ${getQueenColorClass(activeQueen?.color, 'bg-white')}`}
-            />
+            <QueenColorDot color={activeQueen?.color} size="md" />
             {t('singular')} {activeQueen?.marking}
           </CardTitle>
 
           <div className="flex items-center space-x-2">
             <BeeIcon className="h-4 w-4 text-muted-foreground" />
-            {activeQueen && queenActionsMenu}
+            {activeQueen && (
+              <QueenActionsMenu
+                queen={activeQueen}
+                hiveId={hiveId}
+                onTransferClick={() => setTransferOpen(true)}
+                onQueenUpdated={onQueenUpdated}
+              />
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -241,19 +277,14 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-2 text-sm">
                   <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                  {activeQueen?.installedAt && (
+                  {activeQueen.installedAt && (
                     <span>
                       {t('fields.installedOn', {
-                        date: format(
-                          typeof activeQueen.installedAt === 'string'
-                            ? parseISO(activeQueen.installedAt)
-                            : activeQueen.installedAt,
-                          'PPP',
-                        ),
+                        date: formatInstalledDate(activeQueen.installedAt),
                       })}
                     </span>
                   )}
-                  {activeQueen?.source && (
+                  {activeQueen.source && (
                     <span className="text-muted-foreground">
                       ({t('fields.via', { source: activeQueen.source })})
                     </span>
@@ -264,19 +295,7 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
               </div>
             </div>
           ) : (
-            <div className="text-center py-2">
-              <p className="text-muted-foreground mb-4">
-                {t('information.noActiveQueen')}
-              </p>
-              <Link
-                to={`/hives/${hiveId}/queens/create`}
-                className={buttonVariants({
-                  size: 'sm',
-                })}
-              >
-                <BeeIcon className="mr-2 h-4 w-4" /> {t('actions.addQueen')}
-              </Link>
-            </div>
+            <NoActiveQueenPrompt hiveId={hiveId} layout="centered" />
           )}
         </CardContent>
         <CardFooter className="flex justify-between text-sm text-muted-foreground">
@@ -285,13 +304,7 @@ export const QueenInformation: React.FC<QueenInformationProps> = ({
         </CardFooter>
       </div>
 
-      {activeQueen && (
-        <QueenTransferDialog
-          queen={activeQueen as QueenResponse}
-          open={transferOpen}
-          onOpenChange={setTransferOpen}
-        />
-      )}
+      {transferDialog}
     </Card>
   );
 };
