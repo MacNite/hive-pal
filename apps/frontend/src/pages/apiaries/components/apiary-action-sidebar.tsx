@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PlusCircle, RefreshCw, TrashIcon } from 'lucide-react';
+import { PencilIcon, PlusCircle, RefreshCw, TrashIcon } from 'lucide-react';
 
 import {
   ActionSidebarContainer,
@@ -76,6 +76,16 @@ export const ApiaryActionSidebar: React.FC<ApiaryActionSidebarProps> = ({
           title={t('apiary:manage.title', { defaultValue: 'Manage Apiary' })}
           className="mt-4"
         >
+          <MenuItemButton
+            icon={<PencilIcon className="h-4 w-4" />}
+            label={t('apiary:edit.title', {
+              defaultValue: 'Edit Apiary',
+            })}
+            onClick={() => navigate(`/apiaries/${apiaryId}/edit`)}
+            tooltip={t('apiary:edit.title', {
+              defaultValue: 'Edit Apiary',
+            })}
+          />
           <MenuItemButton
             icon={<TrashIcon className="h-4 w-4" />}
             label={t('apiary:manage.deleteApiary', {

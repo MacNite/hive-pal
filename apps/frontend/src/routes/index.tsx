@@ -21,7 +21,11 @@ import {
 import { CreateQueenPage, EditQueenPage } from '@/pages/queen';
 import { ChangePasswordPage } from '@/pages/account';
 import GenericErrorPage from '@/pages/error-page.tsx';
-import { CreateApiaryPage, ApiaryListPage } from '@/pages/apiaries';
+import {
+  CreateApiaryPage,
+  EditApiaryPage,
+  ApiaryListPage,
+} from '@/pages/apiaries';
 import { ReleasesPage } from '@/pages/releases';
 import { UserSettingsPage } from '@/pages/settings';
 import { FeedbackPage } from '@/pages/feedback';
@@ -170,6 +174,10 @@ const router = createBrowserRouter([
       {
         path: '/apiaries/create',
         element: <CreateApiaryPage />,
+      },
+      {
+        path: '/apiaries/:id/edit',
+        element: <EditApiaryPage />,
       },
       {
         path: '/hives',
