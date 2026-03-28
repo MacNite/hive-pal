@@ -33,7 +33,14 @@ export const apiaryMapPointSchema = z.object({
   hiveCount: z.number(),
 });
 
+// Wrapper for the apiaries list endpoint
+export const apiaryListResponseSchema = z.object({
+  apiaries: z.array(apiaryResponseSchema),
+  pendingMemberships: z.number(),
+});
+
 export type CreateApiary = z.infer<typeof createApiarySchema>;
 export type UpdateApiary = z.infer<typeof updateApiarySchema>;
 export type ApiaryResponse = z.infer<typeof apiaryResponseSchema>;
+export type ApiaryListResponse = z.infer<typeof apiaryListResponseSchema>;
 export type ApiaryMapPoint = z.infer<typeof apiaryMapPointSchema>;

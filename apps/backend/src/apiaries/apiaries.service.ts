@@ -3,7 +3,7 @@ import { Prisma } from '@/prisma/client';
 import { CustomLoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FileUploadService } from '../storage/file-upload.service';
-import { ApiaryResponse, CreateApiary, UpdateApiary } from 'shared-schemas';
+import { ApiaryResponse, ApiaryListResponse, CreateApiary, UpdateApiary } from 'shared-schemas';
 
 @Injectable()
 export class ApiariesService {
@@ -71,24 +71,32 @@ export class ApiariesService {
     };
   }
 
-  async findAll(userId: string): Promise<ApiaryResponse[]> {
+  async findAll(userId: string): Promise<ApiaryListResponse> {
     this.logger.log(`Fetching all apiaries for user ${userId}`);
 
-    const apiaries = await this.prisma.apiary.findMany({
-      where: {
-        OR: [{ userId }, { members: { some: { userId, status: 'ACTIVE' } } }],
-      },
-      include: {
-        featurePhoto: { select: { id: true, storageKey: true } },
-        members: {
-          where: { userId, status: 'ACTIVE' },
-          select: { role: true },
+    const [apiaries, pendingMemberships] = await Promise.all([
+      this.prisma.apiary.findMany({
+        where: {
+          OR: [
+            { userId },
+            { members: { some: { userId, status: 'ACTIVE' } } },
+          ],
         },
-      },
-    });
+        include: {
+          featurePhoto: { select: { id: true, storageKey: true } },
+          members: {
+            where: { userId, status: 'ACTIVE' },
+            select: { role: true },
+          },
+        },
+      }),
+      this.prisma.apiaryMember.count({
+        where: { userId, status: 'PENDING' },
+      }),
+    ]);
 
     this.logger.log(`Found ${apiaries.length} apiaries for user ${userId}`);
-    return Promise.all(
+    const apiaryResponses = await Promise.all(
       apiaries.map(async (apiary) => {
         const featurePhotoFields = await this.mapFeaturePhotoUrl(
           apiary.featurePhoto,
@@ -106,6 +114,8 @@ export class ApiariesService {
         };
       }),
     );
+
+    return { apiaries: apiaryResponses, pendingMemberships };
   }
 
   async findOne(apiaryId: string, userId: string): Promise<ApiaryResponse> {

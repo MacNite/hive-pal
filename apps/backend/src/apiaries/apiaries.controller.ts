@@ -27,6 +27,7 @@ import {
   CreateApiary,
   UpdateApiary,
   ApiaryResponse,
+  ApiaryListResponse,
   ApiaryMapPoint,
 } from 'shared-schemas';
 
@@ -62,7 +63,7 @@ export class ApiariesController {
   }
 
   @Get()
-  findAll(@Req() req: RequestWithUser): Promise<ApiaryResponse[]> {
+  findAll(@Req() req: RequestWithUser): Promise<ApiaryListResponse> {
     this.logger.log(`Getting all apiaries for user ${req.user.id}`);
     return this.apiariesService.findAll(req.user.id);
   }

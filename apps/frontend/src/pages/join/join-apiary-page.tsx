@@ -20,7 +20,6 @@ export function JoinApiaryPage() {
     try {
       await joinMutation.mutateAsync(token);
       setJoined(true);
-      localStorage.setItem('hive_pal_pending_join', 'true');
     } catch {
       // Error is handled by the mutation
     }

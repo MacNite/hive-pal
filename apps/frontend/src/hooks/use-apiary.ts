@@ -33,7 +33,7 @@ export const useApiaryStore = create<ApiaryState>(set => {
 
 export const useApiary = () => {
   const navigate = useNavigate();
-  const { data: apiaries } = useApiaries();
+  const { data: apiaries, pendingMemberships } = useApiaries();
   const isAdmin = useIsAdmin();
   const { activeApiaryId, setActiveApiaryId, clearActiveApiaryId } =
     useApiaryStore(
@@ -45,22 +45,17 @@ export const useApiary = () => {
     );
 
   // Redirect to onboarding wizard if no apiaries exist
-  // Skip if user has a pending join request (waiting for owner approval)
+  // Skip if user has pending membership requests (waiting for owner approval)
   useEffect(() => {
-    const hasPendingJoin = localStorage.getItem('hive_pal_pending_join');
     if (
       apiaries?.length === 0 &&
       window.location.pathname !== '/onboarding' &&
       !isAdmin &&
-      !hasPendingJoin
+      pendingMemberships === 0
     ) {
       navigate('/onboarding');
     }
-    // Clear the flag once the user has apiaries (join was approved)
-    if (apiaries && apiaries.length > 0 && hasPendingJoin) {
-      localStorage.removeItem('hive_pal_pending_join');
-    }
-  }, [apiaries, navigate, isAdmin]);
+  }, [apiaries, navigate, isAdmin, pendingMemberships]);
 
   // Validate activeApiaryId against user's apiaries and auto-select
   useEffect(() => {

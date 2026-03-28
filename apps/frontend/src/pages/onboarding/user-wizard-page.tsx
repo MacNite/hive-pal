@@ -41,7 +41,7 @@ export const UserWizardPage = () => {
   ];
 
   // Fetch existing data to determine starting step
-  const { data: apiaries, isLoading: apiariesLoading } = useApiaries();
+  const { data: apiaries, isLoading: apiariesLoading, pendingMemberships } = useApiaries();
   const hasApiaries = !!apiaries && apiaries.length > 0;
   const { data: hives, isLoading: hivesLoading } = useHives(undefined, {
     enabled: hasApiaries,
@@ -63,9 +63,8 @@ export const UserWizardPage = () => {
       return;
     }
 
-    // If user has a pending join request, skip onboarding — they're waiting for approval
-    const hasPendingJoin = localStorage.getItem('hive_pal_pending_join');
-    if (!hasApiaries && hasPendingJoin) {
+    // If user has pending membership requests, skip onboarding — they're waiting for approval
+    if (!hasApiaries && pendingMemberships > 0) {
       window.location.href = '/';
       return;
     }
