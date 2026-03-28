@@ -76,7 +76,7 @@ export const ReportsSummaryWidget = () => {
   };
 
   return (
-    <Card className="h-full flex flex-col overflow-hidden gap-0 py-0">
+    <Card className="h-full flex flex-col overflow-hidden gap-0 py-0 border-none shadow-none">
       {apiary?.featurePhotoUrl && (
         <img
           src={apiary.featurePhotoUrl}
