@@ -22,6 +22,16 @@ export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
 export class JwtAuthGuard extends AuthGuard('jwt') {}
 
 @Injectable()
+export class OptionalJwtAuthGuard extends AuthGuard('jwt') {
+  handleRequest<TUser = unknown>(
+    _err: unknown,
+    user: TUser | false,
+  ): TUser | undefined {
+    return user || undefined;
+  }
+}
+
+@Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 

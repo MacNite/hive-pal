@@ -27,14 +27,15 @@ export class DocumentsService {
   async create(
     dto: CreateDocument,
     file: Express.Multer.File,
-    filter: ApiaryUserFilter,
+    _filter: ApiaryUserFilter,
   ): Promise<DocumentResponse> {
     this.fileUpload.validateFile(file, CONFIG);
-    await this.fileUpload.validateOwnership(
-      dto.apiaryId,
-      filter.userId,
-      dto.hiveId,
-    );
+    if (dto.hiveId) {
+      await this.fileUpload.validateHiveBelongsToApiary(
+        dto.hiveId,
+        dto.apiaryId,
+      );
+    }
 
     const { id, storageKey } = await this.fileUpload.uploadFile(
       file,
@@ -65,7 +66,6 @@ export class DocumentsService {
   }
 
   async findAll(filter: FileFilterInternal): Promise<DocumentResponse[]> {
-    await this.fileUpload.validateOwnership(filter.apiaryId, filter.userId);
     const where = this.fileUpload.buildWhereClause(filter);
 
     const documents = await this.prisma.document.findMany({

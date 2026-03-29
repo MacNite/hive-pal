@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { ApiaryRole } from '@/prisma/client';
 
 export interface RequestWithApiary extends Request {

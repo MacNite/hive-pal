@@ -1,8 +1,9 @@
+import { type ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 
 interface EditableRouteProps {
-  children: React.ReactNode;
+  children: ReactNode;
   redirectTo?: string;
 }
 

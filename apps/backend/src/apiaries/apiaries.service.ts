@@ -171,7 +171,7 @@ export class ApiariesService {
 
     try {
       const updatedApiary = await this.prisma.apiary.update({
-        where: { id },
+        where: { id, userId },
         data: updateApiaryDto,
         include: {
           featurePhoto: { select: { id: true, storageKey: true } },

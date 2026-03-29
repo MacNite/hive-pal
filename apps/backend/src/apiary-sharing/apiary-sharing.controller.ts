@@ -10,7 +10,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiarySharingService } from './apiary-sharing.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  JwtAuthGuard,
+  OptionalJwtAuthGuard,
+} from '../auth/guards/jwt-auth.guard';
 import { RequestWithUser } from '../auth/interface/request-with-user.interface';
 import { ZodValidation } from '../common';
 import {
@@ -56,6 +59,7 @@ export class ApiarySharingController {
   // --- Join flow ---
 
   @Get('join/:token')
+  @UseGuards(OptionalJwtAuthGuard)
   getInviteInfo(
     @Param('token') token: string,
     @Req() req: { user?: { id: string } },

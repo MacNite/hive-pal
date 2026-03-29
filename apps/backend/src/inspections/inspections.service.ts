@@ -26,7 +26,7 @@ type InspectionWithIncludes = Prisma.InspectionGetPayload<{
         frameAction: true;
         harvestAction: true;
         boxConfigurationAction: true;
-        createdByUser: { select: { name: true, email: true } };
+        createdByUser: { select: { name: true; email: true } };
       };
     };
     hive: {
@@ -267,7 +267,8 @@ export class InspectionsService {
         status: inspection.status as InspectionStatus,
         score,
         actions,
-        createdByUserName: inspection.createdByUser?.name || inspection.createdByUser?.email,
+        createdByUserName:
+          inspection.createdByUser?.name || inspection.createdByUser?.email,
       };
     });
   }
@@ -324,7 +325,8 @@ export class InspectionsService {
       status: inspection.status as InspectionStatus,
       score,
       actions,
-      createdByUserName: inspection.createdByUser?.name || inspection.createdByUser?.email,
+      createdByUserName:
+        inspection.createdByUser?.name || inspection.createdByUser?.email,
     };
   }
 
@@ -641,7 +643,8 @@ export class InspectionsService {
         status: inspection.status as InspectionStatus,
         score,
         actions,
-        createdByUserName: inspection.createdByUser?.name || inspection.createdByUser?.email,
+        createdByUserName:
+          inspection.createdByUser?.name || inspection.createdByUser?.email,
       };
     });
   }

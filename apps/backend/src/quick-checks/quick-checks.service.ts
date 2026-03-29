@@ -38,7 +38,7 @@ export class QuickChecksService {
     private prisma: PrismaService,
     private storageService: StorageService,
     private logger: CustomLoggerService,
-  ) { }
+  ) {}
 
   async create(
     dto: CreateQuickCheck,
@@ -66,15 +66,18 @@ export class QuickChecksService {
         tags: dto.tags ?? [],
         createdByUserId: filter.userId,
       },
-      include: { photos: true, createdByUser: { select: { name: true, email: true } } },
+      include: {
+        photos: true,
+        createdByUser: { select: { name: true, email: true } },
+      },
     });
 
     this.logger.log({
       message: 'Quick check created',
       quickCheckId: quickCheck.id,
-      apiaryId: dto.apiaryId,
+      apiaryId: filter.apiaryId,
       hiveId: dto.hiveId,
-      userName: filter.userId,
+      userId: filter.userId,
     });
 
     return this.mapToResponse(quickCheck);
@@ -111,7 +114,10 @@ export class QuickChecksService {
 
     const quickChecks = await this.prisma.quickCheck.findMany({
       where,
-      include: { photos: true, createdByUser: { select: { name: true, email: true } } },
+      include: {
+        photos: true,
+        createdByUser: { select: { name: true, email: true } },
+      },
       orderBy: { date: 'desc' },
     });
 
@@ -127,7 +133,10 @@ export class QuickChecksService {
         id,
         apiary: { id: filter.apiaryId },
       },
-      include: { photos: true, createdByUser: { select: { name: true, email: true } } },
+      include: {
+        photos: true,
+        createdByUser: { select: { name: true, email: true } },
+      },
     });
 
     if (!quickCheck) {
@@ -362,7 +371,8 @@ export class QuickChecksService {
       photos: quickCheck.photos.map((p) => this.mapPhotoToResponse(p)),
       createdAt: quickCheck.createdAt.toISOString(),
       updatedAt: quickCheck.updatedAt.toISOString(),
-      createdByUserName: quickCheck.createdByUser?.name || quickCheck.createdByUser?.email,
+      createdByUserName:
+        quickCheck.createdByUser?.name || quickCheck.createdByUser?.email,
     };
   }
 

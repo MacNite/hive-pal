@@ -78,9 +78,7 @@ describe('ApiaryContextGuard', () => {
       user: { id: 'user-1' },
     });
 
-    await expect(guard.canActivate(context)).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(guard.canActivate(context)).rejects.toThrow(NotFoundException);
   });
 
   it('should set apiaryId and role OWNER when user owns the apiary', async () => {

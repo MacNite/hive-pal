@@ -28,7 +28,11 @@ export class ApiaryPermissionGuard implements CanActivate {
       return true;
     }
 
-    // Mutation requests require EDITOR or OWNER
+    // Mutation requests require a defined role of EDITOR or OWNER
+    if (!request.apiaryRole) {
+      throw new ForbiddenException('Missing apiary role for this operation');
+    }
+
     if (request.apiaryRole === 'VIEWER') {
       throw new ForbiddenException('You have view-only access to this apiary');
     }

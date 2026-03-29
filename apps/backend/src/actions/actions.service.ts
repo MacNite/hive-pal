@@ -21,7 +21,7 @@ type ActionWithRelations = Prisma.ActionGetPayload<{
     frameAction: true;
     harvestAction: true;
     boxConfigurationAction: true;
-    createdByUser: { select: { name: true, email: true } };
+    createdByUser: { select: { name: true; email: true } };
   };
 }>;
 
@@ -661,7 +661,8 @@ export class ActionsService {
       harvestId: prismaAction.harvestId,
       date: prismaAction.date.toISOString(),
       notes: prismaAction.notes || undefined,
-      createdByUserName: prismaAction.createdByUser?.name || prismaAction.createdByUser?.email,
+      createdByUserName:
+        prismaAction.createdByUser?.name || prismaAction.createdByUser?.email,
     };
 
     const unitPreference = userPreferences?.units || 'metric';

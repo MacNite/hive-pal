@@ -70,10 +70,7 @@ export class ReportsController {
       );
     }
 
-    return this.reportsService.getTrends(
-      req.apiaryId,
-      period as ReportPeriod,
-    );
+    return this.reportsService.getTrends(req.apiaryId, period as ReportPeriod);
   }
 
   @Get('export/csv')
@@ -95,10 +92,7 @@ export class ReportsController {
       );
     }
 
-    return this.reportsService.exportCsv(
-      req.apiaryId,
-      period as ReportPeriod,
-    );
+    return this.reportsService.exportCsv(req.apiaryId, period as ReportPeriod);
   }
 
   @Get('export/pdf')

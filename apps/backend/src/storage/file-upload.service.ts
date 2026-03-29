@@ -61,31 +61,18 @@ export class FileUploadService {
     }
   }
 
-  /** Verifies apiary exists, and optionally that hiveId belongs to the apiary.
-   *  Note: user authorization is handled by ApiaryContextGuard. */
-  async validateOwnership(
+  /** Verifies that a hive belongs to the given apiary.
+   *  Apiary existence and user authorization are handled by ApiaryContextGuard. */
+  async validateHiveBelongsToApiary(
+    hiveId: string,
     apiaryId: string,
-    _userId?: string,
-    hiveId?: string,
   ): Promise<void> {
-    const apiary = await this.prisma.apiary.findFirst({
-      where: { id: apiaryId },
+    const hive = await this.prisma.hive.findFirst({
+      where: { id: hiveId, apiaryId },
     });
 
-    if (!apiary) {
-      throw new NotFoundException(`Apiary with ID ${apiaryId} not found`);
-    }
-
-    if (hiveId) {
-      const hive = await this.prisma.hive.findFirst({
-        where: { id: hiveId, apiaryId },
-      });
-
-      if (!hive) {
-        throw new NotFoundException(
-          `Hive with ID ${hiveId} not found in apiary`,
-        );
-      }
+    if (!hive) {
+      throw new NotFoundException(`Hive with ID ${hiveId} not found in apiary`);
     }
   }
 

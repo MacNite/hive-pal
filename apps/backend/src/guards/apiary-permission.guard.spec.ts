@@ -41,20 +41,20 @@ describe('ApiaryPermissionGuard', () => {
   });
 
   it('should throw ForbiddenException for POST with VIEWER role', () => {
-    expect(() => guard.canActivate(createMockContext('POST', 'VIEWER'))).toThrow(
-      ForbiddenException,
-    );
+    expect(() =>
+      guard.canActivate(createMockContext('POST', 'VIEWER')),
+    ).toThrow(ForbiddenException);
   });
 
   it('should throw ForbiddenException for PATCH with VIEWER role', () => {
-    expect(() => guard.canActivate(createMockContext('PATCH', 'VIEWER'))).toThrow(
-      ForbiddenException,
-    );
+    expect(() =>
+      guard.canActivate(createMockContext('PATCH', 'VIEWER')),
+    ).toThrow(ForbiddenException);
   });
 
   it('should throw ForbiddenException for DELETE with VIEWER role', () => {
-    expect(() => guard.canActivate(createMockContext('DELETE', 'VIEWER'))).toThrow(
-      ForbiddenException,
-    );
+    expect(() =>
+      guard.canActivate(createMockContext('DELETE', 'VIEWER')),
+    ).toThrow(ForbiddenException);
   });
 });
