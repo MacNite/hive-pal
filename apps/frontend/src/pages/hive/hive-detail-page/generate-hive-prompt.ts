@@ -92,7 +92,7 @@ export function generateHivePrompt(
   lines.push('');
 
   // Hive overview
-  lines.push('## ' + i18n.t('hive:llmPrompt.textArea.hiveOverview', {defaultValue: 'Hive Overview '}) );
+  lines.push('## ' + i18n.t('hive:llmPrompt.textArea.hiveOverview', { defaultValue: 'Hive Overview', }),);
   lines.push('- ' + i18n.t('hive:llmPrompt.textArea.nameValue', { name: hive.name , defaultValue: 'Name: {{name}}' }));
   lines.push('- ' + i18n.t('hive:llmPrompt.textArea.statusValue', { status: hive.status, defaultValue: 'Status: {{status}}' }));
   if (hive.installationDate) {

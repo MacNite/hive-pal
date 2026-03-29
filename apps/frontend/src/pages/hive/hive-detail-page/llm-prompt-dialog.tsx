@@ -90,10 +90,7 @@ export function LlmPromptDialog({ hiveId, hiveName }: LlmPromptDialogProps) {
           />
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">
-              {t('llmPrompt.charactersLength', {
-                length: promptText.length,
-                defaultValue: `${promptText.length} characters`,
-              })}
+              {t('llmPrompt.charactersLength', { length: promptText.length, defaultValue: '{{length}} characters' })}
             </span>
             <Button onClick={handleCopy} data-umami-event="LLM Prompt Copy">
               {copied ? (
