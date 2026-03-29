@@ -266,7 +266,6 @@ export class QueensService {
           orderBy: { movedAt: 'desc' },
         },
       },
-      include: { hive: { select: { name: true } } },
     });
 
     if (!queen) throw new NotFoundException(`Queen with ID ${queenId} not found`);

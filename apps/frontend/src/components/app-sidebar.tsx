@@ -13,7 +13,6 @@ import {
   MessageSquare,
   Crown,
   FolderOpen,
-  Crown,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -45,7 +44,9 @@ const getNavData = (t: TFunction<'common'>) => ({
           url: '/apiaries',
         },
         {
-          title: t('navigation.createApiary', { defaultValue: 'Create Apiary' }),
+          title: t('navigation.createApiary', {
+            defaultValue: 'Create Apiary',
+          }),
           url: '/apiaries/create',
         },
       ],
@@ -105,7 +106,7 @@ const getNavData = (t: TFunction<'common'>) => ({
       ],
     },
     {
-      title: t('navigation.calendar'),
+      title: t('navigation.calendar', { defaultValue: 'Calendar' }),
       url: '/calendar',
       icon: Calendar,
       isActive: true,
@@ -123,18 +124,18 @@ const getNavData = (t: TFunction<'common'>) => ({
       isActive: true,
     },
     {
-      title: t('navigation.actions'),
+      title: t('navigation.actions', { defaultValue: 'Actions' }),
       url: '/actions/bulk',
       icon: ClipboardList,
       isActive: true,
     },
     {
-      title: t('navigation.files'),
+      title: t('navigation.files', { defaultValue: 'Files' }),
       url: '/files',
       icon: FolderOpen,
     },
     {
-      title: t('navigation.equipment'),
+      title: t('navigation.equipment', { defaultValue: 'Equipment' }),
       url: '/equipment',
       icon: Package,
     },

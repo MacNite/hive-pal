@@ -18,26 +18,6 @@ import { QueenTransferDialog } from './components/queen-transfer-dialog';
 import { QueenResponse } from 'shared-schemas';
 import { QUEEN_STATUS_VARIANTS, getQueenColorClass, getQueenDisplayName } from '@/lib/queen-utils';
 
-const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  ACTIVE: 'default',
-  REPLACED: 'secondary',
-  DEAD: 'destructive',
-  UNKNOWN: 'outline',
-};
-
-const COLOR_CLASSES: Record<string, string> = {
-  blue: 'bg-blue-500',
-  green: 'bg-green-500',
-  red: 'bg-red-500',
-  yellow: 'bg-yellow-500',
-  purple: 'bg-purple-500',
-  indigo: 'bg-indigo-500',
-  pink: 'bg-pink-500',
-  gray: 'bg-gray-500',
-  black: 'bg-black',
-  white: 'bg-white border border-gray-200',
-};
-
 export const QueenDetailPage = () => {
   const { queenId } = useParams<{ queenId: string }>();
   const navigate = useNavigate();

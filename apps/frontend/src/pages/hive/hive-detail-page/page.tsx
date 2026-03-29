@@ -11,6 +11,7 @@ import { HiveSettings } from './hive-settings';
 import { HiveCharts } from './charts';
 import { useHive } from '@/api/hooks';
 import { useBreadcrumbStore } from '@/stores/breadcrumb-store';
+import { QueenHistoryTab } from './queen-history-tab';
 import { HiveStatusButton } from './hive-status-button';
 import { buildBoxGradient } from '@/utils/box-gradient';
 import { useImageDisplayStore } from '@/stores/image-display-store';
