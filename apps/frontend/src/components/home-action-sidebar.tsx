@@ -14,6 +14,7 @@ import {
 
 import { CalendarSidebar } from '@/components/calendar-sidebar';
 import { useApiary } from '@/hooks/use-apiary';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 import {
   ActionSidebarContainer,
   ActionSidebarGroup,
@@ -31,6 +32,7 @@ export const HomeActionSidebar: React.FC<HomeActionSidebarProps> = ({
   const { t } = useTranslation('common');
   const navigate = useNavigate();
   const { activeApiaryId } = useApiary();
+  const { canEdit } = useApiaryPermission();
 
   return (
     <div className="space-y-4">
@@ -39,32 +41,34 @@ export const HomeActionSidebar: React.FC<HomeActionSidebarProps> = ({
       <WeatherForecastSection apiaryId={activeApiaryId} />
 
       <ActionSidebarContainer>
-        <ActionSidebarGroup title={t('actions.createNew')}>
-          <MenuItemButton
-            icon={<PlusCircle className="h-4 w-4 text-green-600" />}
-            label={t('actions.newHive')}
-            onClick={() => navigate('/hives/create/')}
-            tooltip={t('actions.newHive')}
-          />
-          <MenuItemButton
-            icon={<ClipboardCheck className="h-4 w-4 text-blue-600" />}
-            label={t('actions.newInspection')}
-            onClick={() => navigate('/inspections/create')}
-            tooltip={t('actions.newInspection')}
-          />
-          <MenuItemButton
-            icon={<CalendarPlus className="h-4 w-4 text-indigo-600" />}
-            label={t('actions.scheduleInspection')}
-            onClick={() => navigate('/inspections/schedule')}
-            tooltip={t('actions.scheduleInspection')}
-          />
-          <MenuItemButton
-            icon={<Crown className="h-4 w-4 text-purple-600" />}
-            label={t('actions.newQueen')}
-            onClick={() => navigate('/queens/create')}
-            tooltip={t('actions.newQueen')}
-          />
-        </ActionSidebarGroup>
+        {canEdit && (
+          <ActionSidebarGroup title={t('actions.createNew')}>
+            <MenuItemButton
+              icon={<PlusCircle className="h-4 w-4 text-green-600" />}
+              label={t('actions.newHive')}
+              onClick={() => navigate('/hives/create/')}
+              tooltip={t('actions.newHive')}
+            />
+            <MenuItemButton
+              icon={<ClipboardCheck className="h-4 w-4 text-blue-600" />}
+              label={t('actions.newInspection')}
+              onClick={() => navigate('/inspections/create')}
+              tooltip={t('actions.newInspection')}
+            />
+            <MenuItemButton
+              icon={<CalendarPlus className="h-4 w-4 text-indigo-600" />}
+              label={t('actions.scheduleInspection')}
+              onClick={() => navigate('/inspections/schedule')}
+              tooltip={t('actions.scheduleInspection')}
+            />
+            <MenuItemButton
+              icon={<Crown className="h-4 w-4 text-purple-600" />}
+              label={t('actions.newQueen')}
+              onClick={() => navigate('/queens/create')}
+              tooltip={t('actions.newQueen')}
+            />
+          </ActionSidebarGroup>
+        )}
 
         <ActionSidebarGroup title={t('actions.navigate')} className="mt-4">
           <MenuItemButton

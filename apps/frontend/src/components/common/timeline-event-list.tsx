@@ -386,6 +386,8 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
     const action =
       !isInspection && !isQuickCheck && !isPhoto && !isDocument ? (event.data as ActionResponse) : null;
 
+    const createdByUserName =
+      inspection?.createdByUserName ?? action?.createdByUserName ?? quickCheck?.createdByUserName;
     const isScheduled = inspection?.status === InspectionStatus.SCHEDULED;
     const isCancelled = inspection?.status === InspectionStatus.CANCELLED;
     const isOverdue = isScheduled && isPast(parseISO(event.date));
@@ -423,6 +425,7 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
           {/* Date */}
           <div className="text-xs text-muted-foreground mb-1">
             {formatDate(event.date)} • {formatTime(event.date)}
+            {createdByUserName && <> • {createdByUserName}</>}
           </div>
 
           {/* Inspection content */}

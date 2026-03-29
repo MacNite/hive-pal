@@ -54,6 +54,7 @@ export const inspectionResponseSchema = createInspectionSchema.extend({
     .or(z.string().datetime()),
   score: scoreSchema.optional(),
   actions: z.array(actionResponseSchema),
+  createdByUserName: z.string().nullish(),
 });
 
 // Schema for filtering inspections

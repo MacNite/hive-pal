@@ -12,6 +12,7 @@ import {
 import { BatchInspectionsService } from './batch-inspections.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import {
   CreateBatchInspection,
@@ -29,7 +30,7 @@ import { RequestWithApiary } from '../interface/request-with.apiary';
 @ApiTags('batch-inspections')
 @ApiBearerAuth()
 @Controller('batch-inspections')
-@UseGuards(JwtAuthGuard, ApiaryContextGuard)
+@UseGuards(JwtAuthGuard, ApiaryContextGuard, ApiaryPermissionGuard)
 export class BatchInspectionsController {
   constructor(
     private readonly batchInspectionsService: BatchInspectionsService,

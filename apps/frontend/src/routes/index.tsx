@@ -31,6 +31,8 @@ import { UserSettingsPage } from '@/pages/settings';
 import { FeedbackPage } from '@/pages/feedback';
 import { PrivacyPolicyPage } from '@/pages/privacy-policy-page';
 import { SharedPage } from '@/pages/shared/shared-page';
+import { JoinApiaryPage } from '@/pages/join/join-apiary-page';
+import { EditableRoute } from './editable-route';
 import { lazyWithRetry } from '@/lib/lazy-with-retry';
 
 // Lazy loaded components - heavy pages that benefit from code splitting
@@ -173,11 +175,11 @@ const router = createBrowserRouter([
       },
       {
         path: '/apiaries/create',
-        element: <CreateApiaryPage />,
+        element: <EditableRoute redirectTo="/apiaries"><CreateApiaryPage /></EditableRoute>,
       },
       {
         path: '/apiaries/:id/edit',
-        element: <EditApiaryPage />,
+        element: <EditableRoute redirectTo="/apiaries"><EditApiaryPage /></EditableRoute>,
       },
       {
         path: '/hives',
@@ -185,7 +187,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/hives/create',
-        element: <CreateHivePage />,
+        element: <EditableRoute redirectTo="/hives"><CreateHivePage /></EditableRoute>,
       },
       {
         path: '/hives/:id',
@@ -193,7 +195,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/hives/:id/edit',
-        element: <EditHivePage />,
+        element: <EditableRoute redirectTo="/hives"><EditHivePage /></EditableRoute>,
       },
       {
         path: '/hives/qr-codes/print',
@@ -205,15 +207,15 @@ const router = createBrowserRouter([
       },
       {
         path: '/hives/:hiveId/inspections/create',
-        element: <CreateInspectionPage />,
+        element: <EditableRoute redirectTo="/inspections"><CreateInspectionPage /></EditableRoute>,
       },
       {
         path: '/inspections/create',
-        element: <CreateInspectionPage />,
+        element: <EditableRoute redirectTo="/inspections"><CreateInspectionPage /></EditableRoute>,
       },
       {
         path: '/inspections/schedule',
-        element: <ScheduleInspectionPage />,
+        element: <EditableRoute redirectTo="/inspections"><ScheduleInspectionPage /></EditableRoute>,
       },
       {
         path: '/inspections',
@@ -225,7 +227,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/inspections/:id/edit',
-        element: <EditInspectionPage />,
+        element: <EditableRoute redirectTo="/inspections"><EditInspectionPage /></EditableRoute>,
       },
       {
         path: '/inspections/:id',
@@ -257,15 +259,15 @@ const router = createBrowserRouter([
       },
       {
         path: '/queens/create',
-        element: <CreateQueenPage />,
+        element: <EditableRoute redirectTo="/queens"><CreateQueenPage /></EditableRoute>,
       },
       {
         path: '/hives/:hiveId/queens/create',
-        element: <CreateQueenPage />,
+        element: <EditableRoute redirectTo="/queens"><CreateQueenPage /></EditableRoute>,
       },
       {
         path: '/queens/:queenId/edit',
-        element: <EditQueenPage />,
+        element: <EditableRoute redirectTo="/queens"><EditQueenPage /></EditableRoute>,
       },
       {
         path: '/queens',
@@ -436,6 +438,10 @@ const router = createBrowserRouter([
   {
     path: '/shared/:token',
     element: <SharedPage />,
+  },
+  {
+    path: '/join/:token',
+    element: <JoinApiaryPage />,
   },
   {
     path: '/privacy-policy',

@@ -13,6 +13,7 @@ import {
 import { HarvestsService } from './harvests.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
 import { ZodValidation } from '../common/decorators/zod-validation.decorator';
 import {
   CreateHarvest,
@@ -33,7 +34,7 @@ export class HarvestsController {
   constructor(private readonly harvestsService: HarvestsService) {}
 
   @Post()
-  @UseGuards(ApiaryContextGuard)
+  @UseGuards(ApiaryContextGuard, ApiaryPermissionGuard)
   @ZodValidation(createHarvestSchema)
   async create(
     @Request() req: RequestWithApiary,

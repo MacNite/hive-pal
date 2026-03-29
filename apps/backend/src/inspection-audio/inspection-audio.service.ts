@@ -92,7 +92,6 @@ export class InspectionAudioService {
         hive: {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         },
       },
@@ -157,7 +156,6 @@ export class InspectionAudioService {
         hive: {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         },
       },
@@ -199,7 +197,6 @@ export class InspectionAudioService {
           hive: {
             apiary: {
               id: filter.apiaryId,
-              userId: filter.userId,
             },
           },
         },
@@ -235,7 +232,6 @@ export class InspectionAudioService {
           hive: {
             apiary: {
               id: filter.apiaryId,
-              userId: filter.userId,
             },
           },
         },

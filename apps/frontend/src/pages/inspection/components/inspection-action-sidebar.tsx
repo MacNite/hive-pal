@@ -16,6 +16,7 @@ import {
   DataOptionsSection,
   MenuItemButton,
 } from '@/components/sidebar';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 
 interface InspectionActionSidebarProps {
   onRefreshData?: () => void;
@@ -29,6 +30,7 @@ export const InspectionActionSidebar: React.FC<
 > = ({ onRefreshData, selectedHiveId, onChangeView, currentView }) => {
   const { t } = useTranslation(['inspection', 'common']);
   const navigate = useNavigate();
+  const { canEdit } = useApiaryPermission();
 
   const handleCreateInspection = () => {
     navigate(
@@ -41,18 +43,22 @@ export const InspectionActionSidebar: React.FC<
   return (
     <ActionSidebarContainer>
       <ActionSidebarGroup title={t('inspection:sidebar.actions')}>
-        <MenuItemButton
-          icon={<PlusCircle className="h-4 w-4" />}
-          label={t('inspection:actions.createInspection')}
-          onClick={handleCreateInspection}
-          tooltip={t('inspection:actions.createInspection')}
-        />
-        <MenuItemButton
-          icon={<CalendarPlus className="h-4 w-4" />}
-          label={t('inspection:actions.scheduleInspection')}
-          onClick={() => navigate('/inspections/schedule')}
-          tooltip={t('inspection:actions.scheduleInspection')}
-        />
+        {canEdit && (
+          <MenuItemButton
+            icon={<PlusCircle className="h-4 w-4" />}
+            label={t('inspection:actions.createInspection')}
+            onClick={handleCreateInspection}
+            tooltip={t('inspection:actions.createInspection')}
+          />
+        )}
+        {canEdit && (
+          <MenuItemButton
+            icon={<CalendarPlus className="h-4 w-4" />}
+            label={t('inspection:actions.scheduleInspection')}
+            onClick={() => navigate('/inspections/schedule')}
+            tooltip={t('inspection:actions.scheduleInspection')}
+          />
+        )}
         <MenuItemButton
           icon={<RefreshCw className="h-4 w-4" />}
           label={t('inspection:actions.refreshData')}

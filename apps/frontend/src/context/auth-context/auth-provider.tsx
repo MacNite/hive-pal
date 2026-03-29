@@ -51,6 +51,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [token]);
 
+  const sanitizeRedirect = (url: string, fallback: string = '/'): string => {
+    if (!url || !url.startsWith('/') || url.startsWith('//')) return fallback;
+    return url;
+  };
+
   const login = useCallback(
     async (username: string, password: string, from: string = '/') => {
       try {
@@ -66,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (response.data.user && response.data.user.passwordChangeRequired) {
             window.location.href = '/account/change-password';
           } else {
-            window.location.href = from;
+            window.location.href = sanitizeRedirect(from);
           }
 
           return true;
@@ -91,6 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       name?: string,
       privacyPolicyConsent?: boolean,
       newsletterConsent?: boolean,
+      redirectTo?: string,
     ) => {
       return mutateAsync({
         email,
@@ -102,7 +108,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         .then(data => {
           if (data.access_token) {
             localStorage.setItem(TOKEN_KEY, data.access_token);
-            window.location.href = '/onboarding';
+            window.location.href = sanitizeRedirect(
+              redirectTo || '/onboarding',
+              '/onboarding',
+            );
             return true;
           }
           return false;

@@ -54,7 +54,6 @@ export class AlertsService {
         id: filter.hiveId,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       };
     } else {
@@ -65,7 +64,6 @@ export class AlertsService {
           hive: {
             apiary: {
               id: filter.apiaryId,
-              userId: filter.userId,
             },
           },
         },
@@ -116,7 +114,6 @@ export class AlertsService {
             hive: {
               apiary: {
                 id: filter.apiaryId,
-                userId: filter.userId,
               },
             },
           },

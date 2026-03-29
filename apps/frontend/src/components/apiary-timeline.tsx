@@ -24,6 +24,7 @@ import {
 import { useApiary } from '@/hooks/use-apiary';
 import { Section } from '@/components/common/section';
 import { TimelineEventList } from '@/components/common/timeline-event-list';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 import { QuickAddMenu } from '@/components/quick-add-menu';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -39,6 +40,7 @@ export const ApiaryTimeline = () => {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
   const { activeApiaryId } = useApiary();
+  const { canEdit } = useApiaryPermission();
   const [deletingQuickCheck, setDeletingQuickCheck] =
     useState<QuickCheckResponse | null>(null);
   const [deletingPhoto, setDeletingPhoto] = useState<PhotoResponse | null>(null);
@@ -138,11 +140,11 @@ export const ApiaryTimeline = () => {
         hives={hiveList}
         onInspectionClick={handleInspectionClick}
         onActionClick={handleActionClick}
-        onDeleteQuickCheck={setDeletingQuickCheck}
-        onDeletePhoto={setDeletingPhoto}
-        onDeleteDocument={setDeletingDocument}
+        onDeleteQuickCheck={canEdit ? setDeletingQuickCheck : undefined}
+        onDeletePhoto={canEdit ? setDeletingPhoto : undefined}
+        onDeleteDocument={canEdit ? setDeletingDocument : undefined}
         headerSlot={
-          activeApiaryId ? (
+          canEdit && activeApiaryId ? (
             <QuickAddMenu apiaryId={activeApiaryId} variant="inline" />
           ) : undefined
         }

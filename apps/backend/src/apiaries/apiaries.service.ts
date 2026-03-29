@@ -3,7 +3,12 @@ import { Prisma } from '@/prisma/client';
 import { CustomLoggerService } from '../logger/logger.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FileUploadService } from '../storage/file-upload.service';
-import { ApiaryResponse, CreateApiary, UpdateApiary } from 'shared-schemas';
+import {
+  ApiaryResponse,
+  ApiaryListResponse,
+  CreateApiary,
+  UpdateApiary,
+} from 'shared-schemas';
 
 @Injectable()
 export class ApiariesService {
@@ -71,24 +76,34 @@ export class ApiariesService {
     };
   }
 
-  async findAll(userId: string): Promise<ApiaryResponse[]> {
+  async findAll(userId: string): Promise<ApiaryListResponse> {
     this.logger.log(`Fetching all apiaries for user ${userId}`);
 
-    const apiaries = await this.prisma.apiary.findMany({
-      where: {
-        userId,
-      },
-      include: {
-        featurePhoto: { select: { id: true, storageKey: true } },
-      },
-    });
+    const [apiaries, pendingMemberships] = await Promise.all([
+      this.prisma.apiary.findMany({
+        where: {
+          OR: [{ userId }, { members: { some: { userId, status: 'ACTIVE' } } }],
+        },
+        include: {
+          featurePhoto: { select: { id: true, storageKey: true } },
+          members: {
+            where: { userId, status: 'ACTIVE' },
+            select: { role: true },
+          },
+        },
+      }),
+      this.prisma.apiaryMember.count({
+        where: { userId, status: 'PENDING' },
+      }),
+    ]);
 
     this.logger.log(`Found ${apiaries.length} apiaries for user ${userId}`);
-    return Promise.all(
+    const apiaryResponses = await Promise.all(
       apiaries.map(async (apiary) => {
         const featurePhotoFields = await this.mapFeaturePhotoUrl(
           apiary.featurePhoto,
         );
+        const isOwner = apiary.userId === userId;
         return {
           id: apiary.id,
           name: apiary.name,
@@ -96,9 +111,13 @@ export class ApiariesService {
           latitude: apiary.latitude,
           longitude: apiary.longitude,
           ...featurePhotoFields,
+          role: isOwner ? ('OWNER' as const) : apiary.members[0]?.role,
+          isShared: !isOwner,
         };
       }),
     );
+
+    return { apiaries: apiaryResponses, pendingMemberships };
   }
 
   async findOne(apiaryId: string, userId: string): Promise<ApiaryResponse> {
@@ -107,10 +126,14 @@ export class ApiariesService {
     const apiary = await this.prisma.apiary.findFirst({
       where: {
         id: apiaryId,
-        userId,
+        OR: [{ userId }, { members: { some: { userId, status: 'ACTIVE' } } }],
       },
       include: {
         featurePhoto: { select: { id: true, storageKey: true } },
+        members: {
+          where: { userId, status: 'ACTIVE' },
+          select: { role: true },
+        },
       },
     });
 
@@ -124,6 +147,7 @@ export class ApiariesService {
     const featurePhotoFields = await this.mapFeaturePhotoUrl(
       apiary.featurePhoto,
     );
+    const isOwner = apiary.userId === userId;
 
     return {
       id: apiary.id,
@@ -132,6 +156,8 @@ export class ApiariesService {
       latitude: apiary.latitude,
       longitude: apiary.longitude,
       ...featurePhotoFields,
+      role: isOwner ? ('OWNER' as const) : apiary.members[0]?.role,
+      isShared: !isOwner,
     };
   }
 

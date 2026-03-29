@@ -21,6 +21,7 @@ type ActionWithRelations = Prisma.ActionGetPayload<{
     frameAction: true;
     harvestAction: true;
     boxConfigurationAction: true;
+    createdByUser: { select: { name: true; email: true } };
   };
 }>;
 
@@ -128,6 +129,7 @@ export class ActionsService {
     inspectionId: string,
     actions: CreateAction[],
     tx: Prisma.TransactionClient,
+    userId?: string,
   ): Promise<void> {
     if (!actions || actions.length === 0) {
       return;
@@ -153,6 +155,7 @@ export class ActionsService {
           inspectionId,
           type,
           notes,
+          ...(userId && { createdByUserId: userId }),
         },
       });
 
@@ -253,13 +256,14 @@ export class ActionsService {
     inspectionId: string,
     actions: CreateAction[],
     tx: Prisma.TransactionClient,
+    userId?: string,
   ): Promise<void> {
     // Delete existing actions
     await this.deleteActions(inspectionId, tx);
 
     // Create new actions if provided
     if (actions && actions.length > 0) {
-      await this.createActions(inspectionId, actions, tx);
+      await this.createActions(inspectionId, actions, tx, userId);
     }
   }
 
@@ -289,7 +293,6 @@ export class ActionsService {
         ...(filter.apiaryId && {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         }),
       },
@@ -304,6 +307,7 @@ export class ActionsService {
         frameAction: true,
         harvestAction: true,
         boxConfigurationAction: true,
+        createdByUser: { select: { name: true, email: true } },
       },
     });
 
@@ -362,6 +366,7 @@ export class ActionsService {
           type,
           notes,
           date: date ? new Date(date) : new Date(),
+          createdByUserId: userId,
         },
       });
 
@@ -422,6 +427,7 @@ export class ActionsService {
           frameAction: true,
           harvestAction: true,
           boxConfigurationAction: true,
+          createdByUser: { select: { name: true, email: true } },
         },
       });
     });
@@ -472,6 +478,7 @@ export class ActionsService {
         frameAction: true,
         harvestAction: true,
         boxConfigurationAction: true,
+        createdByUser: { select: { name: true, email: true } },
       },
     });
 
@@ -568,6 +575,7 @@ export class ActionsService {
           frameAction: true,
           harvestAction: true,
           boxConfigurationAction: true,
+          createdByUser: { select: { name: true, email: true } },
         },
       });
     });
@@ -653,6 +661,8 @@ export class ActionsService {
       harvestId: prismaAction.harvestId,
       date: prismaAction.date.toISOString(),
       notes: prismaAction.notes || undefined,
+      createdByUserName:
+        prismaAction.createdByUser?.name || prismaAction.createdByUser?.email,
     };
 
     const unitPreference = userPreferences?.units || 'metric';

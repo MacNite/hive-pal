@@ -43,10 +43,8 @@ export class HiveService {
     this.logger.setContext('HiveService');
   }
 
-  private resolveStatusFilter(
-    filter: HiveFilter,
-  ): HiveStatus | undefined {
-    if (filter.status) return filter.status as HiveStatus;
+  private resolveStatusFilter(filter: HiveFilter): HiveStatus | undefined {
+    if (filter.status) return filter.status;
     if (filter.includeInactive) return undefined;
     return HiveStatus.ACTIVE;
   }
@@ -194,7 +192,18 @@ export class HiveService {
       where: {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
+          ...(filter.apiaryId
+            ? {}
+            : {
+                OR: [
+                  { userId: filter.userId },
+                  {
+                    members: {
+                      some: { userId: filter.userId, status: 'ACTIVE' },
+                    },
+                  },
+                ],
+              }),
         },
         status: this.resolveStatusFilter(filter),
       },
@@ -281,7 +290,6 @@ export class HiveService {
         id,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
       include: {
@@ -417,7 +425,6 @@ export class HiveService {
         id,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
     });
@@ -509,7 +516,6 @@ export class HiveService {
         id,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
     });
@@ -544,7 +550,6 @@ export class HiveService {
         id,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
       include: {

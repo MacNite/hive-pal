@@ -1,7 +1,7 @@
 import { FormEvent, useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/context/auth-context';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,10 @@ const RegisterPage = () => {
   const { t } = useTranslation('auth');
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { register, isLoggedIn } = useAuth();
+  const redirectTo = (location.state as { from?: { pathname?: string } })?.from
+    ?.pathname;
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,6 +45,7 @@ const RegisterPage = () => {
         name || undefined,
         privacyPolicyConsent,
         newsletterConsent,
+        redirectTo,
       );
       if (!success) {
         setError(t('register.registrationFailed'));

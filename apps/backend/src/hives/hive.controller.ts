@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { HiveService } from './hive.service';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
 import { RequestWithApiary } from '../interface/request-with.apiary';
 import { CustomLoggerService } from '../logger/logger.service';
 import { ZodValidation } from '../common';
@@ -38,7 +39,7 @@ import {
 @UseInterceptors(ClassSerializerInterceptor)
 @ApiTags('hives')
 @Controller('hives')
-@UseGuards(JwtAuthGuard, ApiaryContextGuard)
+@UseGuards(JwtAuthGuard, ApiaryContextGuard, ApiaryPermissionGuard)
 export class HiveController {
   constructor(
     private readonly hiveService: HiveService,

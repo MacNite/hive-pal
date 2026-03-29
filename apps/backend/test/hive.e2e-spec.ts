@@ -377,24 +377,11 @@ describe('Hives (e2e)', () => {
       .set('x-apiary-id', '00000000-0000-0000-0000-000000000000')
       .expect(404);
 
-    // Try without any apiary context
-    const res = await request(app.getHttpServer())
+    // Try without any apiary context - should return 400 (apiary context required)
+    await request(app.getHttpServer())
       .get('/hives')
       .set('Authorization', `Bearer ${authToken}`)
       // No x-apiary-id header or query param
-      .expect(200);
-    const ids = res.body.map((hive: any) => hive.id);
-    const dbIds = await prisma.hive.findMany({
-      where: {
-        status: 'ACTIVE',
-        apiary: {
-          userId,
-        },
-      },
-      include: {
-        apiary: true,
-      },
-    });
-    expect(ids).toEqual(dbIds.map((hive) => hive.id));
+      .expect(400);
   });
 });
