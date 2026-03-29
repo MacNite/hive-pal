@@ -11,19 +11,19 @@ import {
   WeatherForecastSection,
 } from '@/components/sidebar';
 import { useApiary } from '@/hooks/use-apiary';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 
 interface HiveActionSidebarProps {
   onRefreshData?: () => void;
-  canEdit?: boolean;
 }
 
 export const HiveActionSidebar: React.FC<HiveActionSidebarProps> = ({
   onRefreshData,
-  canEdit = true,
 }) => {
   const { t } = useTranslation(['hive', 'common']);
   const navigate = useNavigate();
   const { activeApiaryId } = useApiary();
+  const { canEdit } = useApiaryPermission();
 
   return (
     <div className="space-y-4">

@@ -16,20 +16,21 @@ import {
   DataOptionsSection,
   MenuItemButton,
 } from '@/components/sidebar';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 
 interface InspectionActionSidebarProps {
   onRefreshData?: () => void;
   selectedHiveId?: string;
   onChangeView: (view: string) => void;
   currentView: string;
-  canEdit?: boolean;
 }
 
 export const InspectionActionSidebar: React.FC<
   InspectionActionSidebarProps
-> = ({ onRefreshData, selectedHiveId, onChangeView, currentView, canEdit = true }) => {
+> = ({ onRefreshData, selectedHiveId, onChangeView, currentView }) => {
   const { t } = useTranslation(['inspection', 'common']);
   const navigate = useNavigate();
+  const { canEdit } = useApiaryPermission();
 
   const handleCreateInspection = () => {
     navigate(

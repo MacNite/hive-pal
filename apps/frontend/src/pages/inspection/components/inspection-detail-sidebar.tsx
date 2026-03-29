@@ -18,18 +18,19 @@ import {
   ActionSidebarGroup,
   MenuItemButton,
 } from '@/components/sidebar';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 
 interface InspectionDetailSidebarProps {
   inspectionId: string;
   hiveId: string;
-  canEdit?: boolean;
 }
 
 export const InspectionDetailSidebar: React.FC<
   InspectionDetailSidebarProps
-> = ({ inspectionId, hiveId, canEdit = true }) => {
+> = ({ inspectionId, hiveId }) => {
   const { t } = useTranslation('inspection');
   const navigate = useNavigate();
+  const { canEdit } = useApiaryPermission();
 
   return (
     <ActionSidebarContainer>

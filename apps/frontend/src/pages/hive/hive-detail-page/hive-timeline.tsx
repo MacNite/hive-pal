@@ -22,6 +22,7 @@ import {
 import { toast } from 'sonner';
 import { Section } from '@/components/common/section';
 import { TimelineEventList } from '@/components/common/timeline-event-list';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 import { EditActionDialog } from './actions/edit-action-dialog';
 import { QuickAddMenu } from '@/components/quick-add-menu';
 import {
@@ -46,6 +47,7 @@ export const HiveTimeline: React.FC<HiveTimelineProps> = ({
   apiaryId,
 }) => {
   const navigate = useNavigate();
+  const { canEdit } = useApiaryPermission();
   const [editingAction, setEditingAction] = useState<ActionResponse | null>(
     null,
   );
@@ -165,11 +167,11 @@ export const HiveTimeline: React.FC<HiveTimelineProps> = ({
         documents={documents ?? []}
         isLoading={inspectionsLoading || actionsLoading || quickChecksLoading || photosLoading || documentsLoading}
         emptyMessage="No activity recorded for this hive yet"
-        onEditAction={setEditingAction}
-        onDeleteAction={setDeletingAction}
-        onDeleteQuickCheck={setDeletingQuickCheck}
-        onDeletePhoto={setDeletingPhoto}
-        onDeleteDocument={setDeletingDocument}
+        onEditAction={canEdit ? setEditingAction : undefined}
+        onDeleteAction={canEdit ? setDeletingAction : undefined}
+        onDeleteQuickCheck={canEdit ? setDeletingQuickCheck : undefined}
+        onDeletePhoto={canEdit ? setDeletingPhoto : undefined}
+        onDeleteDocument={canEdit ? setDeletingDocument : undefined}
         onInspectionClick={inspection =>
           navigate(`/inspections/${inspection.id}`)
         }
@@ -179,7 +181,7 @@ export const HiveTimeline: React.FC<HiveTimelineProps> = ({
             : undefined
         }
         headerSlot={
-          hiveId && apiaryId ? (
+          canEdit && hiveId && apiaryId ? (
             <QuickAddMenu apiaryId={apiaryId} hiveId={hiveId} variant="inline" />
           ) : undefined
         }

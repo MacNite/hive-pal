@@ -32,20 +32,20 @@ import {
   WeatherForecastSection,
 } from '@/components/sidebar';
 import { SidebarMenuItem, SidebarMenuButton } from '@/components/ui/sidebar';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 
 type ActionSideBarProps = {
   hiveId?: string;
   onRefreshData?: () => void;
-  canEdit?: boolean;
 };
 
 export const ActionSideBar: React.FC<ActionSideBarProps> = ({
   hiveId,
   onRefreshData,
-  canEdit = true,
 }) => {
   const navigate = useNavigate();
   const { t } = useTranslation(['hive', 'inspection', 'common']);
+  const { canEdit } = useApiaryPermission();
   const { data: hive } = useHive(hiveId || '', { enabled: !!hiveId });
   const deleteHive = useDeleteHive();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);

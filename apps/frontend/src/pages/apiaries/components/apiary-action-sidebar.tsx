@@ -21,20 +21,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 
 interface ApiaryActionSidebarProps {
   apiaryId?: string;
   onRefreshData?: () => void;
-  canEdit?: boolean;
 }
 
 export const ApiaryActionSidebar: React.FC<ApiaryActionSidebarProps> = ({
   apiaryId,
   onRefreshData,
-  canEdit = true,
 }) => {
   const { t } = useTranslation(['apiary', 'common']);
   const navigate = useNavigate();
+  const { canEdit } = useApiaryPermission();
   const deleteApiary = useDeleteApiary();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 

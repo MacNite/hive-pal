@@ -34,7 +34,7 @@ export const ApiaryDetailPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { setActiveApiaryId } = useApiaryStore();
 
-  const { isOwner, canEdit } = useApiaryPermission();
+  const { isOwner } = useApiaryPermission();
 
   const tabParam = searchParams.get('tab');
   const validTabs = ['overview', 'hives', 'location', ...(isOwner ? ['sharing'] : [])];
@@ -189,7 +189,6 @@ export const ApiaryDetailPage = () => {
         <ApiaryActionSidebar
           apiaryId={apiary.id}
           onRefreshData={() => refetch()}
-          canEdit={canEdit}
         />
       </PageAside>
     </PageGrid>
