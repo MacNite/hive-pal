@@ -135,11 +135,6 @@
     "llmPrompt": "Anweisung für LLM",
     "removeHive": "Bienenstock entfernen"
   },
-  "manage": {
-    "title": "Bienenstockverwaltung",
-    "llmPrompt": "Anweisung für LLM",
-    "removeHive": "Bienenstock entfernen"
-  },
   "form": {
     "selectHive": "Bienenstock auswählen",
     "hivePlaceholder": "Bienenstock 01",
@@ -257,7 +252,7 @@
       "closingPromptSecond": "Alle Probleme oder Fragen, die dir auffallen",
       "closingPromptThird": "Empfohlene Maßnahmen für den Imker",
       "closingPromptFourth": "Saisonale Überlegungen auf der Grundlage der bisherigen Inspektionsergebnisse",
-      "fed": "Fütterung: {{Menge}} {{Einheit}} von {{Futtertyp}}{{Konzentration}}",
+      "fed": "Fütterung: {{amount}} {{unit}} von {{feedType}}{{concentration}}",
       "feeding": "Gefüttert",
       "treatment": "Behandlung",
       "addedFrame": "{{quantity}} Rahmen hinzugefügt",

@@ -229,9 +229,9 @@ export function generateHivePrompt(
         if (obs.broodPattern)
           lines.push('- ' + i18n.t('hive:llmPrompt.textArea.broodPattern', { broodPattern: obs.broodPattern, defaultValue: 'Brood pattern: {{broodPattern}}' }));
         if (obs.additionalObservations && obs.additionalObservations.length > 0)
-          lines.push('- ' + i18n.t('hive:llmPrompt.textArea.additionalObservations', { additionalObservations: obs.additionalObservations, defaultValue: 'Additional observations: {{additionalObservations}}' }));
+          lines.push('- ' + i18n.t('hive:llmPrompt.textArea.additionalObservations', { additionalObservations: obs.additionalObservations.join(', '), defaultValue: 'Additional observations: {{additionalObservations}}' }));
         if (obs.reminderObservations && obs.reminderObservations.length > 0)
-          lines.push('- ' + i18n.t('hive:llmPrompt.textArea.reminderObservations', { reminderObservations: obs.reminderObservations, defaultValue: 'Reminders: {{reminderObservations}}' }));
+          lines.push('- ' + i18n.t('hive:llmPrompt.textArea.reminderObservations', { reminderObservations: obs.reminderObservations.join(', '), defaultValue: 'Reminders: {{reminderObservations}}' }));
       }
 
       // Actions

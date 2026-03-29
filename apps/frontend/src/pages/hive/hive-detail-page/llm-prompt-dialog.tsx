@@ -38,13 +38,10 @@ export function LlmPromptDialog({ hiveId, hiveName }: LlmPromptDialogProps) {
     try {
       await navigator.clipboard.writeText(promptText);
       setCopied(true);
-      toast.success(
-        t('llmPrompt.promptCopiedToClipboard', { defaultValue: 'Prompt copied to clipboard' }));
-      setTimeout(() => setCopied(false), 2000);
+      toast.success(t('llmPrompt.promptCopiedToClipboard', { defaultValue: 'Prompt copied to clipboard', }));
+    setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error(
-        t('llmPrompt.failedToCopyToClipboard', { defaultValue: 'Failed to copy to clipboard' }),
-      );
+    toast.error(t('llmPrompt.failedToCopyToClipboard', { defaultValue: 'Failed to copy to clipboard', }));
     }
   };
   return (
