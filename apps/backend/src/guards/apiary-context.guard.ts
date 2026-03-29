@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ApiaryRole } from '@/prisma/client';
@@ -16,12 +17,18 @@ export class ApiaryContextGuard implements CanActivate {
     const request: {
       headers: Record<string, string>;
       query: Record<string, string>;
-      apiaryId: string | undefined;
-      apiaryRole: ApiaryRole | undefined;
+      apiaryId: string;
+      apiaryRole: ApiaryRole;
       user?: { id: string };
     } = context.switchToHttp().getRequest();
 
     const apiaryId = request.headers['x-apiary-id'] || request.query.apiaryId;
+
+    if (!apiaryId) {
+      throw new BadRequestException(
+        'Apiary ID is required (x-apiary-id header or apiaryId query parameter)',
+      );
+    }
 
     // If user is not authenticated, we can't proceed
     if (!request.user?.id) {
@@ -55,10 +62,17 @@ export class ApiaryContextGuard implements CanActivate {
       );
     }
 
-    // Add apiary context to request
-    request.apiaryId = apiaryId ? apiary.id : undefined;
-    request.apiaryRole =
+    // Determine the user's role for this apiary
+    const role: ApiaryRole | undefined =
       apiary.userId === request.user.id ? 'OWNER' : apiary.members[0]?.role;
+
+    if (!role) {
+      throw new ForbiddenException('User has no valid role for this apiary');
+    }
+
+    // Add apiary context to request
+    request.apiaryId = apiary.id;
+    request.apiaryRole = role;
 
     return true;
   }
