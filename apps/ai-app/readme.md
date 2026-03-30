@@ -20,7 +20,7 @@ Currently the folder-setup below is expected:
                     ollama/
 ```
 
-Below is the docker yaml-snippet I use. I just added it to the docker stack for hivepal so everything runs together. As i do not have a GPU in my server installed i use the OLLAMA_MODEL qwen3:8b. With this setup processing time of a 45 second audio file is about 5-10 Minutes (running on dual E5-2683 v3 and consuming about 8 GIB ram).
+Below is the docker file I use for the AI Container. I just added it to the docker stack for hivepal so everything runs together. As i do not have a GPU in my server installed i use the OLLAMA_MODEL qwen3:8b. With this setup processing time of a 45 second audio file is about 5-10 Minutes (running on dual E5-2683 v3 and consuming about 8 GIB ram).
 
 Whisper is currently set to auto-detect the language.
 
@@ -50,18 +50,28 @@ services:
     ports:
       - "8008:8008"
     environment:
-      OLLAMA_URL: http://ollama:11434/api/chat
-      OLLAMA_MODEL: qwen3:8b
-      WHISPER_MODEL: small
-      WHISPER_COMPUTE_TYPE: int8
-      AUDIO_INPUT_DIR: /data/incoming
-      TRANSCRIPTS_DIR: /data/transcripts
-      OUTPUT_DIR: /data/processed
+  - OLLAMA_URL=http://ollama:11434/api/chat
+  - OLLAMA_MODEL=qwen3:8b
+  - WHISPER_MODEL=small
+  - WHISPER_COMPUTE_TYPE=int8
+  - AUDIO_INPUT_DIR=/data/incoming
+  - TRANSCRIPTS_DIR=/data/transcripts
+  - OUTPUT_DIR=/data/processed
+  - AI_API_KEY=change-me-long-random-string
     volumes:
       - /mnt/path/Apps/HivePal/AI:/data
       - /mnt/path/Apps/HivePal/AI/app:/app
     depends_on:
       - ollama
+```
+
+You need to add the ENV-Variables bleow to the hivepal container. Additionally you need some kind of storage. I prefer local, but S3 works as well.
+
+```js
+  AI_ENABLED: "true"
+  AI_SERVICE_URL: "http://YOUR-AI-HOST:8008"
+  AI_SERVICE_API_KEY: "change-me-long-random-string"
+  AI_REQUEST_TIMEOUT_MS: "300000"
 ```
 
 After running the container for the first time you have to download the model. The model has a size of about 6 GB so the download may take some time.
