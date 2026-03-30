@@ -27,7 +27,9 @@
     "files": "Files",
     "calendar": "Calendar",
     "equipment": "Equipment",
-    "actions": "Actions"
+    "actions": "Actions",
+    "tools": "Tools",
+    "syrupCalculator": "Syrup Calculator"
   },
   "actions": {
     "save": "Save",
@@ -301,6 +303,37 @@
     "photos": "Photos",
     "documents": "Documents",
     "fromInspection": "From inspection"
+  },
+  "syrupCalculator": {
+    "title": "Syrup Calculator",
+    "description": "Calculate sugar and water amounts for feeding syrup",
+    "ratio": "Syrup Ratio",
+    "ratioDescription": "Sugar to water ratio (by weight to volume)",
+    "thin": "Thin (1:1)",
+    "medium": "Medium (3:2)",
+    "thick": "Thick (2:1)",
+    "containerSize": "Container Size",
+    "containerDescription": "Total volume of syrup to prepare",
+    "customSize": "Custom",
+    "results": "Results",
+    "water": "Water",
+    "sugar": "Sugar",
+    "totalWeight": "Total weight",
+    "instructions": "Instructions",
+    "step1": "Measure {{water}} of water",
+    "step2": "Heat the water until warm (not boiling)",
+    "step3": "Add {{sugar}} of white granulated sugar",
+    "step4": "Stir until the sugar is completely dissolved",
+    "step5": "Let the syrup cool to room temperature before feeding",
+    "tips": "Tips & Usage Guide",
+    "tip1Title": "Thin syrup (1:1)",
+    "tip1Description": "Best for spring feeding to stimulate brood rearing and simulate a nectar flow. Use when bees need encouragement to build up.",
+    "tip2Title": "Medium syrup (3:2)",
+    "tip2Description": "A good all-purpose syrup. Works well for both spring stimulation and light fall feeding.",
+    "tip3Title": "Thick syrup (2:1)",
+    "tip3Description": "Best for fall/autumn feeding to build up winter stores. Bees can store it quickly with less effort to evaporate excess water.",
+    "tip4Title": "General tips",
+    "tip4Description": "Always use white granulated sugar — never brown sugar, molasses, or artificial sweeteners. Do not boil the syrup as it can create HMF (hydroxymethylfurfural) which is toxic to bees. Feed in the evening to reduce robbing."
   },
   "reports": {
     "title": "Reports",

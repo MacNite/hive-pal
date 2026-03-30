@@ -13,6 +13,7 @@ import {
   MessageSquare,
   Crown,
   FolderOpen,
+  Wrench,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -136,6 +137,19 @@ const getNavData = (t: TFunction<'common'>) => ({
       title: t('navigation.equipment', { defaultValue: 'Equipment' }),
       url: '/equipment',
       icon: Package,
+    },
+    {
+      title: t('navigation.tools', { defaultValue: 'Tools' }),
+      url: '/tools/syrup-calculator',
+      icon: Wrench,
+      items: [
+        {
+          title: t('navigation.syrupCalculator', {
+            defaultValue: 'Syrup Calculator',
+          }),
+          url: '/tools/syrup-calculator',
+        },
+      ],
     },
     {
       title: t('navigation.settings', { defaultValue: 'Settings' }),

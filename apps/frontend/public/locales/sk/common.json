@@ -23,7 +23,9 @@
         "allHarvests": "Všetky zbery",
         "reports": "Reporty",
         "metrics": "Metriky",
-        "allQueens": "Všetky matky"
+        "allQueens": "Všetky matky",
+        "tools": "Nástroje",
+        "syrupCalculator": "Kalkulačka sirupu"
     },
     "actions": {
         "save": "Uložiť",

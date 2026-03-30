@@ -132,6 +132,11 @@ const FilesPage = lazyWithRetry(() =>
     default: m.FilesPage,
   })),
 );
+const SyrupCalculatorPage = lazyWithRetry(() =>
+  import('@/pages/tools/syrup-calculator-page').then(m => ({
+    default: m.SyrupCalculatorPage,
+  })),
+);
 
 // Loading fallback component
 function PageLoader() {
@@ -338,6 +343,14 @@ const router = createBrowserRouter([
         element: (
           <LazyPage>
             <FilesPage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: '/tools/syrup-calculator',
+        element: (
+          <LazyPage>
+            <SyrupCalculatorPage />
           </LazyPage>
         ),
       },
