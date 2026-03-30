@@ -17,3 +17,4 @@ export * from './useQuickChecks';
 export * from './useShares';
 export * from './usePhotos';
 export * from './useDocuments';
+export * from './useInspectionAudioAi';

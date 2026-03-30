@@ -38,6 +38,8 @@ import { QuickChecksModule } from './quick-checks/quick-checks.module';
 import { SharesModule } from './shares/shares.module';
 import { PhotosModule } from './photos/photos.module';
 import { DocumentsModule } from './documents/documents.module';
+import { InspectionAudioModule } from './inspection-audio/inspection-audio.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -75,6 +77,8 @@ import { DocumentsModule } from './documents/documents.module';
     SharesModule,
     PhotosModule,
     DocumentsModule,
+    AiModule,
+    InspectionAudioModule,
   ],
   controllers: [AppController, EnvController],
   providers: [
