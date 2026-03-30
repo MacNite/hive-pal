@@ -45,6 +45,7 @@ import {
   PhotoResponse,
   DocumentResponse,
 } from 'shared-schemas';
+import { getFeedTypeLabel } from '@/pages/inspection/components/inspection-form/actions/feeding';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { PhotoGallery } from './photo-gallery';
@@ -132,7 +133,8 @@ const getActionLabel = (action: ActionResponse, t: (key: string) => string) => {
   switch (action.type) {
     case 'FEEDING':
       if (action.details?.type === 'FEEDING') {
-        return `Fed ${action.details.amount} ${action.details.unit} of ${action.details.feedType}${
+        const feedName = getFeedTypeLabel(action.details.feedType);
+        return `Fed ${action.details.amount} ${action.details.unit} of ${feedName}${
           action.details.concentration
             ? ` (${action.details.concentration})`
             : ''

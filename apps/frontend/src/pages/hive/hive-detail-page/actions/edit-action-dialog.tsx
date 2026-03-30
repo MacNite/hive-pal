@@ -47,7 +47,7 @@ const convertResponseToFormData = (action: ActionResponse): ActionData => {
     case ActionType.FEEDING:
       return {
         type: ActionType.FEEDING,
-        feedType: action.details.feedType as 'SYRUP' | 'HONEY' | 'CANDY',
+        feedType: action.details.feedType,
         quantity: action.details.amount,
         unit: action.details.unit,
         concentration: action.details.concentration,

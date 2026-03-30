@@ -32,7 +32,6 @@ import { ObservationsSection } from '@/pages/inspection/components/inspection-fo
 import { NotesSection } from '@/pages/inspection/components/inspection-form/notes.tsx';
 import { Separator } from '@/components/ui/separator';
 import { ActionsSection } from '@/pages/inspection/components/inspection-form/actions.tsx';
-import { FeedType } from './actions/feeding';
 import {
   useHiveOptions,
   useInspection,
@@ -98,7 +97,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
             return {
               type: ActionType.FEEDING,
               notes: action.notes,
-              feedType: details.feedType as FeedType,
+              feedType: details.feedType,
               quantity: details.amount,
               unit: details.unit,
               concentration: details.concentration,

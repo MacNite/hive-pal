@@ -17,7 +17,7 @@ const inspectionFormSchema = createInspectionSchema
 // Feeding action
 export const feedingActionSchema = z.object({
   type: z.literal(ActionType.FEEDING),
-  feedType: z.enum(['SYRUP', 'HONEY', 'CANDY']),
+  feedType: z.string().min(1),
   quantity: z.number(),
   unit: z.string(),
   concentration: z.string().optional(),
