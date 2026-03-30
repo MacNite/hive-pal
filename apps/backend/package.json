@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "pnpm test:e2e",
-    "test:watch": "jest --watch", 
+    "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenvx run -f .env.test -- prisma migrate deploy && dotenvx run -f .env.test -- jest --config jest.e2e.cjs"
@@ -55,7 +55,7 @@
     "class-validator": "^0.14.1",
     "date-fns": "^4.1.0",
     "dotenv": "^17.3.1",
-    "form-data": "^4.0.4",
+    "form-data": "^4.0.5",
     "js-yaml": "^4.1.0",
     "mime-types": "^3.0.2",
     "nest-winston": "^1.10.2",
