@@ -3,11 +3,13 @@ import os
 import pathlib
 import threading
 import time
+import tempfile
 from flask import Flask, jsonify, request
 from faster_whisper import WhisperModel
 import requests
 
 app = Flask(__name__)
+AI_API_KEY = os.environ.get("AI_API_KEY", "")
 
 OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://ollama:11434/api/chat")
 OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen3:8b")
@@ -165,6 +167,14 @@ SCHEMA = {
     ]
 }
 
+def require_api_key(req):
+    if not AI_API_KEY:
+        return
+    auth = req.headers.get("Authorization", "")
+    expected = f"Bearer {AI_API_KEY}"
+    if auth != expected:
+        from flask import abort
+        abort(401, description="Unauthorized")
 
 def transcribe_file(audio_path: str):
     segments, info = whisper.transcribe(
@@ -311,6 +321,38 @@ def process_audio_file(audio_path: str):
         "files": files,
     }
 
+@app.post("/process-upload")
+def process_upload():
+    require_api_key(request)
+
+    if "file" not in request.files:
+        return jsonify({"error": "file is required"}), 400
+
+    uploaded = request.files["file"]
+    if not uploaded.filename:
+        return jsonify({"error": "empty filename"}), 400
+
+    suffix = pathlib.Path(uploaded.filename).suffix.lower()
+    if suffix not in SUPPORTED_EXTENSIONS:
+        return jsonify({"error": f"unsupported file type: {suffix}"}), 400
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        uploaded.save(tmp.name)
+        temp_path = tmp.name
+
+    try:
+        result = process_audio_file(temp_path)
+        return jsonify({
+            "status": "completed",
+            "transcript": result["transcription"],
+            "inspectionDraft": result["recommendation"],
+            "files": result["files"],
+        })
+    finally:
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
 
 @app.get("/health")
 def health():
