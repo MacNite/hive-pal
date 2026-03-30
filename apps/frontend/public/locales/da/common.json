@@ -71,7 +71,11 @@
         "allHarvests": "Alle høst",
         "reports": "Rapporter",
         "metrics": "Målinger",
-        "files": "Filer"
+        "files": "Filer",
+        "allQueens": "Alle dronninger",
+        "calendar": "Kalender",
+        "equipment": "Materiel",
+        "actions": "Handlinger"
     },
     "messages": {
         "confirmDelete": "Er du sikker på at du vil slette denne?",
@@ -105,15 +109,27 @@
         "type": "Type af feedback"
     },
     "alerts": {
-        "alert": "advarsel",
-        "alerts": "alarmer",
-        "activeAlerts": "Aktive alarmer",
-        "activeAlert": "Aktive alarmer"
+        "alert": "påmindelse",
+        "alerts": "påmindelser",
+        "activeAlerts": "Aktive påmindelser",
+        "activeAlert": "Aktiv påmindelse"
     },
     "calendar": {
         "both": "Begge",
         "inspections": "Inspektioner",
-        "actions": "Handlinger"
+        "actions": "Handlinger",
+        "title": "Kalender",
+        "today": "I dag",
+        "noEventsScheduled": "Ingen planlagte begivenheder",
+        "sevenDayViewTitle": "{{date}} - 7-dagess oversigt",
+        "previousWeek": "Forrige uge",
+        "previousDay": "Forrige dag",
+        "nextDay": "Næste dag",
+        "nextWeek": "Næste uge",
+        "dayHeader": "{{date}}",
+        "noEvents": "Ingen begivenheder",
+        "overdueInspections": "Overskredne inspektioner ({{overdueInspectionsSize}})",
+        "viewInspection": "Vis inspektion"
     },
     "quickCheck": {
         "title": "Kort inspektion",
@@ -204,7 +220,8 @@
         "widget": {
             "title": "Bigårds statistik",
             "viewReports": "Vis rapporter",
-            "noApiary": "Vælg et stade for at se statistik"
+            "noApiary": "Vælg et stade for at se statistik",
+            "apiaryDetails": "Detaljer om bigården"
         }
     },
     "releaseNotes": {
