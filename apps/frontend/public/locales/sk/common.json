@@ -23,7 +23,8 @@
         "allHarvests": "Všetky zbery",
         "reports": "Reporty",
         "metrics": "Metriky",
-        "allQueens": "Všetky matky"
+        "allQueens": "Všetky matky",
+        "calendar": "Kalendár"
     },
     "actions": {
         "save": "Uložiť",
