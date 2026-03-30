@@ -72,9 +72,9 @@ curl http://serverip:11434/api/pull -d '{
   "stream": false
 }'
 ```
+
 Use the command below to see if  everything is running correctly:
 curl http://serverip:8008/health
-```js
 
 After that you can put audio-files into the folder "incoming". You can start analyzing with
 
