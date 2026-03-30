@@ -224,7 +224,8 @@
         "strength": "Sila",
         "honey": "Med",
         "queenSeen": "Matka videná",
-        "queenNotSeen": "Matka nevidená"
+        "queenNotSeen": "Matka nevidená",
+        "fromInspection": "Z prehliadky"
     },
     "reports": {
         "title": "Reporty",

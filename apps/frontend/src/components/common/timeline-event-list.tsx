@@ -45,6 +45,7 @@ import {
   PhotoResponse,
   DocumentResponse,
 } from 'shared-schemas';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { PhotoGallery } from './photo-gallery';
 import { StandalonePhotoPreview } from './standalone-photo-preview';
@@ -231,7 +232,6 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
 
     if (actions) {
       actions
-        .filter(action => !action.inspectionId)
         .forEach(action => {
           const eventDate = new Date(action.date);
           if (!startDate || eventDate >= startDate) {
@@ -657,6 +657,13 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
                 <div className="text-sm">
                   {getActionLabel(action, t)}
                   {renderHiveName(event)}
+                  {action.inspectionId && (
+                    <Link to={`/inspections/${action.inspectionId}`} onClick={e => e.stopPropagation()}>
+                      <Badge variant="outline" className="text-xs py-0 ml-1 text-blue-600 border-blue-300 hover:bg-blue-50 cursor-pointer">
+                        {t('common:timeline.fromInspection')}
+                      </Badge>
+                    </Link>
+                  )}
                 </div>
                 {action.notes && (
                   <div className="text-xs text-muted-foreground mt-0.5">

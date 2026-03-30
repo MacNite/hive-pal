@@ -298,7 +298,8 @@
     "queenSeen": "Reine vue",
     "queenNotSeen": "Reine non vue",
     "photos": "Photos",
-    "documents": "Documents"
+    "documents": "Documents",
+    "fromInspection": "Depuis l'inspection"
   },
   "reports": {
     "title": "Rapports",

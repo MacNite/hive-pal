@@ -299,7 +299,8 @@
     "queenSeen": "Queen seen",
     "queenNotSeen": "Queen not seen",
     "photos": "Photos",
-    "documents": "Documents"
+    "documents": "Documents",
+    "fromInspection": "From inspection"
   },
   "reports": {
     "title": "Reports",
