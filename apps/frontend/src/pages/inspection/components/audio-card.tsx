@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Mic, Loader2, Sparkles } from 'lucide-react';
+import { Mic, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AudioPlayer } from '@/components/audio';
