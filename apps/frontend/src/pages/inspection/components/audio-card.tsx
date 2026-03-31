@@ -35,6 +35,8 @@ function RecordingRow({
 }: RecordingRowProps) {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingUrl, setIsLoadingUrl] = useState(false);
+  const [aiResult, setAiResult] = useState<any | null>(null);
+  const [showAiOutput, setShowAiOutput] = useState(false);
 
   const analyzeMutation = useAnalyzeInspectionAudio(inspectionId, recording.id);
 
@@ -43,7 +45,6 @@ function RecordingRow({
 
     const loadUrl = async () => {
       if (audioUrl) return;
-
       setIsLoadingUrl(true);
       try {
         const url = await getDownloadUrl(recording.id);
@@ -69,11 +70,9 @@ function RecordingRow({
   const handleAnalyze = async () => {
     try {
       const result = await analyzeMutation.mutateAsync();
-
-      // First working version:
-      // keep it simple so you can verify backend integration.
       console.log('AI analysis result:', result);
-      alert('AI analysis finished. Check the browser console for the returned JSON.');
+      setAiResult(result);
+      setShowAiOutput(true);
     } catch (error) {
       console.error('AI analysis failed:', error);
       alert('AI analysis failed. Check the browser console / network tab.');
@@ -81,12 +80,12 @@ function RecordingRow({
   };
 
   return (
-    <div className="space-y-2 rounded-lg border p-3">
+    <div className="space-y-3 rounded-lg border p-4">
       {audioUrl ? (
         <AudioPlayer
           src={audioUrl}
           fileName={recording.fileName}
-          duration={recording.duration}
+          duration={recording.duration ?? undefined}
           onDelete={() => onDelete(recording.id)}
           onDownload={() => {
             window.open(audioUrl, '_blank', 'noopener,noreferrer');
@@ -94,34 +93,54 @@ function RecordingRow({
           isDeleting={isDeleting}
         />
       ) : (
-        <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
-          <Loader2 className="size-4 animate-spin" />
+        <div className="text-sm text-muted-foreground">
           {isLoadingUrl ? 'Loading audio...' : 'Preparing audio...'}
         </div>
       )}
 
-      <div className="flex justify-end">
+      <div>
         <Button
           type="button"
-          variant="secondary"
-          size="sm"
           onClick={handleAnalyze}
-          disabled={analyzeMutation.isPending || isDeleting}
-          className="gap-2"
+          disabled={analyzeMutation.isPending}
         >
-          {analyzeMutation.isPending ? (
-            <>
-              <Loader2 className="size-4 animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <Sparkles className="size-4" />
-              Create Inspection from Audio (AI)
-            </>
-          )}
+          {analyzeMutation.isPending ? 'Analyzing...' : 'Create Inspection from Audio (AI)'}
         </Button>
       </div>
+
+      {aiResult && (
+        <div className="rounded-md border p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium">AI Output</h4>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAiOutput(prev => !prev)}
+            >
+              {showAiOutput ? 'Hide' : 'Show'}
+            </Button>
+          </div>
+
+          {showAiOutput && (
+            <>
+              <div className="space-y-2">
+                <h5 className="text-sm font-medium">Transcript</h5>
+                <div className="rounded bg-muted p-3 text-sm whitespace-pre-wrap">
+                  {aiResult?.transcript?.text || 'No transcript returned.'}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h5 className="text-sm font-medium">Structured JSON</h5>
+                <pre className="rounded bg-muted p-3 text-xs overflow-x-auto">
+                  {JSON.stringify(aiResult?.inspectionDraft ?? aiResult, null, 2)}
+                </pre>
+              </div>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

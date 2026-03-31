@@ -72,6 +72,9 @@ You need to add the ENV-Variables bleow to the hivepal container. Additionally y
   AI_SERVICE_URL: "http://YOUR-AI-HOST:8008"
   AI_SERVICE_API_KEY: "change-me-long-random-string"
   AI_REQUEST_TIMEOUT_MS: "300000"
+  BACKEND_PUBLIC_URL: https://mydomain.tld OR ip
+  FRONTEND_URL: http://mydomain.tld OR ip
+  STORAGE_TYPE: local
 ```
 
 After running the container for the first time you have to download the model. The model has a size of about 6 GB so the download may take some time.
