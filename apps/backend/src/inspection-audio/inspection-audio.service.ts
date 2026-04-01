@@ -349,7 +349,8 @@ export class InspectionAudioService {
       createdAt: audio.createdAt.toISOString(),
     };
   }
-    async startAiAnalysis(
+  
+  async startAiAnalysis(
     inspectionId: string,
     audioId: string,
     filter: ApiaryUserFilter,
@@ -368,6 +369,26 @@ export class InspectionAudioService {
         },
       },
     });
+
+    if (!audio) {
+      throw new NotFoundException(`Audio with ID ${audioId} not found`);
+    }
+
+    await this.prisma.inspectionAudio.update({
+      where: { id: audioId },
+      data: {
+        transcription: null,
+        transcriptionStatus: 'PENDING',
+        analysisResult: Prisma.JsonNull,
+        analysisError: null,
+        analysisCompletedAt: null,
+      },
+    });
+
+    void this.runAiAnalysisInBackground(audioId, audio.storageKey);
+
+    return { status: 'PENDING' };
+  }
 
     if (!audio) {
       throw new NotFoundException(`Audio with ID ${audioId} not found`);
