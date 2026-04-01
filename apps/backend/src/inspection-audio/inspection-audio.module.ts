@@ -6,6 +6,7 @@ import { InspectionAudioService } from './inspection-audio.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoggerModule } from '../logger/logger.module';
 import { InspectionsModule } from '../inspections/inspections.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -25,5 +26,6 @@ import { InspectionsModule } from '../inspections/inspections.module';
   controllers: [InspectionAudioController],
   providers: [InspectionAudioService, PrismaService],
   exports: [InspectionAudioService],
+  HttpModule,
 })
 export class InspectionAudioModule {}

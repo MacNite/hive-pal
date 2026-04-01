@@ -63,7 +63,20 @@ function RecordingRow({
   const [aiResult, setAiResult] = useState<AiAnalysisResult | null>(null);
   const [showAiOutput, setShowAiOutput] = useState(false);
 
-  const analyzeMutation = useAnalyzeInspectionAudio(inspectionId, recording.id);
+  const startAiMutation = useStartInspectionAudioAi(inspectionId, recording.id);
+  const [isPollingEnabled, setIsPollingEnabled] = useState(false);
+
+  const statusQuery = useInspectionAudioAiStatus(
+    inspectionId,
+    recording.id,
+    isPollingEnabled,
+  );
+
+  const resultQuery = useInspectionAudioAiResult(
+    inspectionId,
+    recording.id,
+    statusQuery.data?.transcriptionStatus === 'COMPLETED',
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -94,13 +107,12 @@ function RecordingRow({
 
   const handleAnalyze = async () => {
     try {
-      const result = await analyzeMutation.mutateAsync();
-      console.log('AI analysis result:', result);
-      setAiResult(result);
+      await startAiMutation.mutateAsync();
+      setIsPollingEnabled(true);
       setShowAiOutput(true);
     } catch (error) {
-      console.error('AI analysis failed:', error);
-      alert('AI analysis failed. Check the browser console / network tab.');
+      console.error('AI analysis failed to start:', error);
+      alert('Failed to start AI analysis.');
     }
   };
 
@@ -133,19 +145,34 @@ function RecordingRow({
         </Button>
       </div>
 
+      <div className="text-sm text-muted-foreground">
+        Status:{' '}
+        {statusQuery.data?.transcriptionStatus ?? 'NONE'}
+      </div>
+
       {aiResult && (
-        <div className="rounded-md border p-4 space-y-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium">AI Output</h4>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAiOutput(prev => !prev)}
-            >
-              {showAiOutput ? 'Hide' : 'Show'}
-            </Button>
+        <>
+          <div className="space-y-2">
+            <h5 className="text-sm font-medium">Transcript</h5>
+            <div className="rounded bg-muted p-3 text-sm whitespace-pre-wrap">
+              {aiResult?.transcript?.text || 'No transcript returned.'}
+            </div>
           </div>
+
+          <div className="space-y-2">
+            <h5 className="text-sm font-medium">Structured JSON</h5>
+            <pre className="rounded bg-muted p-3 text-xs overflow-x-auto">
+              {JSON.stringify(aiResult?.inspectionDraft ?? aiResult, null, 2)}
+            </pre>
+          </div>
+        </>
+      )}
+
+      {statusQuery.data?.transcriptionStatus === 'FAILED' && (
+        <div className="text-sm text-red-600">
+          AI analysis failed: {statusQuery.data?.analysisError ?? 'Unknown error'}
+        </div>
+      )}
 
           {showAiOutput && (
             <>

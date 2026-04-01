@@ -181,6 +181,10 @@ model InspectionAudio {
   transcription       String?             @db.Text
   transcriptionStatus TranscriptionStatus @default(NONE)
 
+  analysisResult      Json?
+  analysisError       String? @db.Text
+  analysisCompletedAt DateTime?
+
   createdAt     DateTime            @default(now())
 
   @@index([inspectionId])

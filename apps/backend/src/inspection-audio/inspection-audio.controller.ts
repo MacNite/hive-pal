@@ -125,4 +125,41 @@ export class InspectionAudioController {
       userId: req.user.id,
     });
   }
+
+  @Post(':audioId/ai/analyze')
+  @HttpCode(HttpStatus.ACCEPTED)
+  async startAiAnalysis(
+    @Param('inspectionId') inspectionId: string,
+    @Param('audioId') audioId: string,
+    @Req() req: RequestWithApiary,
+  ) {
+    return this.audioService.startAiAnalysis(inspectionId, audioId, {
+      apiaryId: req.apiaryId,
+      userId: req.user.id,
+    });
+  }
+
+  @Get(':audioId/ai/status')
+  async getAiAnalysisStatus(
+    @Param('inspectionId') inspectionId: string,
+    @Param('audioId') audioId: string,
+    @Req() req: RequestWithApiary,
+  ) {
+    return this.audioService.getAiAnalysisStatus(inspectionId, audioId, {
+      apiaryId: req.apiaryId,
+      userId: req.user.id,
+    });
+  }
+
+  @Get(':audioId/ai/result')
+  async getAiAnalysisResult(
+    @Param('inspectionId') inspectionId: string,
+    @Param('audioId') audioId: string,
+    @Req() req: RequestWithApiary,
+  ) {
+    return this.audioService.getAiAnalysisResult(inspectionId, audioId, {
+      apiaryId: req.apiaryId,
+      userId: req.user.id,
+    });
+  }
 }

@@ -328,4 +328,172 @@ export class InspectionAudioService {
       createdAt: audio.createdAt.toISOString(),
     };
   }
+    async startAiAnalysis(
+    inspectionId: string,
+    audioId: string,
+    filter: ApiaryUserFilter,
+  ): Promise<{ status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' }> {
+    const audio = await this.prisma.inspectionAudio.findFirst({
+      where: {
+        id: audioId,
+        inspectionId,
+        inspection: {
+          hive: {
+            apiary: {
+              id: filter.apiaryId,
+              userId: filter.userId,
+            },
+          },
+        },
+      },
+    });
+
+    if (!audio) {
+      throw new NotFoundException(`Audio with ID ${audioId} not found`);
+    }
+
+    await this.prisma.inspectionAudio.update({
+      where: { id: audioId },
+      data: {
+        transcriptionStatus: 'PENDING',
+        analysisResult: null,
+        analysisError: null,
+        analysisCompletedAt: null,
+      },
+    });
+
+    void this.runAiAnalysisInBackground(audioId, audio.storageKey);
+
+    return { status: 'PENDING' };
+  }
+
+  private async runAiAnalysisInBackground(audioId: string, storageKey: string): Promise<void> {
+    try {
+      await this.prisma.inspectionAudio.update({
+        where: { id: audioId },
+        data: { transcriptionStatus: 'PROCESSING' },
+      });
+
+      // 1. download audio bytes from storage
+      const fileBuffer = await this.storageService.downloadObject(storageKey);
+
+      // 2. send multipart/form-data to Flask AI service
+      const formData = new FormData();
+      formData.append('file', new Blob([fileBuffer]), 'audio.webm');
+
+      const response = await fetch(`${this.aiServiceBaseUrl}/process-upload`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.aiApiKey}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`AI service returned ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      await this.prisma.inspectionAudio.update({
+        where: { id: audioId },
+        data: {
+          transcription: result?.transcript?.text ?? null,
+          transcriptionStatus: 'COMPLETED',
+          analysisResult: result?.inspectionDraft ?? null,
+          analysisError: null,
+          analysisCompletedAt: new Date(),
+        },
+      });
+    } catch (error) {
+      await this.prisma.inspectionAudio.update({
+        where: { id: audioId },
+        data: {
+          transcriptionStatus: 'FAILED',
+          analysisError: error instanceof Error ? error.message : String(error),
+        },
+      });
+
+      this.logger.error({
+        message: 'AI analysis failed',
+        audioId,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
 }
+
+  async getAiAnalysisStatus(
+    inspectionId: string,
+    audioId: string,
+    filter: ApiaryUserFilter,
+  ) {
+    const audio = await this.prisma.inspectionAudio.findFirst({
+      where: {
+        id: audioId,
+        inspectionId,
+        inspection: {
+          hive: {
+            apiary: {
+              id: filter.apiaryId,
+              userId: filter.userId,
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        transcriptionStatus: true,
+        analysisError: true,
+        analysisCompletedAt: true,
+      },
+    });
+
+    if (!audio) {
+      throw new NotFoundException(`Audio with ID ${audioId} not found`);
+    }
+
+    return audio;
+  }
+
+  async getAiAnalysisResult(
+  inspectionId: string,
+  audioId: string,
+  filter: ApiaryUserFilter,
+) {
+  const audio = await this.prisma.inspectionAudio.findFirst({
+    where: {
+      id: audioId,
+      inspectionId,
+      inspection: {
+        hive: {
+          apiary: {
+            id: filter.apiaryId,
+            userId: filter.userId,
+          },
+        },
+      },
+    },
+    select: {
+      transcriptionStatus: true,
+      transcription: true,
+      analysisResult: true,
+      analysisError: true,
+    },
+  });
+
+  if (!audio) {
+    throw new NotFoundException(`Audio with ID ${audioId} not found`);
+  }
+
+  return {
+    status: audio.transcriptionStatus,
+    transcript: {
+      text: audio.transcription,
+    },
+    inspectionDraft: audio.analysisResult,
+    error: audio.analysisError,
+  };
+}
+
+}
+
