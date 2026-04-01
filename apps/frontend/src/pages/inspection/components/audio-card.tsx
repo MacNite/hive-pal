@@ -8,7 +8,11 @@ import {
   useDeleteInspectionAudio,
   getAudioDownloadUrl,
 } from '@/api/hooks/useInspectionAudio';
-import { useAnalyzeInspectionAudio } from '@/api/hooks/useInspectionAudioAi';
+  import {
+    useStartInspectionAudioAi,
+    useInspectionAudioAiStatus,
+    useInspectionAudioAiResult,
+  } from '@/api/hooks/useInspectionAudioAi';
 
 interface AudioCardProps {
   inspectionId: string;
@@ -60,11 +64,10 @@ function RecordingRow({
 }: RecordingRowProps) {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingUrl, setIsLoadingUrl] = useState(false);
-  const [aiResult, setAiResult] = useState<AiAnalysisResult | null>(null);
   const [showAiOutput, setShowAiOutput] = useState(false);
+  const [isPollingEnabled, setIsPollingEnabled] = useState(false);
 
   const startAiMutation = useStartInspectionAudioAi(inspectionId, recording.id);
-  const [isPollingEnabled, setIsPollingEnabled] = useState(false);
 
   const statusQuery = useInspectionAudioAiStatus(
     inspectionId,
@@ -77,6 +80,8 @@ function RecordingRow({
     recording.id,
     statusQuery.data?.transcriptionStatus === 'COMPLETED',
   );
+
+  const aiResult = resultQuery.data;
 
   useEffect(() => {
     let cancelled = false;
@@ -139,42 +144,37 @@ function RecordingRow({
         <Button
           type="button"
           onClick={handleAnalyze}
-          disabled={analyzeMutation.isPending}
+          disabled={startAiMutation.isPending}
         >
-          {analyzeMutation.isPending ? 'Analyzing...' : 'Analyze using AI'}
+          {startAiMutation.isPending ? 'Starting...' : 'Analyze using AI'}
         </Button>
       </div>
 
-      <div className="text-sm text-muted-foreground">
-        Status:{' '}
-        {statusQuery.data?.transcriptionStatus ?? 'NONE'}
-      </div>
+      {(isPollingEnabled || aiResult) && (
+        <div className="rounded-md border p-4 space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium">AI Output</h4>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAiOutput(prev => !prev)}
+            >
+              {showAiOutput ? 'Hide' : 'Show'}
+            </Button>
+          </div>
 
-      {aiResult && (
-        <>
-          <div className="space-y-2">
-            <h5 className="text-sm font-medium">Transcript</h5>
-            <div className="rounded bg-muted p-3 text-sm whitespace-pre-wrap">
-              {aiResult?.transcript?.text || 'No transcript returned.'}
+          <div className="text-sm text-muted-foreground">
+            Status: {statusQuery.data?.transcriptionStatus ?? 'NONE'}
+          </div>
+
+          {statusQuery.data?.transcriptionStatus === 'FAILED' && (
+            <div className="text-sm text-red-600">
+              AI analysis failed: {statusQuery.data?.analysisError ?? 'Unknown error'}
             </div>
-          </div>
+          )}
 
-          <div className="space-y-2">
-            <h5 className="text-sm font-medium">Structured JSON</h5>
-            <pre className="rounded bg-muted p-3 text-xs overflow-x-auto">
-              {JSON.stringify(aiResult?.inspectionDraft ?? aiResult, null, 2)}
-            </pre>
-          </div>
-        </>
-      )}
-
-      {statusQuery.data?.transcriptionStatus === 'FAILED' && (
-        <div className="text-sm text-red-600">
-          AI analysis failed: {statusQuery.data?.analysisError ?? 'Unknown error'}
-        </div>
-      )}
-
-          {showAiOutput && (
+          {showAiOutput && aiResult && (
             <>
               <div className="space-y-2">
                 <h5 className="text-sm font-medium">Transcript</h5>

@@ -9,7 +9,7 @@ import { CustomLoggerService } from '../logger/logger.service';
 import { ApiaryUserFilter } from '../interface/request-with.apiary';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
-import { TranscriptionStatus } from '@/prisma/client';
+import { Prisma, TranscriptionStatus } from '@/prisma/client';
 
 export interface UploadAudioDto {
   fileName: string;
@@ -44,6 +44,8 @@ const ALLOWED_MIME_TYPES = [
 @Injectable()
 export class InspectionAudioService {
   private maxFileSize: number;
+  private aiServiceBaseUrl: string;
+  private aiApiKey: string;
 
   constructor(
     private prisma: PrismaService,
@@ -52,7 +54,10 @@ export class InspectionAudioService {
     private configService: ConfigService,
   ) {
     this.maxFileSize =
-      this.configService.get<number>('AUDIO_MAX_FILE_SIZE') || 52428800; // 50MB default
+    this.aiServiceBaseUrl =
+      this.configService.get<string>('AI_SERVICE_URL') || 'http://hivepal-ai:8008';
+    this.aiApiKey = this.configService.get<string>('AI_API_KEY') || '';
+    this.configService.get<number>('AUDIO_MAX_FILE_SIZE') || 52428800; // 50MB default
   }
 
   /**
@@ -356,7 +361,7 @@ export class InspectionAudioService {
       where: { id: audioId },
       data: {
         transcriptionStatus: 'PENDING',
-        analysisResult: null,
+        analysisResult: Prisma.JsonNull,
         analysisError: null,
         analysisCompletedAt: null,
       },
@@ -375,7 +380,15 @@ export class InspectionAudioService {
       });
 
       // 1. download audio bytes from storage
-      const fileBuffer = await this.storageService.downloadObject(storageKey);
+      const downloadUrl = await this.storageService.generateDownloadUrl(storageKey, 3600);
+      const audioResponse = await fetch(downloadUrl);
+
+      if (!audioResponse.ok) {
+        throw new Error(`Failed to download audio file: ${audioResponse.status}`);
+      }
+
+const fileArrayBuffer = await audioResponse.arrayBuffer();
+const fileBuffer = Buffer.from(fileArrayBuffer);
 
       // 2. send multipart/form-data to Flask AI service
       const formData = new FormData();
@@ -400,7 +413,7 @@ export class InspectionAudioService {
         data: {
           transcription: result?.transcript?.text ?? null,
           transcriptionStatus: 'COMPLETED',
-          analysisResult: result?.inspectionDraft ?? null,
+          analysisResult: result?.inspectionDraft ?? Prisma.JsonNull,
           analysisError: null,
           analysisCompletedAt: new Date(),
         },
