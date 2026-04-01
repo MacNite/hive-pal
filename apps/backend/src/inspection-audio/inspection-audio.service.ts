@@ -53,11 +53,9 @@ export class InspectionAudioService {
     private logger: CustomLoggerService,
     private configService: ConfigService,
   ) {
-    this.maxFileSize =
-    this.aiServiceBaseUrl =
-      this.configService.get<string>('AI_SERVICE_URL') || 'http://hivepal-ai:8008';
-    this.aiApiKey = this.configService.get<string>('AI_API_KEY') || '';
-    this.configService.get<number>('AUDIO_MAX_FILE_SIZE') || 52428800; // 50MB default
+    this.maxFileSize = Number(
+      this.configService.get('INSPECTION_AUDIO_MAX_FILE_SIZE') ?? 10485760,
+    );
   }
 
   /**
@@ -387,12 +385,16 @@ export class InspectionAudioService {
         throw new Error(`Failed to download audio file: ${audioResponse.status}`);
       }
 
-const fileArrayBuffer = await audioResponse.arrayBuffer();
-const fileBuffer = Buffer.from(fileArrayBuffer);
+      const fileArrayBuffer = await audioResponse.arrayBuffer();
+      const fileBuffer = Buffer.from(fileArrayBuffer);
 
       // 2. send multipart/form-data to Flask AI service
-      const formData = new FormData();
-      formData.append('file', new Blob([fileBuffer]), 'audio.webm');
+      const fileBytes = new Uint8Array(
+        fileBuffer.buffer,
+        fileBuffer.byteOffset,
+        fileBuffer.byteLength,
+      );
+      formData.append('file', new Blob([fileBytes]), 'audio.webm');
 
       const response = await fetch(`${this.aiServiceBaseUrl}/process-upload`, {
         method: 'POST',

@@ -44,17 +44,6 @@ interface AiTranscript {
   segments: AiTranscriptSegment[];
 }
 
-interface AiAnalysisResult {
-  status?: string;
-  transcript?: AiTranscript;
-  inspectionDraft?: unknown;
-  files?: {
-    transcript_txt?: string;
-    transcript_json?: string;
-    recommendation_json?: string;
-  };
-}
-
 function RecordingRow({
   inspectionId,
   recording,
