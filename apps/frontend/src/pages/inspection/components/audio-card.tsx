@@ -181,6 +181,11 @@ const handleAnalyze = async () => {
 
           {showAiOutput && aiResult && (
             <>
+             {aiResult?.error && (
+              <div className="text-yellow-600 text-sm">
+                AI structuring failed, but transcript is available.
+              </div>
+            )}
               <div className="space-y-2">
                 <h5 className="text-sm font-medium">Transcript</h5>
                 <div className="rounded bg-muted p-3 text-sm whitespace-pre-wrap">
