@@ -277,7 +277,11 @@ def recommend_from_transcript(transcript: str):
     }
 
     response = requests.post(OLLAMA_URL, json=payload, timeout=600)
-    response.raise_for_status()
+
+    if not response.ok:
+        app.logger.error("Ollama error %s: %s", response.status_code, response.text)
+        response.raise_for_status()
+
     data = response.json()
 
     content = data.get("message", {}).get("content", "{}")
