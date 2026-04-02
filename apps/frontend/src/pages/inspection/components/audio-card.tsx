@@ -111,16 +111,20 @@ function RecordingRow({
     }
   }, [effectiveStatus]);
 
-  const handleAnalyze = async () => {
-    try {
-      await startAiMutation.mutateAsync();
-      setIsPollingEnabled(true);
-      setShowAiOutput(true);
-    } catch (error) {
-      console.error('AI analysis failed to start:', error);
-      alert('Failed to start AI analysis.');
-    }
-  };
+const handleAnalyze = async () => {
+  try {
+    await startAiMutation.mutateAsync();
+
+    setIsPollingEnabled(true);
+    setShowAiOutput(true);
+
+    // NEW: reset result display
+    resultQuery.remove(); // clears cached result
+  } catch (error) {
+    console.error('AI analysis failed to start:', error);
+    alert('Failed to start AI analysis.');
+  }
+};
 
   return (
     <div className="space-y-3 rounded-lg border p-4">
