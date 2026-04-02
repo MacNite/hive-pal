@@ -114,12 +114,8 @@ function RecordingRow({
 const handleAnalyze = async () => {
   try {
     await startAiMutation.mutateAsync();
-
     setIsPollingEnabled(true);
     setShowAiOutput(true);
-
-    // NEW: reset result display
-    resultQuery.remove(); // clears cached result
   } catch (error) {
     console.error('AI analysis failed to start:', error);
     alert('Failed to start AI analysis.');
