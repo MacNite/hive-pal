@@ -8,15 +8,22 @@ import {
   useDeleteInspectionAudio,
   getAudioDownloadUrl,
 } from '@/api/hooks/useInspectionAudio';
-  import {
-    useStartInspectionAudioAi,
-    useInspectionAudioAiStatus,
-    useInspectionAudioAiResult,
-  } from '@/api/hooks/useInspectionAudioAi';
+import {
+  useStartInspectionAudioAi,
+  useInspectionAudioAiStatus,
+  useInspectionAudioAiResult,
+} from '@/api/hooks/useInspectionAudioAi';
 
 interface AudioCardProps {
   inspectionId: string;
 }
+
+type RecordingAiStatus =
+  | 'NONE'
+  | 'PENDING'
+  | 'PROCESSING'
+  | 'COMPLETED'
+  | 'FAILED';
 
 interface RecordingRowProps {
   inspectionId: string;
@@ -24,6 +31,8 @@ interface RecordingRowProps {
     id: string;
     fileName: string;
     duration?: number | null;
+    transcriptionStatus?: RecordingAiStatus;
+    transcription?: string | null;
   };
   getDownloadUrl: (audioId: string) => Promise<string>;
   onDelete: (audioId: string) => Promise<void>;
@@ -40,7 +49,10 @@ function RecordingRow({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoadingUrl, setIsLoadingUrl] = useState(false);
   const [showAiOutput, setShowAiOutput] = useState(false);
-  const [isPollingEnabled, setIsPollingEnabled] = useState(false);
+  const [isPollingEnabled, setIsPollingEnabled] = useState(
+    recording.transcriptionStatus !== undefined &&
+      recording.transcriptionStatus !== 'NONE',
+  );
 
   const startAiMutation = useStartInspectionAudioAi(inspectionId, recording.id);
 
@@ -50,13 +62,21 @@ function RecordingRow({
     isPollingEnabled,
   );
 
+  const effectiveStatus: RecordingAiStatus =
+    statusQuery.data?.transcriptionStatus ??
+    recording.transcriptionStatus ??
+    'NONE';
+
   const resultQuery = useInspectionAudioAiResult(
     inspectionId,
     recording.id,
-    statusQuery.data?.transcriptionStatus === 'COMPLETED',
+    effectiveStatus === 'COMPLETED',
   );
 
   const aiResult = resultQuery.data;
+
+  const shouldShowAiPanel =
+    effectiveStatus !== 'NONE' || isPollingEnabled || Boolean(aiResult);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,6 +104,12 @@ function RecordingRow({
       cancelled = true;
     };
   }, [audioUrl, getDownloadUrl, recording.id]);
+
+  useEffect(() => {
+    if (effectiveStatus === 'COMPLETED' || effectiveStatus === 'FAILED') {
+      setShowAiOutput(true);
+    }
+  }, [effectiveStatus]);
 
   const handleAnalyze = async () => {
     try {
@@ -119,13 +145,17 @@ function RecordingRow({
         <Button
           type="button"
           onClick={handleAnalyze}
-          disabled={startAiMutation.isPending}
+          disabled={startAiMutation.isPending || effectiveStatus === 'PROCESSING'}
         >
-          {startAiMutation.isPending ? 'Starting...' : 'Analyze using AI'}
+          {startAiMutation.isPending
+            ? 'Starting...'
+            : effectiveStatus === 'PROCESSING'
+              ? 'Analyzing...'
+              : 'Analyze using AI'}
         </Button>
       </div>
 
-      {(isPollingEnabled || aiResult) && (
+      {shouldShowAiPanel && (
         <div className="rounded-md border p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h4 className="font-medium">AI Output</h4>
@@ -133,17 +163,17 @@ function RecordingRow({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setShowAiOutput(prev => !prev)}
+              onClick={() => setShowAiOutput((prev) => !prev)}
             >
               {showAiOutput ? 'Hide' : 'Show'}
             </Button>
           </div>
 
           <div className="text-sm text-muted-foreground">
-            Status: {statusQuery.data?.transcriptionStatus ?? 'NONE'}
+            Status: {effectiveStatus}
           </div>
 
-          {statusQuery.data?.transcriptionStatus === 'FAILED' && (
+          {effectiveStatus === 'FAILED' && (
             <div className="text-sm text-red-600">
               AI analysis failed: {statusQuery.data?.analysisError ?? 'Unknown error'}
             </div>
@@ -154,14 +184,14 @@ function RecordingRow({
               <div className="space-y-2">
                 <h5 className="text-sm font-medium">Transcript</h5>
                 <div className="rounded bg-muted p-3 text-sm whitespace-pre-wrap">
-                  {aiResult?.transcript?.text || 'No transcript returned.'}
+                  {aiResult.transcript?.text || 'No transcript returned.'}
                 </div>
               </div>
 
               <div className="space-y-2">
                 <h5 className="text-sm font-medium">Structured JSON</h5>
                 <pre className="rounded bg-muted p-3 text-xs overflow-x-auto">
-                  {JSON.stringify(aiResult?.inspectionDraft ?? aiResult, null, 2)}
+                  {JSON.stringify(aiResult.inspectionDraft ?? aiResult, null, 2)}
                 </pre>
               </div>
             </>
@@ -222,7 +252,7 @@ export function AudioCard({ inspectionId }: AudioCardProps) {
           </div>
         ) : (
           <div className="space-y-3">
-            {recordings.map(recording => (
+            {recordings.map((recording) => (
               <RecordingRow
                 key={recording.id}
                 inspectionId={inspectionId}
