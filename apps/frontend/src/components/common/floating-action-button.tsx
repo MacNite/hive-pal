@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Plus, Calendar, ClipboardPlus, X } from 'lucide-react';
+import { Plus, Calendar, ClipboardPlus, ScanLine, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { QrScannerDialog } from './qr-scanner-dialog';
 
 interface FABAction {
   id: string;
@@ -15,6 +16,7 @@ interface FABAction {
 
 export const FloatingActionButton = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const navigate = useNavigate();
 
   const getContextualActions = (): FABAction[] => {
@@ -52,6 +54,16 @@ export const FloatingActionButton = () => {
         },
         color: 'bg-green-600 hover:bg-green-700',
       },
+      {
+        id: 'scan-qr-code',
+        label: 'Scan QR Code',
+        icon: <ScanLine className="h-4 w-4" />,
+        onClick: () => {
+          setScannerOpen(true);
+          setIsOpen(false);
+        },
+        color: 'bg-amber-600 hover:bg-amber-700',
+      },
     );
 
     return actions;
@@ -73,6 +85,8 @@ export const FloatingActionButton = () => {
 
   return (
     <>
+      <QrScannerDialog open={scannerOpen} onOpenChange={setScannerOpen} />
+
       {/* Backdrop */}
       {isOpen && (
         <div
