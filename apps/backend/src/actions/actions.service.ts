@@ -138,7 +138,7 @@ export class ActionsService {
     // Get the hiveId from the inspection
     const inspection = await tx.inspection.findUnique({
       where: { id: inspectionId },
-      select: { hiveId: true },
+      select: { hiveId: true, date: true },
     });
 
     if (!inspection) {
@@ -155,6 +155,7 @@ export class ActionsService {
           inspectionId,
           type,
           notes,
+          date: inspection.date,
           ...(userId && { createdByUserId: userId }),
         },
       });
