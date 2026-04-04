@@ -71,6 +71,7 @@ export class CalendarService {
               frameAction: true,
               harvestAction: true,
               boxConfigurationAction: true,
+              maintenanceAction: true,
               createdByUser: { select: { name: true, email: true } },
             },
           },
@@ -100,6 +101,7 @@ export class CalendarService {
           frameAction: true,
           harvestAction: true,
           boxConfigurationAction: true,
+          maintenanceAction: true,
           createdByUser: { select: { name: true, email: true } },
           hive: {
             select: {

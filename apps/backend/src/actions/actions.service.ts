@@ -446,6 +446,7 @@ export class ActionsService {
           frameAction: true,
           harvestAction: true,
           boxConfigurationAction: true,
+          maintenanceAction: true,
           createdByUser: { select: { name: true, email: true } },
         },
       });
@@ -603,6 +604,7 @@ export class ActionsService {
           frameAction: true,
           harvestAction: true,
           boxConfigurationAction: true,
+          maintenanceAction: true,
           createdByUser: { select: { name: true, email: true } },
         },
       });
@@ -846,8 +848,8 @@ export class ActionsService {
           type: ActionType.MAINTENANCE,
           details: {
             type: ActionType.MAINTENANCE as const,
-            component: prismaAction.maintenanceAction.component,
-            status: prismaAction.maintenanceAction.status,
+            component: prismaAction.maintenanceAction.component as 'BOX' | 'BOTTOM_BOARD' | 'COVER',
+            status: prismaAction.maintenanceAction.status as 'CLEANED' | 'REPLACED',
           },
         };
 

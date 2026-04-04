@@ -26,6 +26,7 @@ type InspectionWithIncludes = Prisma.InspectionGetPayload<{
         frameAction: true;
         harvestAction: true;
         boxConfigurationAction: true;
+        maintenanceAction: true;
         createdByUser: { select: { name: true; email: true } };
       };
     };
@@ -240,6 +241,7 @@ export class InspectionsService {
             frameAction: true,
             harvestAction: true,
             boxConfigurationAction: true,
+            maintenanceAction: true,
             createdByUser: { select: { name: true, email: true } },
           },
         },
@@ -296,6 +298,7 @@ export class InspectionsService {
             frameAction: true,
             harvestAction: true,
             boxConfigurationAction: true,
+            maintenanceAction: true,
             createdByUser: { select: { name: true, email: true } },
           },
         },
@@ -547,6 +550,7 @@ export class InspectionsService {
             frameAction: true,
             harvestAction: true,
             boxConfigurationAction: true,
+            maintenanceAction: true,
             createdByUser: { select: { name: true, email: true } },
           },
         },
@@ -605,6 +609,7 @@ export class InspectionsService {
             frameAction: true,
             harvestAction: true,
             boxConfigurationAction: true,
+            maintenanceAction: true,
             createdByUser: { select: { name: true, email: true } },
           },
         },
