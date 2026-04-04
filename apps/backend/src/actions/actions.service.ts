@@ -21,6 +21,7 @@ type ActionWithRelations = Prisma.ActionGetPayload<{
     frameAction: true;
     harvestAction: true;
     boxConfigurationAction: true;
+    maintenanceAction: true;
     createdByUser: { select: { name: true; email: true } };
   };
 }>;
@@ -206,6 +207,14 @@ export class ActionsService {
             totalFrames: details.totalFrames,
           },
         });
+      } else if (details.type === ActionType.MAINTENANCE) {
+        await tx.maintenanceAction.create({
+          data: {
+            actionId: createdAction.id,
+            component: details.component,
+            status: details.status,
+          },
+        });
       }
     }
   }
@@ -308,6 +317,7 @@ export class ActionsService {
         frameAction: true,
         harvestAction: true,
         boxConfigurationAction: true,
+        maintenanceAction: true,
         createdByUser: { select: { name: true, email: true } },
       },
     });
@@ -417,6 +427,14 @@ export class ActionsService {
             totalFrames: details.totalFrames,
           },
         });
+      } else if (details.type === ActionType.MAINTENANCE) {
+        await tx.maintenanceAction.create({
+          data: {
+            actionId: createdAction.id,
+            component: details.component,
+            status: details.status,
+          },
+        });
       }
 
       // Fetch the complete action with relations
@@ -479,6 +497,7 @@ export class ActionsService {
         frameAction: true,
         harvestAction: true,
         boxConfigurationAction: true,
+        maintenanceAction: true,
         createdByUser: { select: { name: true, email: true } },
       },
     });
@@ -561,6 +580,14 @@ export class ActionsService {
               actionId,
               amount: details.amount,
               unit: details.unit,
+            },
+          });
+        } else if (details.type === ActionType.MAINTENANCE) {
+          await tx.maintenanceAction.create({
+            data: {
+              actionId,
+              component: details.component,
+              status: details.status,
             },
           });
         }
@@ -648,6 +675,7 @@ export class ActionsService {
     await tx.frameAction.deleteMany({ where: { actionId } });
     await tx.harvestAction.deleteMany({ where: { actionId } });
     await tx.boxConfigurationAction.deleteMany({ where: { actionId } });
+    await tx.maintenanceAction.deleteMany({ where: { actionId } });
   }
 
   // Prisma-to-Domain Transformation Function
@@ -808,6 +836,20 @@ export class ActionsService {
           },
         };
       }
+
+      case ActionType.MAINTENANCE:
+        if (!prismaAction.maintenanceAction) {
+          throw new Error('Maintenance action details missing');
+        }
+        return {
+          ...base,
+          type: ActionType.MAINTENANCE,
+          details: {
+            type: ActionType.MAINTENANCE as const,
+            component: prismaAction.maintenanceAction.component,
+            status: prismaAction.maintenanceAction.status,
+          },
+        };
 
       case ActionType.NOTE:
         return {

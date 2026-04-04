@@ -77,6 +77,17 @@ function getActionLabel(action: ActionResponse): string {
           defaultValue: 'Box configuration',
         })
       );
+    case 'MAINTENANCE':
+      if (action.details?.type === 'MAINTENANCE') {
+        const comp = action.details.component.replace('_', ' ').toLowerCase();
+        const stat = action.details.status.toLowerCase();
+        return i18n.t('hive:llmPrompt.textArea.maintenance', {
+          status: stat,
+          component: comp,
+          defaultValue: '{{status}} {{component}}',
+        });
+      }
+      return i18n.t('hive:llmPrompt.textArea.maintenanceDefault', { defaultValue: 'Maintenance' });
     default:
       return action.type;
   }

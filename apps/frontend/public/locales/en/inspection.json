@@ -287,6 +287,19 @@
         "remove": "Remove",
         "saveNote": "Save Note",
         "edit": "Edit"
+      },
+      "maintenance": "Maintenance",
+      "maintenance_section": {
+        "title": "Maintenance",
+        "component": "Component",
+        "box": "Box",
+        "bottomBoard": "Bottom Board",
+        "cover": "Cover",
+        "status": "Status",
+        "cleaned": "Cleaned",
+        "replaced": "Replaced",
+        "notesOptional": "Notes (optional)",
+        "notesPlaceholder": "Additional notes about the maintenance..."
       }
     },
     "audio": {

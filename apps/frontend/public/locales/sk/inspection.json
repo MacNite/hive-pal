@@ -286,6 +286,19 @@
         "remove": "Odstrániť",
         "saveNote": "Uložiť poznámku",
         "edit": "Upraviť"
+      },
+      "maintenance": "Údržba",
+      "maintenance_section": {
+        "title": "Údržba",
+        "component": "Komponent",
+        "box": "Nástavok",
+        "bottomBoard": "Dno",
+        "cover": "Veko",
+        "status": "Stav",
+        "cleaned": "Vyčistené",
+        "replaced": "Vymenené",
+        "notesOptional": "Poznámky (voliteľné)",
+        "notesPlaceholder": "Doplňujúce poznámky k údržbe..."
       }
     },
     "audio": {

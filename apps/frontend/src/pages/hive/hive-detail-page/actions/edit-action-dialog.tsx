@@ -27,6 +27,7 @@ import type {
   FeedingActionData,
   TreatmentActionData,
   FramesActionData,
+  MaintenanceActionData,
   NoteActionData,
 } from '@/pages/inspection/components/inspection-form/schema';
 
@@ -69,6 +70,14 @@ const convertResponseToFormData = (action: ActionResponse): ActionData => {
         frames: action.details.quantity,
         notes: action.notes,
       } as FramesActionData;
+
+    case ActionType.MAINTENANCE:
+      return {
+        type: ActionType.MAINTENANCE,
+        component: action.details.component,
+        status: action.details.status,
+        notes: action.notes,
+      } as MaintenanceActionData;
 
     case ActionType.NOTE:
       return {
@@ -122,6 +131,13 @@ const convertFormDataToUpdate = (
     details = {
       type: ActionType.FRAME,
       quantity: frameAction.frames,
+    };
+  } else if (formAction.type === ActionType.MAINTENANCE) {
+    const maintenanceAction = formAction as MaintenanceActionData;
+    details = {
+      type: ActionType.MAINTENANCE,
+      component: maintenanceAction.component,
+      status: maintenanceAction.status,
     };
   } else if (formAction.type === ActionType.NOTE) {
     const noteAction = formAction as NoteActionData;

@@ -27,6 +27,7 @@ import {
   Trash2,
   ClipboardCheck,
   Camera,
+  Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -124,6 +125,8 @@ const getActionIcon = (action: ActionResponse) => {
       return <Package className="h-4 w-4" />;
     case 'NOTE':
       return <StickyNote className="h-4 w-4" />;
+    case 'MAINTENANCE':
+      return <Wrench className="h-4 w-4" />;
     default:
       return <ActivityIcon className="h-4 w-4" />;
   }
@@ -160,6 +163,13 @@ const getActionLabel = (action: ActionResponse, t: (key: string) => string) => {
       return 'Note';
     case 'BOX_CONFIGURATION':
       return t('common:timeline.boxConfiguration');
+    case 'MAINTENANCE':
+      if (action.details?.type === 'MAINTENANCE') {
+        const comp = action.details.component.replace('_', ' ').toLowerCase();
+        const stat = action.details.status.toLowerCase();
+        return `${stat === 'cleaned' ? 'Cleaned' : 'Replaced'} ${comp}`;
+      }
+      return t('common:timeline.maintenance');
     default:
       return action.type;
   }
@@ -261,7 +271,8 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
               eventTypeFilter === 'other' &&
               (action.type === 'FRAME' ||
                 action.type === 'OTHER' ||
-                action.type === 'BOX_CONFIGURATION')
+                action.type === 'BOX_CONFIGURATION' ||
+                action.type === 'MAINTENANCE')
             ) {
               includeAction = true;
             }

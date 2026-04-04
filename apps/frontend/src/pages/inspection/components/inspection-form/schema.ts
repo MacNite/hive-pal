@@ -46,6 +46,14 @@ export const noteActionSchema = z.object({
   notes: z.string(),
 });
 
+// Maintenance action
+export const maintenanceActionSchema = z.object({
+  type: z.literal(ActionType.MAINTENANCE),
+  component: z.string().min(1),
+  status: z.string().min(1),
+  notes: z.string().optional(),
+});
+
 // Other action
 export const otherActionSchema = z.object({
   type: z.literal(ActionType.OTHER),
@@ -57,6 +65,7 @@ export const actionSchema = z.discriminatedUnion('type', [
   feedingActionSchema,
   treatmentActionSchema,
   framesActionSchema,
+  maintenanceActionSchema,
   noteActionSchema,
   otherActionSchema,
 ]);
@@ -70,6 +79,7 @@ export type ObservationFormData = z.infer<typeof observationSchema>;
 export type FeedingActionData = z.infer<typeof feedingActionSchema>;
 export type TreatmentActionData = z.infer<typeof treatmentActionSchema>;
 export type FramesActionData = z.infer<typeof framesActionSchema>;
+export type MaintenanceActionData = z.infer<typeof maintenanceActionSchema>;
 export type NoteActionData = z.infer<typeof noteActionSchema>;
 export type ActionData = z.infer<typeof actionSchema>;
 export type InspectionFormData = z.infer<typeof inspectionSchema>;

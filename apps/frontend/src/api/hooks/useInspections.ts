@@ -236,6 +236,16 @@ export const useUpsertInspection = (inspectionId?: string) => {
                 quantity: action.frames,
               },
             };
+          case 'MAINTENANCE':
+            return {
+              type: ActionType.MAINTENANCE,
+              notes: action.notes,
+              details: {
+                type: ActionType.MAINTENANCE,
+                component: action.component,
+                status: action.status,
+              },
+            };
           default:
             return null;
         }

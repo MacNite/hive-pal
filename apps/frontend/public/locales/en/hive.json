@@ -206,6 +206,8 @@
       "installedValue": "Installed: {{installedAt}}",
       "noActiveQueenRecorded": "No active queen recorded.",
       "boxConfiguration": "Box Configuration",
+      "maintenance": "{{status}} {{component}}",
+      "maintenanceDefault": "Maintenance",
       "position": "Position {{position}}: {{type}}",
       "variant": "variant={{variant}}",
       "frames": "frames",
