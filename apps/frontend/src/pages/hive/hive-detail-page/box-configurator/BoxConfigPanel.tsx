@@ -24,6 +24,8 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { useSubmitFrameSize, useUserProfile } from '@/api/hooks';
+import { ActionResponse } from 'shared-schemas';
+import { MaintenanceInline } from './MaintenancePopover';
 
 interface BoxConfigPanelProps {
   box: Box;
@@ -31,6 +33,8 @@ interface BoxConfigPanelProps {
   mainBoxFrameSizeId?: string;
   isMainBox?: boolean;
   frameSizes?: FrameSize[];
+  hiveId?: string;
+  lastBoxMaintenance?: ActionResponse;
 }
 
 export const BoxConfigPanel = ({
@@ -39,6 +43,8 @@ export const BoxConfigPanel = ({
   mainBoxFrameSizeId,
   isMainBox,
   frameSizes = [],
+  hiveId,
+  lastBoxMaintenance,
 }: BoxConfigPanelProps) => {
   const [showCustomFields, setShowCustomFields] = useState(false);
   const [newFrameSize, setNewFrameSize] = useState({
@@ -416,6 +422,18 @@ export const BoxConfigPanel = ({
             ))}
           </div>
         </div>
+
+        {/* Maintenance */}
+        {hiveId && (
+          <div className="space-y-2 border-t pt-4">
+            <Label>Maintenance</Label>
+            <MaintenanceInline
+              hiveId={hiveId}
+              component="BOX"
+              lastMaintenance={lastBoxMaintenance}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
