@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
+import { useQueryClient } from '@tanstack/react-query';
 import { decodeJwt, isTokenExpired } from '@/utils/jwt-utils';
 import { AuthContext } from '@/context/auth-context/auth-context.ts';
 import { useRegister } from '@/api/hooks/useAuth';
@@ -124,11 +125,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     [mutateAsync],
   );
 
+  const queryClient = useQueryClient();
+
   const logout = useCallback(() => {
     setToken(null);
+    queryClient.clear();
     localStorage.removeItem(APIARY_SELECTION);
+    localStorage.removeItem('hive-pal-query-cache');
     window.location.href = '/login';
-  }, []);
+  }, [queryClient]);
 
   const value = useMemo(
     () => ({ token, login, register, logout, isLoggedIn }),
