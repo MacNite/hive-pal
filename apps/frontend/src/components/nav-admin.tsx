@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/auth-context';
 import { decodeJwt } from '../utils/jwt-utils';
 import { cn } from '../lib/utils';
+import { useSidebar } from '@/components/ui/sidebar';
 
 type NavAdminProps = {
   collapsed?: boolean;
@@ -12,6 +13,11 @@ export function NavAdmin({ collapsed = false }: NavAdminProps) {
   const { t } = useTranslation('common');
   const { token } = useAuth();
   const location = useLocation();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleMobileClose = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   // Get role from token first (more secure), then fallback to user object
   const decodedToken = token ? decodeJwt(token) : null;
@@ -35,6 +41,7 @@ export function NavAdmin({ collapsed = false }: NavAdminProps) {
       <div className="space-y-1">
         <Link
           to="/admin/users"
+          onClick={handleMobileClose}
           className={cn(
             'flex items-center justify-start w-full rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors',
             {
@@ -64,6 +71,7 @@ export function NavAdmin({ collapsed = false }: NavAdminProps) {
         </Link>
         <Link
           to="/admin/feedback"
+          onClick={handleMobileClose}
           className={cn(
             'flex items-center justify-start w-full rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors',
             {
@@ -90,6 +98,7 @@ export function NavAdmin({ collapsed = false }: NavAdminProps) {
         </Link>
         <Link
           to="/admin/frame-sizes"
+          onClick={handleMobileClose}
           className={cn(
             'flex items-center justify-start w-full rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors',
             {
@@ -118,6 +127,7 @@ export function NavAdmin({ collapsed = false }: NavAdminProps) {
         </Link>
         <Link
           to="/admin/metrics"
+          onClick={handleMobileClose}
           className={cn(
             'flex items-center justify-start w-full rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors',
             {

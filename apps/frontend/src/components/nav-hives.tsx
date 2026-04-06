@@ -26,9 +26,14 @@ import { useNavigate } from 'react-router-dom';
 import { useHives } from '@/api/hooks';
 
 export function NavHives() {
-  const { isMobile } = useSidebar();
+  const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const { data: hives } = useHives();
+
+  const handleNav = (url: string) => {
+    if (isMobile) setOpenMobile(false);
+    navigate(url);
+  };
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
@@ -37,10 +42,13 @@ export function NavHives() {
         {hives?.slice(0, 5)?.map(item => (
           <SidebarMenuItem key={item.id}>
             <SidebarMenuButton asChild>
-              <a href={`/hives/${item.id}`} className="flex items-center">
+              <button
+                onClick={() => handleNav(`/hives/${item.id}`)}
+                className="flex items-center w-full cursor-pointer"
+              >
                 <HomeIcon />
                 <span>{item.name}</span>
-              </a>
+              </button>
             </SidebarMenuButton>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -75,9 +83,7 @@ export function NavHives() {
           <SidebarMenuItem>
             <SidebarMenuButton
               className="text-sidebar-foreground/70"
-              onClick={() => {
-                navigate('/hives');
-              }}
+              onClick={() => handleNav('/hives')}
             >
               <MoreHorizontal className="text-sidebar-foreground/70" />
               <span>More</span>
