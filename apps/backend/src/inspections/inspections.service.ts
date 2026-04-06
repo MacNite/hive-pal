@@ -91,8 +91,13 @@ export class InspectionsService {
         `Hive with ID ${createInspectionDto.hiveId} not found or doesn't belong to this apiary`,
       );
     }
-    const { observations, notes, actions, score: scoreOverride, ...inspectionData } =
-      createInspectionDto;
+    const {
+      observations,
+      notes,
+      actions,
+      score: scoreOverride,
+      ...inspectionData
+    } = createInspectionDto;
 
     return this.prisma.$transaction(
       async (tx): Promise<CreateInspectionResponse> => {
@@ -385,8 +390,13 @@ export class InspectionsService {
         `Inspection with ID ${id} not found or doesn't belong to this apiary`,
       );
     }
-    const { observations, notes, actions, score: scoreOverride, ...inspectionData } =
-      updateInspectionDto;
+    const {
+      observations,
+      notes,
+      actions,
+      score: scoreOverride,
+      ...inspectionData
+    } = updateInspectionDto;
 
     return this.prisma.$transaction(
       async (tx): Promise<UpdateInspectionResponse> => {
@@ -718,20 +728,39 @@ export class InspectionsService {
 
     // If scores are stored in DB, use stored values where present,
     // falling back to calculated values for any that are null
-    const overallScore = inspection['overallScore'] as number | null | undefined;
-    const populationScore = inspection['populationScore'] as number | null | undefined;
+    const overallScore = inspection['overallScore'] as
+      | number
+      | null
+      | undefined;
+    const populationScore = inspection['populationScore'] as
+      | number
+      | null
+      | undefined;
     const storesScore = inspection['storesScore'] as number | null | undefined;
     const queenScore = inspection['queenScore'] as number | null | undefined;
-    const scoreWarnings = inspection['scoreWarnings'] as string | null | undefined;
-    const scoreConfidence = inspection['scoreConfidence'] as number | null | undefined;
+    const scoreWarnings = inspection['scoreWarnings'] as
+      | string
+      | null
+      | undefined;
+    const scoreConfidence = inspection['scoreConfidence'] as
+      | number
+      | null
+      | undefined;
 
-    if (overallScore != null || populationScore != null || storesScore != null || queenScore != null) {
+    if (
+      overallScore != null ||
+      populationScore != null ||
+      storesScore != null ||
+      queenScore != null
+    ) {
       return {
         overallScore: overallScore ?? calculated.overallScore,
         populationScore: populationScore ?? calculated.populationScore,
         storesScore: storesScore ?? calculated.storesScore,
         queenScore: queenScore ?? calculated.queenScore,
-        warnings: scoreWarnings ? JSON.parse(scoreWarnings) : calculated.warnings,
+        warnings: scoreWarnings
+          ? (JSON.parse(scoreWarnings) as string[])
+          : calculated.warnings,
         confidence: scoreConfidence ?? calculated.confidence,
       };
     }
