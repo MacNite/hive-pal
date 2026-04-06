@@ -369,19 +369,21 @@ export const EquipmentPlanningPage = () => {
               </p>
             </CardHeader>
             <CardContent>
-              <EquipmentTable
-                items={displayItems}
-                onExtraChange={handleExtraChange}
-                onPerHiveChange={handlePerHiveChange}
-                onNeededChange={handleNeededChange}
-                onResetNeeded={handleResetNeeded}
-                onUpdate={handleUpdateItem}
-                onDelete={handleDeleteItem}
-                onCreate={handleCreateItem}
-                updatingItems={updatingItems}
-                deletingItems={deletingItems}
-                isCreating={isCreating}
-              />
+              <div className="overflow-x-auto">
+                <EquipmentTable
+                  items={displayItems}
+                  onExtraChange={handleExtraChange}
+                  onPerHiveChange={handlePerHiveChange}
+                  onNeededChange={handleNeededChange}
+                  onResetNeeded={handleResetNeeded}
+                  onUpdate={handleUpdateItem}
+                  onDelete={handleDeleteItem}
+                  onCreate={handleCreateItem}
+                  updatingItems={updatingItems}
+                  deletingItems={deletingItems}
+                  isCreating={isCreating}
+                />
+              </div>
             </CardContent>
           </Card>
 
