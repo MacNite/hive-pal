@@ -261,7 +261,8 @@
         "navigation": "Navigation",
         "allInspections": "Alle inspektioner",
         "recentInspections": "Seneste inspektioner",
-        "goBack": "Tilbage"
+        "goBack": "Tilbage",
+        "deleteFailed": "Sletning af inspektion fejlede"
     },
     "schedule": {
         "title": "Planlæg inspektion",
