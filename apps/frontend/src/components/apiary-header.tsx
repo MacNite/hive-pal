@@ -142,19 +142,19 @@ export const ApiaryHeader: React.FC = () => {
           <Button variant="outline" size="sm" asChild>
             <Link to={`/apiaries/${activeApiaryId}`}>
               <MapPin className="h-4 w-4" />
-              {t('reports.widget.apiaryDetails')}
+              <span className="hidden sm:inline">{t('reports.widget.apiaryDetails')}</span>
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/reports">
               <FileBarChart className="h-4 w-4" />
-              {t('reports.widget.viewReports')}
+              <span className="hidden sm:inline">{t('reports.widget.viewReports')}</span>
             </Link>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <Link to="/calendar">
               <CalendarDays className="h-4 w-4" />
-              {t('inspection:dashboard.viewCalendar', 'Calendar')}
+              <span className="hidden sm:inline">{t('inspection:dashboard.viewCalendar', 'Calendar')}</span>
             </Link>
           </Button>
         </div>
