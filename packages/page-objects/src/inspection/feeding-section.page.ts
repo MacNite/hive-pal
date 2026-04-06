@@ -13,7 +13,7 @@ export class FeedingsSectionPageObject {
   }
 
   getFeedType(feedType: string) {
-    return this.page.getByRole('checkbox', { name: feedType });
+    return this.page.getByRole('checkbox', { name: feedType, exact: true });
   }
 
   async selectFeedType(feedType: string) {
