@@ -28,6 +28,11 @@ import { HiveStatus, HiveActionSidebar } from './components';
 import { ChevronRight, Search } from 'lucide-react';
 import { useHives } from '@/api/hooks';
 import { HiveResponse, HiveStatus as HiveStatusEnum } from 'shared-schemas';
+import { useUserPreferences } from '@/api/hooks/useUserPreferences';
+import {
+  formatDateWithPreference,
+  DateFormatPreference,
+} from '@/utils/date-format';
 
 export const HiveListPage = () => {
   const { t } = useTranslation(['hive', 'common']);
@@ -35,6 +40,11 @@ export const HiveListPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const { data: userPreferences } = useUserPreferences();
+  const dateFormat = (userPreferences?.dateFormat ?? 'MM/DD/YYYY') as DateFormatPreference;
+
+  const formatDate = (date: string | null | undefined) =>
+    date ? formatDateWithPreference(date, dateFormat) : null;
 
   const handleRefreshData = useCallback(() => {
     refetch();
@@ -141,10 +151,10 @@ export const HiveListPage = () => {
                     <HiveStatus status={hive.status} />
                   </TableCell>
                   <TableCell>
-                    {hive.installationDate ?? t('hive:fields.notSpecified')}
+                    {formatDate(hive.installationDate) ?? t('hive:fields.notSpecified')}
                   </TableCell>
                   <TableCell>
-                    {hive.lastInspectionDate ??
+                    {formatDate(hive.lastInspectionDate) ??
                       t('hive:fields.noInspectionYet')}
                   </TableCell>
                   <TableCell className="max-w-[200px] truncate">
