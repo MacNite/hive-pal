@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -146,7 +146,14 @@ export const HiveListPage = () => {
             <TableBody>
               {hives.map(hive => (
                 <TableRow key={hive.id}>
-                  <TableCell className="font-medium">{hive.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link
+                      to={`/hives/${hive.id}`}
+                      className="hover:underline"
+                    >
+                      {hive.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>
                     <HiveStatus status={hive.status} />
                   </TableCell>
