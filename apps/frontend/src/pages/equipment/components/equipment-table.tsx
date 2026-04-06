@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Info, RotateCcw, Edit2, Save, X, Trash2, Plus } from 'lucide-react';
+import { Info, RotateCcw, Edit2, Save, X, Trash2, Plus, Eye } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -43,7 +43,10 @@ interface EquipmentRowProps {
   onDelete?: () => Promise<void>;
   isUpdating?: boolean;
   isDeleting?: boolean;
+  compact?: boolean;
 }
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export const EquipmentRow = ({
   item,
@@ -52,6 +55,7 @@ export const EquipmentRow = ({
   onDelete,
   isUpdating = false,
   isDeleting = false,
+  compact = false,
 }: EquipmentRowProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -107,6 +111,7 @@ export const EquipmentRow = ({
       console.error('Failed to delete equipment item:', error);
     }
   };
+  const { t } = useTranslation('hive');
   const {
     name,
     itemId,
@@ -129,7 +134,7 @@ export const EquipmentRow = ({
   const hasSurplus = toPurchase < 0;
   const needsToPurchase = toPurchase > 0;
 
-  if (!enabled) return null;
+  if (!enabled && !compact) return null;
 
   if (isEditing) {
     return (
@@ -222,19 +227,19 @@ export const EquipmentRow = ({
         </div>
         <div className="text-center">
           {needsToPurchase ? (
-            <Badge variant="destructive">Need {toPurchase}</Badge>
+            <Badge variant="destructive">Need {round2(toPurchase)}</Badge>
           ) : hasSurplus ? (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Badge variant="secondary" className="cursor-help">
-                    +{Math.abs(toPurchase)} surplus
+                    +{round2(Math.abs(toPurchase))} surplus
                   </Badge>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Surplus: {Math.abs(toPurchase)} extra</p>
+                  <p>Surplus: {round2(Math.abs(toPurchase))} extra</p>
                   <p className="text-xs text-muted-foreground">
-                    Total: {total} (In use: {inUse} + Extra: {extra})
+                    Total: {round2(total)} (In use: {round2(inUse)} + Extra: {round2(extra)})
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -277,12 +282,12 @@ export const EquipmentRow = ({
         {displayName}
         <span className="text-xs text-muted-foreground">({unit})</span>
       </div>
-      <div className="text-center">{inUse}</div>
-      <div className="text-center">{perHive}</div>
-      <div className="text-center">{extra}</div>
+      <div className="text-center">{round2(inUse)}</div>
+      <div className="text-center">{round2(perHive)}</div>
+      <div className="text-center">{round2(extra)}</div>
       <div className="text-center flex items-center justify-center gap-1">
         <span className={cn(isOverridden && 'text-blue-600 font-medium')}>
-          {needed}
+          {round2(needed)}
         </span>
         <TooltipProvider>
           <Tooltip>
@@ -290,9 +295,9 @@ export const EquipmentRow = ({
               <Info className="h-3 w-3 text-muted-foreground" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>Recommended: {recommended}</p>
+              <p>Recommended: {round2(recommended)}</p>
               <p className="text-xs text-muted-foreground">
-                Based on {perHive} per hive
+                Based on {round2(perHive)} per hive
               </p>
             </TooltipContent>
           </Tooltip>
@@ -310,19 +315,19 @@ export const EquipmentRow = ({
       </div>
       <div className="text-center">
         {needsToPurchase ? (
-          <Badge variant="destructive">Need {toPurchase}</Badge>
+          <Badge variant="destructive">Need {round2(toPurchase)}</Badge>
         ) : hasSurplus ? (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge variant="secondary" className="cursor-help">
-                  +{Math.abs(toPurchase)} surplus
+                  +{round2(Math.abs(toPurchase))} surplus
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Surplus: {Math.abs(toPurchase)} extra</p>
+                <p>Surplus: {round2(Math.abs(toPurchase))} extra</p>
                 <p className="text-xs text-muted-foreground">
-                  Total: {total} (In use: {inUse} + Extra: {extra})
+                  Total: {round2(total)} (In use: {round2(inUse)} + Extra: {round2(extra)})
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -340,16 +345,16 @@ export const EquipmentRow = ({
         >
           <Edit2 className="h-3 w-3" />
         </Button>
-        {item.isCustom && onDelete && (
+        {(item.isCustom ? onDelete : onUpdate) && (
           <>
             <Button
               size="icon"
               variant="ghost"
               className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={() => setShowDeleteDialog(true)}
-              disabled={isDeleting}
+              disabled={isDeleting || isUpdating}
             >
-              {isDeleting ? (
+              {isDeleting || (isUpdating && showDeleteDialog) ? (
                 <div className="h-3 w-3 animate-spin rounded-full border-2 border-destructive border-t-transparent" />
               ) : (
                 <Trash2 className="h-3 w-3" />
@@ -358,10 +363,14 @@ export const EquipmentRow = ({
             <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Delete Equipment Item</DialogTitle>
+                  <DialogTitle>
+                    {item.isCustom ? t('hive:equipment.table.deleteItem', { defaultValue: 'Delete Equipment Item' }) : t('hive:equipment.table.hideItem', { defaultValue: 'Hide Equipment Item' })}
+                  </DialogTitle>
                   <DialogDescription>
-                    Are you sure you want to delete "{displayName}"? This action
-                    cannot be undone.
+                    {item.isCustom
+                      ? t('hive:equipment.table.deleteConfirm', { name: displayName, defaultValue: `Are you sure you want to delete "${displayName}"? This action cannot be undone.` })
+                      : t('hive:equipment.table.hideConfirm', { name: displayName, defaultValue: `This will hide "${displayName}" from your equipment list. You can restore it later.` })
+                    }
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
@@ -369,14 +378,25 @@ export const EquipmentRow = ({
                     variant="outline"
                     onClick={() => setShowDeleteDialog(false)}
                   >
-                    Cancel
+                    {t('hive:equipment.table.cancel', { defaultValue: 'Cancel' })}
                   </Button>
                   <Button
-                    onClick={handleDelete}
+                    onClick={item.isCustom ? handleDelete : async () => {
+                      if (!onUpdate) return;
+                      try {
+                        await onUpdate({ enabled: false });
+                        setShowDeleteDialog(false);
+                      } catch (error) {
+                        console.error('Failed to hide equipment item:', error);
+                      }
+                    }}
                     variant="destructive"
-                    disabled={isDeleting}
+                    disabled={isDeleting || isUpdating}
                   >
-                    {isDeleting ? 'Deleting...' : 'Delete'}
+                    {(isDeleting || isUpdating) ? '...' : item.isCustom
+                      ? t('hive:equipment.table.delete', { defaultValue: 'Delete' })
+                      : t('hive:equipment.table.hide', { defaultValue: 'Hide' })
+                    }
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -416,6 +436,8 @@ export const EquipmentTable = ({
   isCreating = false,
 }: EquipmentTableProps) => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showHidden, setShowHidden] = useState(false);
+  const hiddenItems = items.filter(item => !item.enabled);
   const [newItemData, setNewItemData] = useState<CreateEquipmentItem>({
     itemId: '',
     name: '',
@@ -663,6 +685,59 @@ export const EquipmentTable = ({
           </div>
         );
       })}
+
+      {/* Hidden Items Section */}
+      {hiddenItems.length > 0 && (
+        <div className="pt-4 border-t">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-muted-foreground"
+            onClick={() => setShowHidden(!showHidden)}
+          >
+            <Eye className="h-4 w-4" />
+            {t('hive:equipment.table.showHidden', {
+              count: hiddenItems.length,
+              defaultValue: 'Show {{count}} hidden item(s)',
+            })}
+          </Button>
+          {showHidden && (
+            <div className="mt-3 space-y-2 opacity-60">
+              {hiddenItems.map(item => (
+                <div
+                  key={item.itemId}
+                  className="grid grid-cols-7 gap-4 items-center py-2 px-3 rounded-md bg-muted/10"
+                >
+                  <div className="font-medium text-muted-foreground flex items-center gap-2">
+                    {item.name ||
+                      item.itemId
+                        .replace(/([A-Z])/g, ' $1')
+                        .replace(/^./, str => str.toUpperCase())}
+                    <span className="text-xs">({item.unit})</span>
+                  </div>
+                  <div className="col-span-5" />
+                  <div className="flex justify-center">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1"
+                      disabled={updatingItems.has(item.itemId)}
+                      onClick={() =>
+                        onUpdate?.(item.itemId, { enabled: true })
+                      }
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      {t('hive:equipment.table.restore', {
+                        defaultValue: 'Restore',
+                      })}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
