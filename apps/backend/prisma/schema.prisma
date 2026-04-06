@@ -410,8 +410,9 @@ enum BoxType {
 }
 
 enum BoxVariant {
-  LANGSTROTH_DEEP // Standard Langstroth deep box
-  LANGSTROTH_SHALLOW // Standard Langstroth shallow/medium box
+  LANGSTROTH_DEEP // Standard Langstroth deep box (9 5/8")
+  LANGSTROTH_MEDIUM // Standard Langstroth medium box (6 5/8")
+  LANGSTROTH_SHALLOW // Standard Langstroth shallow box (5 11/16")
   B_DEEP // B-hive deep box
   B_SHALLOW // B-hive shallow box
   DADANT // Dadant box
@@ -550,9 +551,12 @@ model EquipmentItem {
   name              String?             // Display name (optional for custom items)
   enabled           Boolean             @default(true)
   perHive           Float               @default(0) // Amount per hive (for standard calculations)
-  extra             Float               @default(0) // Extra inventory on hand
+  extra             Float               @default(0) // Extra inventory on hand (storage)
+  inExtraction      Float               @default(0) // Supers currently in extraction
+  damaged           Float               @default(0) // Damaged items out of service
   neededOverride    Float?              // Manual override for needed amount (null = use calculation)
   category          EquipmentCategory
+  scope             EquipmentScope      @default(PER_HIVE)
   unit              String              @default("pieces") // "pieces", "kg", "liters", etc.
   isCustom          Boolean             @default(false) // Whether this is a custom item
   displayOrder      Int                 @default(999)
@@ -570,8 +574,8 @@ model EquipmentMultiplier {
   id                String              @id @default(uuid())
   userId            String              @unique
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  targetMultiplier  Float               @default(1.5) // Target hives = current * multiplier
-  
+  targetHives       Int                 @default(0) // Target number of hives to plan for (0 = use current)
+
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
 }
@@ -586,6 +590,11 @@ enum EquipmentCategory {
   PROTECTIVE      // Suits, gloves, veils
   EXTRACTION      // Extractors, uncapping tools
   CUSTOM          // User-defined categories
+}
+
+enum EquipmentScope {
+  PER_HIVE  // Scales with hive count
+  SHARED    // Fixed regardless of hive count
 }
 
 // Frame size catalog (shared across all users)

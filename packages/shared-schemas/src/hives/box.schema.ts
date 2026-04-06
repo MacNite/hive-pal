@@ -9,6 +9,7 @@ export enum BoxTypeEnum {
 
 export enum BoxVariantEnum {
   LANGSTROTH_DEEP = 'LANGSTROTH_DEEP',
+  LANGSTROTH_MEDIUM = 'LANGSTROTH_MEDIUM',
   LANGSTROTH_SHALLOW = 'LANGSTROTH_SHALLOW',
   B_DEEP = 'B_DEEP',
   B_SHALLOW = 'B_SHALLOW',
@@ -22,7 +23,7 @@ export enum BoxVariantEnum {
 
 // Hive system variant groups - defines which variants are compatible
 export const HIVE_SYSTEM_VARIANTS = {
-  LANGSTROTH: [BoxVariantEnum.LANGSTROTH_DEEP, BoxVariantEnum.LANGSTROTH_SHALLOW],
+  LANGSTROTH: [BoxVariantEnum.LANGSTROTH_DEEP, BoxVariantEnum.LANGSTROTH_MEDIUM, BoxVariantEnum.LANGSTROTH_SHALLOW],
   NATIONAL: [BoxVariantEnum.NATIONAL_DEEP, BoxVariantEnum.NATIONAL_SHALLOW],
   B_HIVE: [BoxVariantEnum.B_DEEP, BoxVariantEnum.B_SHALLOW],
   DADANT: [BoxVariantEnum.DADANT],
@@ -100,7 +101,7 @@ export function getEquivalentVariant(
 /** Maps built-in frame size names to box variant */
 export const FRAME_SIZE_VARIANT_MAP: Record<string, BoxVariantEnum> = {
   'Langstroth Deep': BoxVariantEnum.LANGSTROTH_DEEP,
-  'Langstroth Medium': BoxVariantEnum.LANGSTROTH_SHALLOW,
+  'Langstroth Medium': BoxVariantEnum.LANGSTROTH_MEDIUM,
   'Langstroth Shallow': BoxVariantEnum.LANGSTROTH_SHALLOW,
   Dadant: BoxVariantEnum.DADANT,
   'National Deep': BoxVariantEnum.NATIONAL_DEEP,
@@ -114,6 +115,7 @@ export const FRAME_SIZE_VARIANT_MAP: Record<string, BoxVariantEnum> = {
 /** Reverse map: variant to primary built-in frame size name */
 export const VARIANT_FRAME_SIZE_MAP: Record<BoxVariantEnum, string> = {
   [BoxVariantEnum.LANGSTROTH_DEEP]: 'Langstroth Deep',
+  [BoxVariantEnum.LANGSTROTH_MEDIUM]: 'Langstroth Medium',
   [BoxVariantEnum.LANGSTROTH_SHALLOW]: 'Langstroth Shallow',
   [BoxVariantEnum.B_DEEP]: 'B Deep',
   [BoxVariantEnum.B_SHALLOW]: 'B Shallow',

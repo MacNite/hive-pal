@@ -267,7 +267,7 @@ export class UsersController {
     this.logger.log(`User ${req.user.id} updating equipment multiplier`);
     return this.equipmentService.updateEquipmentMultiplier(
       req.user.id,
-      data.targetMultiplier,
+      data.targetHives,
     );
   }
 
