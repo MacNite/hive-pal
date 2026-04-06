@@ -114,7 +114,7 @@ export const FloatingActionButton = () => {
               }}
             >
               <div className="flex items-center justify-end gap-3">
-                <span className="bg-black/80 text-white px-3 py-1 rounded-full text-sm whitespace-nowrap hidden md:block">
+                <span className="bg-black/80 text-white px-3 py-1 rounded-full text-sm whitespace-nowrap">
                   {action.label}
                 </span>
                 <Button
