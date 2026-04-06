@@ -1,7 +1,11 @@
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Info, RotateCcw, Edit2, Save, X, Trash2, Plus, Eye } from 'lucide-react';
+import {
+  Info, RotateCcw, Edit2, Save, X, Trash2, Plus, Eye,
+  Box, Home, LayoutGrid, Droplets, FlaskConical,
+  Wrench, Shield, Container, Star,
+} from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,8 +23,11 @@ import { cn } from '@/lib/utils';
 import {
   EquipmentItemWithCalculations,
   EquipmentCategory,
+  EquipmentScope,
   UpdateEquipmentItem,
   CreateEquipmentItem,
+  STATUS_TRACKING_CATEGORIES,
+  SHARED_SCOPE_CATEGORIES,
 } from 'shared-schemas';
 import { useState } from 'react';
 import {
@@ -32,6 +39,19 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useTranslation } from 'react-i18next';
+
+/** Round to 2 decimal places to avoid floating point display noise. */
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/** Pieces-based units are always whole numbers; weight/volume can be fractional. */
+function getInputProps(unit: string): { step: string; parse: (v: string) => number } {
+  const fractionalUnits = new Set(['kg', 'g', 'liters', 'l', 'ml', 'oz', 'lb']);
+  const isFractional = fractionalUnits.has(unit.toLowerCase());
+  return {
+    step: isFractional ? '0.5' : '1',
+    parse: isFractional ? v => parseFloat(v) || 0 : v => parseInt(v) || 0,
+  };
+}
 
 interface EquipmentRowProps {
   item: EquipmentItemWithCalculations;
@@ -46,8 +66,6 @@ interface EquipmentRowProps {
   compact?: boolean;
 }
 
-const round2 = (n: number) => Math.round(n * 100) / 100;
-
 export const EquipmentRow = ({
   item,
   onResetNeeded,
@@ -57,21 +75,31 @@ export const EquipmentRow = ({
   isDeleting = false,
   compact = false,
 }: EquipmentRowProps) => {
+  const { t } = useTranslation('hive');
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [editData, setEditData] = useState<UpdateEquipmentItem>({
     name: item.name,
+    scope: item.scope,
     perHive: item.perHive,
     extra: item.extra,
+    inExtraction: item.inExtraction ?? 0,
+    damaged: item.damaged ?? 0,
     neededOverride: item.neededOverride,
     unit: item.unit,
   });
 
+  const isShared = item.scope === EquipmentScope.SHARED;
+  const hasStatusTracking = STATUS_TRACKING_CATEGORIES.has(item.category);
+
   const handleEdit = () => {
     setEditData({
       name: item.name,
+      scope: item.scope,
       perHive: item.perHive,
       extra: item.extra,
+      inExtraction: item.inExtraction ?? 0,
+      damaged: item.damaged ?? 0,
       neededOverride: item.neededOverride,
       unit: item.unit,
     });
@@ -80,12 +108,10 @@ export const EquipmentRow = ({
 
   const handleSave = async () => {
     if (!onUpdate) return;
-
     try {
       await onUpdate(editData);
       setIsEditing(false);
     } catch (error) {
-      // Error handling is done by parent component
       console.error('Failed to update equipment item:', error);
     }
   };
@@ -93,8 +119,11 @@ export const EquipmentRow = ({
   const handleCancel = () => {
     setEditData({
       name: item.name,
+      scope: item.scope,
       perHive: item.perHive,
       extra: item.extra,
+      inExtraction: item.inExtraction ?? 0,
+      damaged: item.damaged ?? 0,
       neededOverride: item.neededOverride,
       unit: item.unit,
     });
@@ -103,7 +132,6 @@ export const EquipmentRow = ({
 
   const handleDelete = async () => {
     if (!onDelete) return;
-
     try {
       await onDelete();
       setShowDeleteDialog(false);
@@ -111,12 +139,14 @@ export const EquipmentRow = ({
       console.error('Failed to delete equipment item:', error);
     }
   };
-  const { t } = useTranslation('hive');
+
   const {
     name,
     itemId,
     inUse = 0,
     extra = 0,
+    inExtraction = 0,
+    damaged = 0,
     total = 0,
     needed = 0,
     recommended = 0,
@@ -137,78 +167,112 @@ export const EquipmentRow = ({
   if (!enabled && !compact) return null;
 
   if (isEditing) {
+    const editIsShared = editData.scope === EquipmentScope.SHARED;
     return (
-      <div className="grid grid-cols-7 gap-4 items-center py-3 bg-muted/20 rounded-md px-3">
-        <div className="space-y-1">
+      <div className="grid grid-cols-7 gap-4 items-start py-3 bg-muted/20 rounded-md px-3">
+        {/* Name + scope */}
+        <div className="space-y-2">
           {item.isCustom ? (
             <Input
               value={editData.name || ''}
-              onChange={e =>
-                setEditData(prev => ({ ...prev, name: e.target.value }))
-              }
+              onChange={e => setEditData(prev => ({ ...prev, name: e.target.value }))}
               className="text-sm font-medium"
               placeholder="Equipment name"
             />
           ) : (
-            <div className="font-medium">{displayName}</div>
+            <div className="font-medium text-sm">{displayName}</div>
           )}
-          {item.isCustom ? (
+          <Select
+            value={editData.scope ?? EquipmentScope.PER_HIVE}
+            onValueChange={(v: EquipmentScope) =>
+              setEditData(prev => ({ ...prev, scope: v }))
+            }
+          >
+            <SelectTrigger className="h-7 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={EquipmentScope.PER_HIVE}>Per hive</SelectItem>
+              <SelectItem value={EquipmentScope.SHARED}>Shared</SelectItem>
+            </SelectContent>
+          </Select>
+          {item.isCustom && (
             <Input
               value={editData.unit || ''}
-              onChange={e =>
-                setEditData(prev => ({ ...prev, unit: e.target.value }))
-              }
+              onChange={e => setEditData(prev => ({ ...prev, unit: e.target.value }))}
               className="text-xs"
               placeholder="Unit"
             />
-          ) : (
-            <span className="text-xs text-muted-foreground">({unit})</span>
           )}
         </div>
-        <div className="text-center text-sm">{inUse}</div>
-        <div className="text-center flex justify-center">
-          <Input
-            type="number"
-            value={editData.perHive}
-            onChange={e =>
-              setEditData(prev => ({
-                ...prev,
-                perHive: parseFloat(e.target.value) || 0,
-              }))
-            }
-            className="w-20 text-center"
-            min="0"
-            step="0.1"
-          />
+
+        {/* In use (read-only) */}
+        <div className="text-center text-sm pt-2">{round2(inUse)}</div>
+
+        {/* Per hive / target */}
+        <div className="text-center flex justify-center pt-1">
+          {(() => {
+            const { step, parse } = getInputProps(editData.unit ?? item.unit);
+            return (
+              <Input
+                type="number"
+                value={editData.perHive}
+                onChange={e => setEditData(prev => ({ ...prev, perHive: parse(e.target.value) }))}
+                className="w-20 text-center"
+                min="0"
+                step={step}
+              />
+            );
+          })()}
         </div>
-        <div className="text-center flex justify-center">
+
+        {/* In storage / extra */}
+        <div className="space-y-1">
           <Input
             type="number"
             value={editData.extra}
             onChange={e =>
-              setEditData(prev => ({
-                ...prev,
-                extra: parseInt(e.target.value) || 0,
-              }))
+              setEditData(prev => ({ ...prev, extra: parseInt(e.target.value) || 0 }))
             }
-            className="w-20 text-center"
+            className="w-20 text-center mx-auto block"
             min="0"
+            placeholder="Storage"
           />
+          {hasStatusTracking && (
+            <>
+              <Input
+                type="number"
+                value={editData.inExtraction}
+                onChange={e =>
+                  setEditData(prev => ({ ...prev, inExtraction: parseInt(e.target.value) || 0 }))
+                }
+                className="w-20 text-center mx-auto block text-amber-600"
+                min="0"
+                placeholder="Extracting"
+              />
+              <Input
+                type="number"
+                value={editData.damaged}
+                onChange={e =>
+                  setEditData(prev => ({ ...prev, damaged: parseInt(e.target.value) || 0 }))
+                }
+                className="w-20 text-center mx-auto block text-red-500"
+                min="0"
+                placeholder="Damaged"
+              />
+            </>
+          )}
         </div>
-        <div className="text-center flex items-center justify-center gap-1">
+
+        {/* Needed override */}
+        <div className="text-center flex items-center justify-center gap-1 pt-1">
           <Input
             type="number"
             value={editData.neededOverride ?? needed}
             onChange={e =>
-              setEditData(prev => ({
-                ...prev,
-                neededOverride: parseInt(e.target.value) || 0,
-              }))
+              setEditData(prev => ({ ...prev, neededOverride: parseInt(e.target.value) || 0 }))
             }
-            className={cn(
-              'w-20 text-center',
-              isOverridden && 'text-blue-600 font-medium',
-            )}
+            className={cn('w-20 text-center', isOverridden && 'text-blue-600 font-medium')}
             min="0"
           />
           <TooltipProvider>
@@ -217,15 +281,19 @@ export const EquipmentRow = ({
                 <Info className="h-3 w-3 text-muted-foreground" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Recommended: {recommended}</p>
+                <p>Recommended: {round2(recommended)}</p>
                 <p className="text-xs text-muted-foreground">
-                  Based on {editData.perHive} per hive
+                  {editIsShared
+                    ? 'Fixed target (shared equipment)'
+                    : `Based on ${round2(editData.perHive ?? perHive)} per hive`}
                 </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="text-center">
+
+        {/* Status badge */}
+        <div className="text-center pt-1">
           {needsToPurchase ? (
             <Badge variant="destructive">Need {round2(toPurchase)}</Badge>
           ) : hasSurplus ? (
@@ -239,7 +307,8 @@ export const EquipmentRow = ({
                 <TooltipContent>
                   <p>Surplus: {round2(Math.abs(toPurchase))} extra</p>
                   <p className="text-xs text-muted-foreground">
-                    Total: {round2(total)} (In use: {round2(inUse)} + Extra: {round2(extra)})
+                    Total usable: {round2(total)} (on hives: {round2(inUse)}, stored: {round2(extra)}
+                    {inExtraction > 0 ? `, extracting: ${round2(inExtraction)}` : ''})
                   </p>
                 </TooltipContent>
               </Tooltip>
@@ -248,27 +317,17 @@ export const EquipmentRow = ({
             <Badge variant="outline">Exact</Badge>
           )}
         </div>
-        <div className="flex items-center justify-center gap-1">
-          <Button
-            size="icon"
-            variant="default"
-            className="h-8 w-8"
-            onClick={handleSave}
-            disabled={isUpdating}
-          >
+
+        {/* Actions */}
+        <div className="flex items-center justify-center gap-1 pt-1">
+          <Button size="icon" variant="default" className="h-8 w-8" onClick={handleSave} disabled={isUpdating}>
             {isUpdating ? (
               <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
             ) : (
               <Save className="h-3 w-3" />
             )}
           </Button>
-          <Button
-            size="icon"
-            variant="outline"
-            className="h-8 w-8"
-            onClick={handleCancel}
-            disabled={isUpdating}
-          >
+          <Button size="icon" variant="outline" className="h-8 w-8" onClick={handleCancel} disabled={isUpdating}>
             <X className="h-3 w-3" />
           </Button>
         </div>
@@ -278,17 +337,63 @@ export const EquipmentRow = ({
 
   return (
     <div className="grid grid-cols-7 gap-4 items-center py-3 hover:bg-muted/10 rounded-md px-3">
-      <div className="font-medium flex items-center gap-2">
-        {displayName}
-        <span className="text-xs text-muted-foreground">({unit})</span>
+      {/* Name + scope badge */}
+      <div className="flex flex-col gap-1">
+        <div className="font-medium flex items-center gap-2">
+          {displayName}
+          <span className="text-xs text-muted-foreground">({unit})</span>
+        </div>
+        {isShared && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-xs text-muted-foreground italic cursor-default">shared</span>
+              </TooltipTrigger>
+              <TooltipContent>
+                Target doesn't multiply by hive count — one fixed amount for the whole apiary
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
+
+      {/* In use */}
       <div className="text-center">{round2(inUse)}</div>
-      <div className="text-center">{round2(perHive)}</div>
-      <div className="text-center">{round2(extra)}</div>
+
+      {/* Per hive / target */}
+      <div className="text-center">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="cursor-default">{round2(perHive)}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isShared ? 'Fixed target count (shared equipment)' : `${round2(perHive)} per hive`}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      {/* Storage / status */}
+      <div className="text-center">
+        {hasStatusTracking ? (
+          <div className="flex flex-col items-center gap-0.5 text-xs">
+            <span>{round2(extra)} stored</span>
+            {inExtraction > 0 && (
+              <span className="text-amber-600">{round2(inExtraction)} extracting</span>
+            )}
+            {damaged > 0 && (
+              <span className="text-red-500">{round2(damaged)} damaged</span>
+            )}
+          </div>
+        ) : (
+          <span>{round2(extra)}</span>
+        )}
+      </div>
+
+      {/* Needed */}
       <div className="text-center flex items-center justify-center gap-1">
-        <span className={cn(isOverridden && 'text-blue-600 font-medium')}>
-          {round2(needed)}
-        </span>
+        <span className={cn(isOverridden && 'text-blue-600 font-medium')}>{round2(needed)}</span>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -297,22 +402,19 @@ export const EquipmentRow = ({
             <TooltipContent>
               <p>Recommended: {round2(recommended)}</p>
               <p className="text-xs text-muted-foreground">
-                Based on {round2(perHive)} per hive
+                {isShared ? 'Fixed target' : `Based on ${round2(perHive)} per hive`}
               </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
         {isOverridden && (
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-6 w-6"
-            onClick={onResetNeeded}
-          >
+          <Button size="icon" variant="ghost" className="h-6 w-6" onClick={onResetNeeded}>
             <RotateCcw className="h-3 w-3" />
           </Button>
         )}
       </div>
+
+      {/* Status */}
       <div className="text-center">
         {needsToPurchase ? (
           <Badge variant="destructive">Need {round2(toPurchase)}</Badge>
@@ -327,7 +429,8 @@ export const EquipmentRow = ({
               <TooltipContent>
                 <p>Surplus: {round2(Math.abs(toPurchase))} extra</p>
                 <p className="text-xs text-muted-foreground">
-                  Total: {round2(total)} (In use: {round2(inUse)} + Extra: {round2(extra)})
+                  Total usable: {round2(total)} (on hives: {round2(inUse)}, stored: {round2(extra)}
+                  {inExtraction > 0 ? `, extracting: ${round2(inExtraction)}` : ''})
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -336,13 +439,10 @@ export const EquipmentRow = ({
           <Badge variant="outline">Exact</Badge>
         )}
       </div>
+
+      {/* Actions */}
       <div className="flex items-center justify-center gap-1">
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-8 w-8"
-          onClick={handleEdit}
-        >
+        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleEdit}>
           <Edit2 className="h-3 w-3" />
         </Button>
         {(item.isCustom ? onDelete : onUpdate) && (
@@ -364,20 +464,18 @@ export const EquipmentRow = ({
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {item.isCustom ? t('hive:equipment.table.deleteItem', { defaultValue: 'Delete Equipment Item' }) : t('hive:equipment.table.hideItem', { defaultValue: 'Hide Equipment Item' })}
+                    {item.isCustom
+                      ? t('hive:equipment.table.deleteItem', { defaultValue: 'Delete Equipment Item' })
+                      : t('hive:equipment.table.hideItem', { defaultValue: 'Hide Equipment Item' })}
                   </DialogTitle>
                   <DialogDescription>
                     {item.isCustom
                       ? t('hive:equipment.table.deleteConfirm', { name: displayName, defaultValue: `Are you sure you want to delete "${displayName}"? This action cannot be undone.` })
-                      : t('hive:equipment.table.hideConfirm', { name: displayName, defaultValue: `This will hide "${displayName}" from your equipment list. You can restore it later.` })
-                    }
+                      : t('hive:equipment.table.hideConfirm', { name: displayName, defaultValue: `This will hide "${displayName}" from your equipment list. You can restore it later.` })}
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowDeleteDialog(false)}
-                  >
+                  <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
                     {t('hive:equipment.table.cancel', { defaultValue: 'Cancel' })}
                   </Button>
                   <Button
@@ -395,8 +493,7 @@ export const EquipmentRow = ({
                   >
                     {(isDeleting || isUpdating) ? '...' : item.isCustom
                       ? t('hive:equipment.table.delete', { defaultValue: 'Delete' })
-                      : t('hive:equipment.table.hide', { defaultValue: 'Hide' })
-                    }
+                      : t('hive:equipment.table.hide', { defaultValue: 'Hide' })}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -420,6 +517,8 @@ interface EquipmentTableProps {
   updatingItems?: Set<string>;
   deletingItems?: Set<string>;
   isCreating?: boolean;
+  showAddForm?: boolean;
+  onShowAddFormChange?: (show: boolean) => void;
 }
 
 export const EquipmentTable = ({
@@ -434,10 +533,18 @@ export const EquipmentTable = ({
   updatingItems = new Set(),
   deletingItems = new Set(),
   isCreating = false,
+  showAddForm: showAddFormProp,
+  onShowAddFormChange,
 }: EquipmentTableProps) => {
-  const [showAddForm, setShowAddForm] = useState(false);
+  const { t } = useTranslation('hive');
+  const [showAddFormLocal, setShowAddFormLocal] = useState(false);
+  const showAddForm = showAddFormProp ?? showAddFormLocal;
+  const setShowAddForm = (v: boolean) => {
+    setShowAddFormLocal(v);
+    onShowAddFormChange?.(v);
+  };
   const [showHidden, setShowHidden] = useState(false);
-  const hiddenItems = items.filter(item => !item.enabled);
+
   const [newItemData, setNewItemData] = useState<CreateEquipmentItem>({
     itemId: '',
     name: '',
@@ -464,42 +571,49 @@ export const EquipmentTable = ({
   };
 
   const handleSaveNewItem = async () => {
-    if (!onCreate || !newItemData.name?.trim()) {
-      return;
-    }
-
-    // Create itemId from name if not provided
+    if (!onCreate || !newItemData.name?.trim()) return;
     const itemId =
       newItemData.itemId?.trim() ||
       newItemData.name.toLowerCase().replace(/\s+/g, '_');
-
+    const defaultScope = SHARED_SCOPE_CATEGORIES.has(newItemData.category)
+      ? EquipmentScope.SHARED
+      : EquipmentScope.PER_HIVE;
     try {
-      await onCreate({
-        ...newItemData,
-        itemId,
-        name: newItemData.name.trim(),
-      });
+      await onCreate({ ...newItemData, itemId, name: newItemData.name.trim(), scope: defaultScope });
       setShowAddForm(false);
     } catch (error) {
       console.error('Failed to create equipment item:', error);
     }
   };
 
-  const handleCancelAdd = () => {
-    setShowAddForm(false);
-  };
+  const handleCancelAdd = () => setShowAddForm(false);
 
-  // Group items by category for better organization
-  const categorizedItems = items.reduce(
+  const enabledItems = items.filter(item => item.enabled);
+  const hiddenItems = items.filter(item => !item.enabled);
+
+  const categorizedItems = enabledItems.reduce(
     (acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = [];
-      }
+      if (!acc[item.category]) acc[item.category] = [];
       acc[item.category].push(item);
       return acc;
     },
     {} as Record<EquipmentCategory, EquipmentItemWithCalculations[]>,
   );
+
+  const CATEGORY_CONFIG: Record<
+    EquipmentCategory,
+    { label: string; icon: React.ElementType; border: string; header: string; iconColor: string }
+  > = {
+    [EquipmentCategory.BOXES]:       { label: 'Boxes',        icon: Box,          border: 'border-l-blue-400',    header: 'bg-blue-50/80 dark:bg-blue-950/30',    iconColor: 'text-blue-600' },
+    [EquipmentCategory.HIVE_PARTS]:  { label: 'Hive Parts',   icon: Home,         border: 'border-l-slate-400',   header: 'bg-slate-50/80 dark:bg-slate-950/30',  iconColor: 'text-slate-600' },
+    [EquipmentCategory.FRAMES]:      { label: 'Frames',       icon: LayoutGrid,   border: 'border-l-amber-400',   header: 'bg-amber-50/80 dark:bg-amber-950/30',  iconColor: 'text-amber-600' },
+    [EquipmentCategory.FEEDING]:     { label: 'Feeding',      icon: Droplets,     border: 'border-l-green-400',   header: 'bg-green-50/80 dark:bg-green-950/30',  iconColor: 'text-green-600' },
+    [EquipmentCategory.CONSUMABLES]: { label: 'Consumables',  icon: FlaskConical, border: 'border-l-purple-400',  header: 'bg-purple-50/80 dark:bg-purple-950/30', iconColor: 'text-purple-600' },
+    [EquipmentCategory.TOOLS]:       { label: 'Tools',        icon: Wrench,       border: 'border-l-orange-400',  header: 'bg-orange-50/80 dark:bg-orange-950/30', iconColor: 'text-orange-600' },
+    [EquipmentCategory.PROTECTIVE]:  { label: 'Protective',   icon: Shield,       border: 'border-l-teal-400',    header: 'bg-teal-50/80 dark:bg-teal-950/30',    iconColor: 'text-teal-600' },
+    [EquipmentCategory.EXTRACTION]:  { label: 'Extraction',   icon: Container,    border: 'border-l-yellow-400',  header: 'bg-yellow-50/80 dark:bg-yellow-950/30', iconColor: 'text-yellow-600' },
+    [EquipmentCategory.CUSTOM]:      { label: 'Custom',       icon: Star,         border: 'border-l-gray-400',    header: 'bg-gray-50/80 dark:bg-gray-950/30',    iconColor: 'text-gray-600' },
+  };
 
   const categoryOrder = [
     EquipmentCategory.BOXES,
@@ -512,25 +626,9 @@ export const EquipmentTable = ({
     EquipmentCategory.EXTRACTION,
     EquipmentCategory.CUSTOM,
   ];
-  const { t } = useTranslation('hive');
+
   return (
     <div className="space-y-6 min-w-[700px]">
-      {/* Add Equipment Button */}
-      {onCreate && (
-        <div className="flex justify-end">
-          <Button
-            onClick={handleAddEquipment}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <Plus className="h-4 w-4" />
-            {t('hive:equipment.table.addEquipment', { defaultValue: 'Add Equipment' })}
-          </Button>
-        </div>
-      )}
-
-      {/* Add Equipment Form */}
       {showAddForm && (
         <div className="bg-muted/20 rounded-md p-4 border-2 border-dashed border-muted-foreground/25">
           <div className="grid grid-cols-7 gap-4 items-end">
@@ -540,9 +638,7 @@ export const EquipmentTable = ({
               </label>
               <Input
                 value={newItemData.name}
-                onChange={e =>
-                  setNewItemData(prev => ({ ...prev, name: e.target.value }))
-                }
+                onChange={e => setNewItemData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="e.g., Custom Smoker"
                 className="text-sm"
               />
@@ -556,27 +652,22 @@ export const EquipmentTable = ({
               <Input
                 type="number"
                 value={newItemData.perHive}
-                onChange={e =>
-                  setNewItemData(prev => ({
-                    ...prev,
-                    perHive: parseFloat(e.target.value) || 0,
-                  }))
-                }
+                onChange={e => {
+                  const { parse } = getInputProps(newItemData.unit ?? 'pieces');
+                  setNewItemData(prev => ({ ...prev, perHive: parse(e.target.value) }));
+                }}
                 className="w-20 text-center"
                 min="0"
-                step="0.1"
+                step={getInputProps(newItemData.unit ?? 'pieces').step}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-medium">Extra</label>
+              <label className="text-xs font-medium">In Storage</label>
               <Input
                 type="number"
                 value={newItemData.extra}
                 onChange={e =>
-                  setNewItemData(prev => ({
-                    ...prev,
-                    extra: parseInt(e.target.value) || 0,
-                  }))
+                  setNewItemData(prev => ({ ...prev, extra: parseInt(e.target.value) || 0 }))
                 }
                 className="w-20 text-center"
                 min="0"
@@ -586,9 +677,7 @@ export const EquipmentTable = ({
               <label className="text-xs font-medium">Unit</label>
               <Input
                 value={newItemData.unit}
-                onChange={e =>
-                  setNewItemData(prev => ({ ...prev, unit: e.target.value }))
-                }
+                onChange={e => setNewItemData(prev => ({ ...prev, unit: e.target.value }))}
                 placeholder="pieces"
                 className="text-center"
               />
@@ -606,11 +695,7 @@ export const EquipmentTable = ({
                 </SelectTrigger>
                 <SelectContent>
                   {Object.values(EquipmentCategory).map(category => (
-                    <SelectItem
-                      key={category}
-                      value={category}
-                      className="text-xs"
-                    >
+                    <SelectItem key={category} value={category} className="text-xs">
                       {category.toLowerCase().replace('_', ' ')}
                     </SelectItem>
                   ))}
@@ -631,12 +716,7 @@ export const EquipmentTable = ({
                 )}
                 {t('hive:equipment.table.save', { defaultValue: 'Save' })}
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleCancelAdd}
-                disabled={isCreating}
-              >
+              <Button size="sm" variant="outline" onClick={handleCancelAdd} disabled={isCreating}>
                 <X className="h-3 w-3" />
               </Button>
             </div>
@@ -644,29 +724,53 @@ export const EquipmentTable = ({
         </div>
       )}
 
-      {/* Table Header */}
-      <div className="grid grid-cols-7 gap-4 pb-3 border-b font-semibold text-sm">
-        <div>{t('hive:equipment.table.title', { defaultValue: 'Equipment' })}</div>
-        <div className="text-center">{t('hive:equipment.table.inUse', { defaultValue: 'In Use' })}</div>
-        <div className="text-center">{t('hive:equipment.table.perHive', { defaultValue: 'Per Hive' })}</div>
-        <div className="text-center">{t('hive:equipment.table.extra', { defaultValue: 'Extra' })}</div>
-        <div className="text-center">{t('hive:equipment.table.needed', { defaultValue: 'Needed' })}</div>
-        <div className="text-center">{t('hive:equipment.table.status', { defaultValue: 'Status' })}</div>
-        <div className="text-center">{t('hive:equipment.table.actions', { defaultValue: 'Actions' })}</div>
-      </div>
-
       {categoryOrder.map(category => {
         const categoryItems = categorizedItems[category];
         if (!categoryItems || categoryItems.length === 0) return null;
 
+        const cfg = CATEGORY_CONFIG[category];
+        const Icon = cfg.icon;
+        const sorted = [...categoryItems].sort((a, b) => a.displayOrder - b.displayOrder);
+
         return (
-          <div key={category} className="space-y-2">
-            <h3 className="text-sm font-medium text-muted-foreground capitalize">
-              {category.toLowerCase().replace('_', ' ')}
-            </h3>
-            {categoryItems
-              .sort((a, b) => a.displayOrder - b.displayOrder)
-              .map(item => (
+          <div
+            key={category}
+            className={`rounded-lg border border-border border-l-4 ${cfg.border} overflow-hidden`}
+          >
+            {/* Category header */}
+            <div className={`${cfg.header} px-3 py-2 flex items-center gap-2 border-b border-border/50`}>
+              <Icon className={`h-4 w-4 ${cfg.iconColor}`} />
+              <span className="text-sm font-semibold">{cfg.label}</span>
+              <span className="ml-auto text-xs text-muted-foreground">
+                {sorted.length} {sorted.length === 1 ? 'item' : 'items'}
+              </span>
+            </div>
+
+            {/* Column sub-header */}
+            <div className="grid grid-cols-7 gap-4 px-3 py-1.5 text-xs text-muted-foreground border-b border-border/30 bg-background/60">
+              <div>Item</div>
+              <div className="text-center">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-default underline decoration-dotted">In Use</span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Currently mounted on your hives
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <div className="text-center">Per Hive / Target</div>
+              <div className="text-center">Inventory</div>
+              <div className="text-center">Needed</div>
+              <div className="text-center">Status</div>
+              <div className="text-center">Actions</div>
+            </div>
+
+            {/* Rows */}
+            <div className="divide-y divide-border/30">
+              {sorted.map(item => (
                 <EquipmentRow
                   key={item.itemId}
                   item={item}
@@ -674,19 +778,18 @@ export const EquipmentTable = ({
                   onPerHiveChange={value => onPerHiveChange(item.itemId, value)}
                   onNeededChange={value => onNeededChange(item.itemId, value)}
                   onResetNeeded={() => onResetNeeded(item.itemId)}
-                  onUpdate={
-                    onUpdate ? data => onUpdate(item.itemId, data) : undefined
-                  }
+                  onUpdate={onUpdate ? data => onUpdate(item.itemId, data) : undefined}
                   onDelete={onDelete ? () => onDelete(item.itemId) : undefined}
                   isUpdating={updatingItems.has(item.itemId)}
                   isDeleting={deletingItems.has(item.itemId)}
                 />
               ))}
+            </div>
           </div>
         );
       })}
 
-      {/* Hidden Items Section */}
+      {/* Hidden items section */}
       {hiddenItems.length > 0 && (
         <div className="pt-4 border-t">
           <Button
@@ -722,14 +825,10 @@ export const EquipmentTable = ({
                       variant="outline"
                       className="gap-1"
                       disabled={updatingItems.has(item.itemId)}
-                      onClick={() =>
-                        onUpdate?.(item.itemId, { enabled: true })
-                      }
+                      onClick={() => onUpdate?.(item.itemId, { enabled: true })}
                     >
                       <RotateCcw className="h-3 w-3" />
-                      {t('hive:equipment.table.restore', {
-                        defaultValue: 'Restore',
-                      })}
+                      {t('hive:equipment.table.restore', { defaultValue: 'Restore' })}
                     </Button>
                   </div>
                 </div>

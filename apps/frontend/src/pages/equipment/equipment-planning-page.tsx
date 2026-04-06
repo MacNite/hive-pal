@@ -14,8 +14,7 @@ import {
   UpdateEquipmentItem,
   CreateEquipmentItem,
 } from 'shared-schemas';
-import { Loader2, Package, Target, ShoppingCart, Wrench } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Loader2, Package, Target, ShoppingCart, Wrench, AlertCircle, Plus } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { EquipmentTable } from './components/equipment-table';
 import { ShoppingList } from './components/shopping-list';
@@ -79,73 +78,65 @@ const StatsCards = ({ planData }: { planData: EquipmentPlan }) => {
 
 const EquipmentActionSidebar = ({
   onRefresh,
-  multiplier,
-  onMultiplierChange,
-  isUpdatingMultiplier,
+  targetHives,
+  currentHives,
+  onTargetHivesChange,
+  isUpdating,
   t,
 }: {
   onRefresh: () => void;
-  multiplier: number;
-  onMultiplierChange: (value: number) => void;
-  isUpdatingMultiplier: boolean;
+  targetHives: number;
+  currentHives: number;
+  onTargetHivesChange: (value: number) => void;
+  isUpdating: boolean;
   t: TFunction<'hive'>;
-}) => (
-  <div className="space-y-6">
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Wrench className="h-5 w-5" />
-          {t('hive:equipment.equipmentManagement', {
-            defaultValue: 'Equipment Management',
-          })}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Button onClick={onRefresh} className="w-full">
-          {t('hive:actions.refreshData', { defaultValue: 'Refresh Data' })}
-        </Button>
-        <Button variant="outline" className="w-full" asChild>
-          <Link to="/equipment/settings">
-            {t('hive:equipment.equipmentSettings', {
-              defaultValue: 'Equipment Settings',
+}) => {
+  const hint =
+    targetHives === 0
+      ? `Not set — showing requirements for current ${currentHives} hives`
+      : targetHives > currentHives
+        ? `Planning for ${targetHives - currentHives} more than your current ${currentHives}`
+        : targetHives === currentHives
+          ? 'Same as current hive count'
+          : 'Below current — no equipment needed';
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wrench className="h-5 w-5" />
+            {t('hive:equipment.equipmentManagement', {
+              defaultValue: 'Equipment Management',
             })}
-          </Link>
-        </Button>
-        <Separator />
-        <div className="space-y-3">
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button onClick={onRefresh} className="w-full">
+            {t('hive:actions.refreshData', { defaultValue: 'Refresh Data' })}
+          </Button>
+          <Separator />
           <div className="space-y-2">
-            <label className="text-sm font-medium">
-              {t('hive:equipment.targetMultiplier', {
-                defaultValue: 'Target Multiplier',
-              })}
-            </label>
-            <div className="flex items-center gap-2">
-              <Input
-                type="number"
-                value={multiplier}
-                onChange={e =>
-                  onMultiplierChange(parseFloat(e.target.value) || 1)
-                }
-                min="0.1"
-                max="10"
-                step="0.1"
-                className="w-20 text-center"
-                disabled={isUpdatingMultiplier}
-              />
-              <span className="text-xs text-muted-foreground">×</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {t('hive:equipment.targetMultiplierResult', {
-                multiplier: multiplier,
-                defaultValue: 'Target Hives = Current × {{multiplier}}',
-              })}
-            </p>
+            <label className="text-sm font-medium">Target Hives</label>
+            <Input
+              type="number"
+              value={targetHives === 0 ? '' : targetHives}
+              onChange={e =>
+                onTargetHivesChange(parseInt(e.target.value) || 0)
+              }
+              min="0"
+              step="1"
+              placeholder={`${currentHives} (current)`}
+              className="w-full"
+              disabled={isUpdating}
+            />
+            <p className="text-xs text-muted-foreground">{hint}</p>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-);
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
 
 const SaveChangesSection = ({
   hasChanges,
@@ -196,21 +187,19 @@ export const EquipmentPlanningPage = () => {
   const [localItems, setLocalItems] = useState<EquipmentItemWithCalculations[]>(
     [],
   );
-  const [localMultiplier, setLocalMultiplier] = useState<number>(1.5);
+  const [localTargetHives, setLocalTargetHives] = useState<number>(0);
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
   const [deletingItems, setDeletingItems] = useState<Set<string>>(new Set());
   const [isCreating, setIsCreating] = useState<boolean>(false);
+  const [showAddForm, setShowAddForm] = useState(false);
   const { t } = useTranslation('hive');
 
-  // Sync multiplier from API when loaded
   useEffect(() => {
-    if (multiplier.data?.targetMultiplier) {
-      setLocalMultiplier(multiplier.data.targetMultiplier);
+    if (multiplier.data !== undefined) {
+      setLocalTargetHives(multiplier.data.targetHives ?? 0);
     }
   }, [multiplier.data]);
 
-  // Use plan.data.items as they contain the calculations (inUse, total, required, etc.)
-  // If we have local changes, merge them with the plan data
   const displayItems =
     localItems.length > 0
       ? plan.data?.items.map(planItem => {
@@ -266,8 +255,6 @@ export const EquipmentPlanningPage = () => {
     setLocalItems(updatedItems);
   };
 
-  // These handlers are now unified with handleExtraChange since all items use the same structure
-
   const handleNeededChange = (itemId: string, value: number) => {
     const updatedItems = displayItems.map(item =>
       item.itemId === itemId ? { ...item, neededOverride: value } : item,
@@ -296,9 +283,9 @@ export const EquipmentPlanningPage = () => {
     setLocalItems([]);
   };
 
-  const handleMultiplierChange = (value: number) => {
-    setLocalMultiplier(value);
-    updateMultiplier.mutate({ targetMultiplier: value });
+  const handleTargetHivesChange = (value: number) => {
+    setLocalTargetHives(value);
+    updateMultiplier.mutate({ targetHives: value });
   };
 
   const handleUpdateItem = async (
@@ -308,7 +295,6 @@ export const EquipmentPlanningPage = () => {
     setUpdatingItems(prev => new Set([...prev, itemId]));
     try {
       await updateItem.mutateAsync({ itemId, data });
-      // Remove from local items since changes are now saved
       setLocalItems(prev => prev.filter(item => item.itemId !== itemId));
     } finally {
       setUpdatingItems(prev => {
@@ -323,7 +309,6 @@ export const EquipmentPlanningPage = () => {
     setDeletingItems(prev => new Set([...prev, itemId]));
     try {
       await deleteItem.mutateAsync(itemId);
-      // Remove from local items if it exists there
       setLocalItems(prev => prev.filter(item => item.itemId !== itemId));
     } finally {
       setDeletingItems(prev => {
@@ -338,7 +323,6 @@ export const EquipmentPlanningPage = () => {
     setIsCreating(true);
     try {
       await createItem.mutateAsync(data);
-      // Refresh the plan data to get the new item with calculations
       plan.refetch();
     } finally {
       setIsCreating(false);
@@ -350,25 +334,40 @@ export const EquipmentPlanningPage = () => {
     <PageGrid>
       <MainContent>
         <div className="space-y-6">
-          {/* Header Cards */}
           <StatsCards planData={plan.data} />
 
-          {/* Unified Equipment Table */}
           <Card>
-            <CardHeader>
-              <CardTitle>
-                {t('hive:equipment.equipmentPlanningOverview', {
-                  defaultValue: 'Equipment Planning Overview',
-                })}
-              </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {t('hive:equipment.trackCurrentEquipment', {
-                  defaultValue:
-                    'Track your current equipment and plan for seasonal expansion',
-                })}
-              </p>
+            <CardHeader className="flex flex-row items-start justify-between gap-4">
+              <div>
+                <CardTitle>
+                  {t('hive:equipment.equipmentPlanningOverview', {
+                    defaultValue: 'Equipment Planning Overview',
+                  })}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {t('hive:equipment.trackCurrentEquipment', {
+                    defaultValue:
+                      'Track your current equipment and plan for seasonal expansion',
+                  })}
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowAddForm(true)}
+                variant="outline"
+                size="sm"
+                className="gap-2 shrink-0"
+              >
+                <Plus className="h-4 w-4" />
+                {t('hive:equipment.table.addEquipment', { defaultValue: 'Add Equipment' })}
+              </Button>
             </CardHeader>
             <CardContent>
+              {localTargetHives === 0 && (
+                <div className="flex items-center gap-2 text-sm text-amber-700 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-200 dark:border-amber-800 rounded-md px-3 py-2 mb-4">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  Set a target hive count in the sidebar to see how much equipment you'll need.
+                </div>
+              )}
               <div className="overflow-x-auto">
                 <EquipmentTable
                   items={displayItems}
@@ -382,20 +381,19 @@ export const EquipmentPlanningPage = () => {
                   updatingItems={updatingItems}
                   deletingItems={deletingItems}
                   isCreating={isCreating}
+                  showAddForm={showAddForm}
+                  onShowAddFormChange={setShowAddForm}
                 />
               </div>
             </CardContent>
           </Card>
 
-          {/* Save Changes Section */}
           <SaveChangesSection
             hasChanges={hasChanges}
             onCancel={() => setLocalItems([])}
             onSave={handleSaveChanges}
             isPending={updateItem.isPending}
           />
-
-          {/* Shopping List */}
         </div>
       </MainContent>
 
@@ -406,9 +404,10 @@ export const EquipmentPlanningPage = () => {
             items.refetch();
             multiplier.refetch();
           }}
-          multiplier={localMultiplier}
-          onMultiplierChange={handleMultiplierChange}
-          isUpdatingMultiplier={updateMultiplier.isPending}
+          targetHives={localTargetHives}
+          currentHives={plan.data.currentHives}
+          onTargetHivesChange={handleTargetHivesChange}
+          isUpdating={updateMultiplier.isPending}
           t={t}
         />
         <ShoppingList items={displayItems} />

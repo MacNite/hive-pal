@@ -1,6 +1,6 @@
 export enum EquipmentCategory {
   BOXES = 'BOXES',
-  HIVE_PARTS = 'HIVE_PARTS', 
+  HIVE_PARTS = 'HIVE_PARTS',
   FRAMES = 'FRAMES',
   FEEDING = 'FEEDING',
   CONSUMABLES = 'CONSUMABLES',
@@ -9,3 +9,21 @@ export enum EquipmentCategory {
   EXTRACTION = 'EXTRACTION',
   CUSTOM = 'CUSTOM',
 }
+
+export enum EquipmentScope {
+  PER_HIVE = 'PER_HIVE',
+  SHARED = 'SHARED',
+}
+
+// Categories where equipment is shared regardless of hive count
+export const SHARED_SCOPE_CATEGORIES = new Set([
+  EquipmentCategory.TOOLS,
+  EquipmentCategory.PROTECTIVE,
+  EquipmentCategory.EXTRACTION,
+]);
+
+// Categories that support in-extraction and damaged status tracking
+export const STATUS_TRACKING_CATEGORIES = new Set([
+  EquipmentCategory.BOXES,
+  EquipmentCategory.HIVE_PARTS,
+]);

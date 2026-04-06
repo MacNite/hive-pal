@@ -27,6 +27,8 @@ const getBoxHeight = (variant?: BoxVariantEnum) => {
     BoxVariantEnum.DADANT,
   ];
 
+  const mediumVariants = [BoxVariantEnum.LANGSTROTH_MEDIUM];
+
   const shallowVariants = [
     BoxVariantEnum.LANGSTROTH_SHALLOW,
     BoxVariantEnum.B_SHALLOW,
@@ -34,6 +36,7 @@ const getBoxHeight = (variant?: BoxVariantEnum) => {
   ];
 
   if (deepVariants.includes(variant)) return 'h-28';
+  if (mediumVariants.includes(variant)) return 'h-24';
   if (shallowVariants.includes(variant)) return 'h-20';
   return 'h-24'; // Default for WARRE, TOP_BAR, CUSTOM
 };

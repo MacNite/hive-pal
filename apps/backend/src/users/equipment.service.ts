@@ -8,7 +8,9 @@ import {
   CreateEquipmentItem as CreateEquipmentItemDto,
   UpdateEquipmentItem as UpdateEquipmentItemDto,
   EquipmentCategory,
+  EquipmentScope,
   BoxVariantEnum,
+  SHARED_SCOPE_CATEGORIES,
 } from 'shared-schemas';
 
 // Type definitions for nested Prisma relations
@@ -16,6 +18,14 @@ type ApiaryWithHives = Apiary & {
   hives: (Hive & {
     boxes: Box[];
   })[];
+};
+
+// Prisma EquipmentItem extended with fields added in our migrations.
+// These are present at runtime after `prisma generate` runs in the build.
+type EquipmentItemFull = EquipmentItem & {
+  inExtraction: number;
+  damaged: number;
+  scope: 'PER_HIVE' | 'SHARED';
 };
 
 @Injectable()
@@ -29,8 +39,6 @@ export class EquipmentService {
       where: { userId },
       orderBy: { displayOrder: 'asc' },
     });
-
-    // Default items should be created by database trigger when user is created
 
     return items.map((item) => this.mapToEquipmentItemDto(item));
   }
@@ -72,9 +80,12 @@ export class EquipmentService {
         enabled: data.enabled,
         perHive: data.perHive,
         extra: data.extra,
+        inExtraction: data.inExtraction,
+        damaged: data.damaged,
         neededOverride: data.neededOverride,
         unit: data.unit,
         displayOrder: data.displayOrder,
+        scope: data.scope,
       },
     });
 
@@ -85,6 +96,10 @@ export class EquipmentService {
     userId: string,
     data: CreateEquipmentItemDto,
   ): Promise<EquipmentItemWithCalculations> {
+    const defaultScope = SHARED_SCOPE_CATEGORIES.has(data.category as EquipmentCategory)
+      ? 'SHARED'
+      : 'PER_HIVE';
+
     const item = await this.prismaService.equipmentItem.create({
       data: {
         userId,
@@ -93,8 +108,11 @@ export class EquipmentService {
         enabled: data.enabled ?? true,
         perHive: data.perHive ?? 0,
         extra: data.extra ?? 0,
+        inExtraction: data.inExtraction ?? 0,
+        damaged: data.damaged ?? 0,
         neededOverride: data.neededOverride ?? null,
         category: data.category,
+        scope: (data.scope ?? defaultScope) as 'PER_HIVE' | 'SHARED',
         unit: data.unit ?? 'pieces',
         isCustom: true,
         displayOrder: data.displayOrder ?? 999,
@@ -105,7 +123,6 @@ export class EquipmentService {
   }
 
   async deleteEquipmentItem(userId: string, itemId: string): Promise<void> {
-    // Only allow deletion of custom items
     const item = await this.prismaService.equipmentItem.findUnique({
       where: {
         userId_itemId: {
@@ -141,46 +158,43 @@ export class EquipmentService {
     });
 
     if (!multiplier) {
-      // Create default multiplier
       multiplier = await this.prismaService.equipmentMultiplier.create({
         data: {
           userId,
-          targetMultiplier: 1.5,
+          targetHives: 0,
         },
       });
     }
 
     return {
-      targetMultiplier: multiplier.targetMultiplier ?? 1.5,
+      targetHives: multiplier.targetHives ?? 0,
     };
   }
 
   async updateEquipmentMultiplier(
     userId: string,
-    targetMultiplier: number,
+    targetHives: number,
   ): Promise<EquipmentMultiplierDto> {
     const multiplier = await this.prismaService.equipmentMultiplier.upsert({
       where: { userId },
       create: {
         userId,
-        targetMultiplier,
+        targetHives,
       },
       update: {
-        targetMultiplier,
+        targetHives,
       },
     });
 
     return {
-      targetMultiplier: multiplier.targetMultiplier,
+      targetHives: multiplier.targetHives,
     };
   }
 
   async getEquipmentPlan(userId: string): Promise<EquipmentPlanDto> {
-    // Get all equipment items and multiplier
     const items = await this.getEquipmentItems(userId);
     const multiplier = await this.getEquipmentMultiplier(userId);
 
-    // Get current hives count and equipment in use
     const userApiaries: ApiaryWithHives[] =
       await this.prismaService.apiary.findMany({
         where: { userId },
@@ -196,18 +210,19 @@ export class EquipmentService {
       (total, apiary) => total + apiary.hives.length,
       0,
     );
-    const targetHives = Math.ceil(currentHives * multiplier.targetMultiplier);
 
-    // Calculate equipment in use
+    const targetHives =
+      multiplier.targetHives > 0 ? multiplier.targetHives : currentHives;
+
     const inUse = this.calculateEquipmentInUse(userApiaries);
 
-    // Process each equipment item with calculations
     const processedItems: EquipmentItemWithCalculations[] = items.map(
       (item) => {
-        // Get in-use count for this item
         let itemInUse = 0;
         if (item.itemId === 'DEEP_BOX') {
           itemInUse = inUse.deepBoxes;
+        } else if (item.itemId === 'MEDIUM_BOX') {
+          itemInUse = inUse.mediumBoxes;
         } else if (item.itemId === 'SHALLOW_BOX') {
           itemInUse = inUse.shallowBoxes;
         } else if (item.itemId === 'BOTTOM_BOARD') {
@@ -220,14 +235,13 @@ export class EquipmentService {
           itemInUse = inUse.queenExcluders;
         }
 
-        // Calculate recommended (always perHive * targetHives)
-        const recommended = targetHives * item.perHive;
-
-        // Calculate needed (use override if set, otherwise use recommended)
+        const isShared = item.scope === EquipmentScope.SHARED;
+        const recommended = isShared ? item.perHive : targetHives * item.perHive;
         const needed = item.neededOverride ?? recommended;
 
-        // Calculate total available and how much to purchase
-        const total = itemInUse + item.extra;
+        // Total available excludes damaged (not usable)
+        const inExtraction = item.inExtraction ?? 0;
+        const total = itemInUse + item.extra + inExtraction;
         const toPurchase = needed - total;
 
         return {
@@ -241,7 +255,6 @@ export class EquipmentService {
       },
     );
 
-    // Check if any overrides are active
     const hasOverrides = processedItems.some(
       (item) => item.neededOverride !== null,
     );
@@ -256,6 +269,7 @@ export class EquipmentService {
 
   private calculateEquipmentInUse(apiaries: ApiaryWithHives[]): {
     deepBoxes: number;
+    mediumBoxes: number;
     shallowBoxes: number;
     bottoms: number;
     covers: number;
@@ -264,6 +278,7 @@ export class EquipmentService {
     feeders: number;
   } {
     let deepBoxes = 0;
+    let mediumBoxes = 0;
     let shallowBoxes = 0;
     let frames = 0;
     let queenExcluders = 0;
@@ -278,6 +293,8 @@ export class EquipmentService {
             box.variant === BoxVariantEnum.NATIONAL_DEEP
           ) {
             deepBoxes++;
+          } else if (box.variant === BoxVariantEnum.LANGSTROTH_MEDIUM) {
+            mediumBoxes++;
           } else if (
             box.variant === BoxVariantEnum.B_SHALLOW ||
             box.variant === BoxVariantEnum.LANGSTROTH_SHALLOW ||
@@ -300,17 +317,18 @@ export class EquipmentService {
 
     return {
       deepBoxes,
+      mediumBoxes,
       shallowBoxes,
-      bottoms: totalHives, // 1 per hive
-      covers: totalHives, // 1 per hive
+      bottoms: totalHives,
+      covers: totalHives,
       frames,
       queenExcluders,
-      feeders: 0, // Not tracked in current box model
+      feeders: 0,
     };
   }
 
   private mapToEquipmentItemDto(
-    item: EquipmentItem,
+    item: EquipmentItemFull,
   ): EquipmentItemWithCalculations {
     return {
       id: item.id,
@@ -319,8 +337,11 @@ export class EquipmentService {
       enabled: item.enabled,
       perHive: item.perHive,
       extra: item.extra,
+      inExtraction: item.inExtraction ?? 0,
+      damaged: item.damaged ?? 0,
       neededOverride: item.neededOverride,
       category: item.category as EquipmentCategory,
+      scope: (item.scope ?? 'PER_HIVE') as EquipmentScope,
       unit: item.unit,
       isCustom: item.isCustom,
       displayOrder: item.displayOrder,

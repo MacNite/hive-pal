@@ -40,6 +40,8 @@ const MinimapHive = ({ hive, onClick }: MinimapHiveProps) => {
       BoxVariantEnum.DADANT,
     ];
 
+    const mediumVariants = [BoxVariantEnum.LANGSTROTH_MEDIUM];
+
     const shallowVariants = [
       BoxVariantEnum.LANGSTROTH_SHALLOW,
       BoxVariantEnum.B_SHALLOW,
@@ -47,6 +49,7 @@ const MinimapHive = ({ hive, onClick }: MinimapHiveProps) => {
     ];
 
     if (deepVariants.includes(variant)) return 'h-15';
+    if (mediumVariants.includes(variant)) return 'h-12';
     if (shallowVariants.includes(variant)) return 'h-10';
     return 'h-8'; // Default for WARRE, TOP_BAR, CUSTOM
   };
