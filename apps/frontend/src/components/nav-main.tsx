@@ -15,6 +15,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { DashboardIcon } from '@radix-ui/react-icons';
 
@@ -35,11 +36,21 @@ export function NavMain({
 }) {
   const { t } = useTranslation('common');
   const navigate = useNavigate();
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleNav = (url: string, external?: boolean) => {
+    if (isMobile) setOpenMobile(false);
+    if (external) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      navigate(url);
+    }
+  };
   return (
     <SidebarGroup>
       <SidebarMenuItem>
         <SidebarMenuButton
-          onClick={() => navigate('/')}
+          onClick={() => handleNav('/')}
           className="flex items-center cursor-pointer"
         >
           <DashboardIcon />
@@ -53,11 +64,7 @@ export function NavMain({
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
-                  onClick={() =>
-                    item.external
-                      ? window.open(item.url, '_blank', 'noopener,noreferrer')
-                      : navigate(item.url)
-                  }
+                  onClick={() => handleNav(item.url, item.external)}
                   className="flex items-center cursor-pointer"
                 >
                   {item.icon && <item.icon />}
@@ -88,7 +95,7 @@ export function NavMain({
                     {item.items?.map(subItem => (
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton
-                          onClick={() => navigate(subItem.url)}
+                          onClick={() => handleNav(subItem.url)}
                           className="cursor-pointer"
                         >
                           <span>{subItem.title}</span>
