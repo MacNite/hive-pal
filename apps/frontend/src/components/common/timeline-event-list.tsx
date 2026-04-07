@@ -49,7 +49,7 @@ import {
   DocumentResponse,
 } from 'shared-schemas';
 import { getFeedTypeLabel } from '@/pages/inspection/components/inspection-form/actions/feeding';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -205,7 +205,6 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
   headerSlot,
 }) => {
   const { t } = useTranslation('common');
-  const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
   const [eventTypeFilter, setEventTypeFilter] =
     useState<EventTypeFilter>('all');
