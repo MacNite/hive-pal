@@ -4,7 +4,6 @@ import { format, addDays, isSameDay, startOfDay } from 'date-fns';
 import {
   Calendar,
   CalendarPlus,
-  Clock,
   Cloud,
   CloudRain,
   CloudSnow,
@@ -25,13 +24,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { InspectionResponse } from 'shared-schemas';
 import { WeatherCondition } from 'shared-schemas';
 import { useHives } from '@/api/hooks';
 import { useWeatherDailyForecast } from '@/api/hooks/useWeather';
+import { InspectionDateTimePicker } from '@/components/inspection-date-time-picker';
 
 interface RescheduleDialogProps {
   open: boolean;
@@ -265,43 +263,15 @@ export const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
                 </span>
               </div>
               <div className="flex items-center gap-2 pt-1">
-                <Switch
-                  id="rescheduleIsAllDay"
-                  checked={isAllDay}
-                  onCheckedChange={checked => {
-                    setIsAllDay(checked);
-                    if (checked) {
-                      const d = new Date(selectedDate);
-                      d.setHours(0, 0, 0, 0);
-                      setSelectedDate(d);
-                    }
-                  }}
+                <InspectionDateTimePicker
+                  date={selectedDate}
+                  isAllDay={isAllDay}
+                  onDateChange={setSelectedDate}
+                  onIsAllDayChange={setIsAllDay}
+                  switchId="rescheduleIsAllDay"
+                  labelClassName="text-sm cursor-pointer select-none text-blue-600 dark:text-blue-400"
+                  iconClassName="h-4 w-4 text-blue-600 dark:text-blue-400"
                 />
-                <label
-                  htmlFor="rescheduleIsAllDay"
-                  className="text-sm cursor-pointer select-none text-blue-600 dark:text-blue-400"
-                >
-                  {t('inspection:form.allDay')}
-                </label>
-              </div>
-              {!isAllDay && (
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  <Input
-                    type="time"
-                    className="w-32"
-                    value={format(selectedDate, 'HH:mm')}
-                    onChange={e => {
-                      const [hours, minutes] = e.target.value
-                        .split(':')
-                        .map(Number);
-                      const newDate = new Date(selectedDate);
-                      newDate.setHours(hours, minutes, 0, 0);
-                      setSelectedDate(newDate);
-                    }}
-                  />
-                </div>
-              )}
             </div>
           )}
         </div>

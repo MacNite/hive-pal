@@ -37,6 +37,7 @@ import {
 import { cn } from '@/lib/utils';
 import { InspectionResponse, InspectionStatus } from 'shared-schemas';
 import { useUpdateInspection } from '@/api/hooks/useInspections';
+import { toInspectionDateISOString } from '@/utils/inspection-date';
 import { RescheduleDialog } from './reschedule-dialog';
 
 interface ScheduledInspectionCardProps {
@@ -95,7 +96,7 @@ export const ScheduledInspectionCard: React.FC<
       {
         id: inspection.id,
         data: {
-          date: newDate.toISOString(),
+          date: toInspectionDateISOString(newDate, isAllDay),
           isAllDay,
           status: InspectionStatus.SCHEDULED,
         },

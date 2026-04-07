@@ -223,7 +223,7 @@
         "scheduled": "Заказано",
         "cancelled": "Отказано",
         "doInspection": "Изврши преглед",
-        "reschedule": "Прерасporedi",
+        "reschedule": "Прераспореди",
         "inspectHive": "Прегледај {{hiveName}}",
         "strength": "Снага",
         "honey": "Мед",

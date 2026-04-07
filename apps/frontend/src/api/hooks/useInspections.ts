@@ -16,6 +16,7 @@ import {
 import { useApiaryStore } from '@/hooks/use-apiary';
 import { InspectionFormData } from '@/pages/inspection/components/inspection-form/schema.ts';
 import { useNavigate } from 'react-router-dom';
+import { toInspectionDateISOString } from '@/utils/inspection-date';
 
 // Query keys
 const INSPECTIONS_KEYS = {
@@ -264,9 +265,7 @@ export const useUpsertInspection = (inspectionId?: string) => {
 
     const formattedData = {
       ...data,
-      date: data.isAllDay
-        ? new Date(Date.UTC(data.date.getFullYear(), data.date.getMonth(), data.date.getDate())).toISOString()
-        : data.date.toISOString(),
+      date: toInspectionDateISOString(data.date, data.isAllDay ?? true),
       status: status || data.status,
       actions: transformedActions,
       score: scoreOverride,

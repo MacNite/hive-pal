@@ -32,7 +32,6 @@ import {
   CalendarPlus,
   Home,
   X,
-  Clock,
 } from 'lucide-react';
 import { format, addDays, isSameDay, startOfDay } from 'date-fns';
 import {
@@ -46,10 +45,10 @@ import { cn } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+import { toInspectionDateISOString } from '@/utils/inspection-date';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { InspectionDateTimePicker } from '@/components/inspection-date-time-picker';
 
 const scheduleSchema = z
   .object({
@@ -174,9 +173,7 @@ export const ScheduleInspectionPage = () => {
             createInspection(
               {
                 hiveId,
-                date: isAllDay
-                  ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString()
-                  : date.toISOString(),
+                date: toInspectionDateISOString(date, isAllDay),
                 isAllDay,
                 notes,
                 status: InspectionStatus.SCHEDULED,
@@ -526,46 +523,16 @@ export const ScheduleInspectionPage = () => {
                 </div>
 
                 <div className="mb-4 flex flex-col gap-2">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="scheduleIsAllDay"
-                      checked={isAllDay}
-                      onCheckedChange={checked => {
-                        form.setValue('isAllDay', checked);
-                        if (checked && selectedDate) {
-                          const d = new Date(selectedDate);
-                          d.setHours(0, 0, 0, 0);
-                          setSelectedDate(d);
-                          form.setValue('date', d);
-                        }
-                      }}
-                    />
-                    <label
-                      htmlFor="scheduleIsAllDay"
-                      className="text-sm cursor-pointer select-none"
-                    >
-                      {t('inspection:form.allDay')}
-                    </label>
-                  </div>
-                  {!isAllDay && selectedDate && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="time"
-                        className="w-32"
-                        value={format(selectedDate, 'HH:mm')}
-                        onChange={e => {
-                          const [hours, minutes] = e.target.value
-                            .split(':')
-                            .map(Number);
-                          const newDate = new Date(selectedDate);
-                          newDate.setHours(hours, minutes, 0, 0);
-                          setSelectedDate(newDate);
-                          form.setValue('date', newDate);
-                        }}
-                      />
-                    </div>
-                  )}
+                  <InspectionDateTimePicker
+                    date={selectedDate as Date}
+                    isAllDay={isAllDay}
+                    onDateChange={d => {
+                      setSelectedDate(d);
+                      form.setValue('date', d);
+                    }}
+                    onIsAllDayChange={checked => form.setValue('isAllDay', checked)}
+                    switchId="scheduleIsAllDay"
+                  />
                 </div>
 
                 <div className="mb-4">

@@ -227,6 +227,8 @@
     "privacyPolicy": "Informativa sulla privacy"
   },
   "timeline": {
-    "inspectHive": "Ispeziona {{hiveName}}"
+    "inspectHive": "Ispeziona {{hiveName}}",
+    "doInspection": "Esegui ispezione",
+    "reschedule": "Riprogramma"
   }
 }

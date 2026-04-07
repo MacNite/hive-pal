@@ -225,8 +225,8 @@ export class ICalService {
 
   private formatICalDate(date: Date, includeTime = false): string {
     if (includeTime) {
-      // UTC format: YYYYMMDDTHHMMSSZ
-      return format(date, "yyyyMMdd'T'HHmmss'Z'");
+      // Use UTC ISO string and reformat to iCal UTC format: YYYYMMDDTHHMMSSZ
+      return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     }
     // Date only: YYYYMMDD
     return format(date, 'yyyyMMdd');

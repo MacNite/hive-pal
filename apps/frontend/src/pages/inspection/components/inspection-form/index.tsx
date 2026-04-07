@@ -24,9 +24,8 @@ import {
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils.ts';
-import { CalendarIcon, Clock } from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
-import { Switch } from '@/components/ui/switch';
 import { InspectionFormData, inspectionSchema } from './schema';
 import { WeatherSection } from '@/pages/inspection/components/inspection-form/weather.tsx';
 import { ObservationsSection } from '@/pages/inspection/components/inspection-form/observations.tsx';
@@ -40,13 +39,13 @@ import {
   useWeatherForDate,
   useUpsertInspection,
 } from '@/api/hooks';
-import { Input } from '@/components/ui/input';
 import { ActionType, InspectionStatus } from 'shared-schemas';
 import { mapWeatherConditionToForm } from '@/utils/weather-mapping';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { AudioSection } from './audio-section';
 import { ScorePreviewSection } from './score-preview';
+import { InspectionDateTimePicker } from '@/components/inspection-date-time-picker';
 
 interface PendingRecording {
   id: string;
@@ -81,7 +80,6 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
   const [pendingRecordings, setPendingRecordings] = useState<
     PendingRecording[]
   >([]);
-  const savedTimeRef = useRef<{ hours: number; minutes: number } | null>(null);
 
   // Use our new custom hooks
   const { data: inspection } = useInspection(inspectionId as string, {
@@ -283,64 +281,13 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                   </Popover>
 
                   <div className="flex items-center gap-2 mt-1">
-                    <Switch
-                      id="isAllDay"
-                      checked={isAllDay}
-                      onCheckedChange={checked => {
-                        form.setValue('isAllDay', checked);
-                        if (checked && field.value) {
-                          savedTimeRef.current = {
-                            hours: field.value.getHours(),
-                            minutes: field.value.getMinutes(),
-                          };
-                          const d = new Date(field.value);
-                          d.setHours(0, 0, 0, 0);
-                          field.onChange(d);
-                        } else if (!checked && field.value) {
-                          const d = new Date(field.value);
-                          if (savedTimeRef.current) {
-                            d.setHours(
-                              savedTimeRef.current.hours,
-                              savedTimeRef.current.minutes,
-                              0,
-                              0,
-                            );
-                            savedTimeRef.current = null;
-                          }
-                          field.onChange(d);
-                        }
-                      }}
+                    <InspectionDateTimePicker
+                      date={field.value ?? new Date()}
+                      isAllDay={isAllDay}
+                      onDateChange={field.onChange}
+                      onIsAllDayChange={checked => form.setValue('isAllDay', checked)}
                     />
-                    <label
-                      htmlFor="isAllDay"
-                      className="text-sm cursor-pointer select-none"
-                    >
-                      {t('inspection:form.allDay')}
-                    </label>
                   </div>
-
-                  {!isAllDay && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="time"
-                        className="w-32"
-                        value={
-                          field.value ? format(field.value, 'HH:mm') : ''
-                        }
-                        onChange={e => {
-                          const [hours, minutes] = e.target.value
-                            .split(':')
-                            .map(Number);
-                          const newDate = new Date(
-                            field.value || new Date(),
-                          );
-                          newDate.setHours(hours, minutes, 0, 0);
-                          field.onChange(newDate);
-                        }}
-                      />
-                    </div>
-                  )}
 
                   {isInFuture && (
                     <div className={'p-4 rounded'}>

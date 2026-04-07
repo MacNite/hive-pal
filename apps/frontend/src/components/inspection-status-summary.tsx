@@ -1,23 +1,17 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { AlertTriangle, CalendarDays, Clock } from 'lucide-react';
 import {
   useOverdueInspections,
   useDueTodayInspections,
   useUpcomingInspections,
-  useUpdateInspection,
 } from '@/api/hooks/useInspections';
+import { useScheduledInspectionActions } from '@/api/hooks/useScheduledInspectionActions';
 import { useHives } from '@/api/hooks';
 import { Card, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { RescheduleDialog } from '@/pages/inspection/components/reschedule-dialog';
-import { format } from 'date-fns';
-import { InspectionResponse, InspectionStatus } from 'shared-schemas';
+import { UpcomingInspectionListItem } from '@/components/upcoming-inspection-list-item';
 
 export const InspectionStatusSummary: React.FC = () => {
   const { t } = useTranslation(['inspection', 'common']);
@@ -39,25 +33,10 @@ export const InspectionStatusSummary: React.FC = () => {
 
   const getHiveName = (hiveId: string) => hiveNameMap.get(hiveId) || hiveId;
 
-  const [reschedulingInspection, setReschedulingInspection] =
-    useState<InspectionResponse | null>(null);
-  const { mutate: updateInspection } = useUpdateInspection();
+  const { setReschedulingInspection, handleDoInspection, rescheduleDialogElement } =
+    useScheduledInspectionActions(getHiveName);
 
-  const handleDoInspection = (inspection: InspectionResponse) => {
-    navigate(`/inspections/${inspection.id}/edit?from=scheduled`);
-  };
-
-  const handleReschedule = (newDate: Date, isAllDay: boolean) => {
-    if (!reschedulingInspection) return;
-    updateInspection(
-      {
-        id: reschedulingInspection.id,
-        data: { date: newDate.toISOString(), isAllDay, status: InspectionStatus.SCHEDULED },
-      },
-      { onSuccess: () => setReschedulingInspection(null) },
-    );
-  };
-  const isLoading = overdueLoading || dueTodayLoading || upcomingLoading;
+  const isLoading= overdueLoading || dueTodayLoading || upcomingLoading;
   const overdueCount = overdueInspections?.length ?? 0;
   const dueTodayCount = dueTodayInspections?.length ?? 0;
   const upcomingCount = upcomingInspections?.length ?? 0;
@@ -145,41 +124,13 @@ export const InspectionStatusSummary: React.FC = () => {
             </h4>
             <div className="space-y-2">
               {upcomingInspections?.map(inspection => (
-                <div
+                <UpcomingInspectionListItem
                   key={inspection.id}
-                  className="flex items-start justify-between gap-2 text-sm p-2 rounded-md bg-blue-50 border border-blue-100"
-                >
-                  <div className="flex flex-col gap-1 flex-1 min-w-0">
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <span>{format(new Date(inspection.date), 'MMM d')}</span>
-                      {!inspection.isAllDay && <span>{format(new Date(inspection.date), 'HH:mm')}</span>}
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
-                        {t('inspection:status.pending', 'Scheduled')}
-                      </span>
-                    </div>
-                    <span className="font-medium text-blue-700">
-                      {t('common:timeline.inspectHive', { hiveName: getHiveName(inspection.hiveId) })}
-                    </span>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 -mr-1">
-                        <MoreVertical className="h-3 w-3" />
-                        <span className="sr-only">Open menu</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
-                      <DropdownMenuItem onClick={() => handleDoInspection(inspection)}>
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        {t('common:timeline.doInspection')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setReschedulingInspection(inspection)}>
-                        <CalendarDays className="h-4 w-4 mr-2" />
-                        {t('common:timeline.reschedule')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+                  inspection={inspection}
+                  hiveName={getHiveName(inspection.hiveId)}
+                  onDoInspection={handleDoInspection}
+                  onReschedule={setReschedulingInspection}
+                />
               ))}
             </div>
           </div>
@@ -197,15 +148,7 @@ export const InspectionStatusSummary: React.FC = () => {
       </div>
     </Card>
 
-    {reschedulingInspection && (
-      <RescheduleDialog
-        open={!!reschedulingInspection}
-        onOpenChange={open => !open && setReschedulingInspection(null)}
-        inspection={reschedulingInspection}
-        hiveName={getHiveName(reschedulingInspection.hiveId)}
-        onReschedule={handleReschedule}
-      />
-    )}
+    {rescheduleDialogElement}
   </>
   );
 };

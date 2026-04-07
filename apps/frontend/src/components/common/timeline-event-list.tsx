@@ -56,8 +56,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { RescheduleDialog } from '@/pages/inspection/components/reschedule-dialog';
-import { useUpdateInspection } from '@/api/hooks/useInspections';
+import { useScheduledInspectionActions } from '@/api/hooks/useScheduledInspectionActions';
 import { cn } from '@/lib/utils';
 import { PhotoGallery } from './photo-gallery';
 import { StandalonePhotoPreview } from './standalone-photo-preview';
@@ -213,35 +212,13 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
   const [dateRangeFilter, setDateRangeFilter] =
     useState<DateRangeFilter>('all');
   const [hiveFilter, setHiveFilter] = useState<string>('all');
-  const [reschedulingInspection, setReschedulingInspection] =
-    useState<InspectionResponse | null>(null);
 
-  const { mutate: updateInspection } = useUpdateInspection();
-
-  const handleDoInspection = (inspection: InspectionResponse) => {
-    navigate(`/inspections/${inspection.id}/edit?from=scheduled`);
-  };
-
-  const handleReschedule = (newDate: Date, isAllDay: boolean) => {
-    if (!reschedulingInspection) return;
-    updateInspection(
-      {
-        id: reschedulingInspection.id,
-        data: {
-          date: newDate.toISOString(),
-          isAllDay,
-          status: InspectionStatus.SCHEDULED,
-        },
-      },
-      {
-        onSuccess: () => {
-          setReschedulingInspection(null);
-        },
-      },
+  const { setReschedulingInspection, handleDoInspection, rescheduleDialogElement } =
+    useScheduledInspectionActions(
+      hiveId => (getHiveName ? getHiveName(hiveId) : hiveId),
     );
-  };
 
-  const timelineEvents = useMemo(() => {
+  const timelineEvents= useMemo(() => {
     const events: TimelineEvent[] = [];
     const now = new Date();
 
@@ -943,19 +920,7 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
         )}
       </div>
 
-      {reschedulingInspection && (
-        <RescheduleDialog
-          open={!!reschedulingInspection}
-          onOpenChange={open => !open && setReschedulingInspection(null)}
-          inspection={reschedulingInspection}
-          hiveName={
-            (reschedulingInspection.hiveId && getHiveName
-              ? getHiveName(reschedulingInspection.hiveId)
-              : undefined) ?? ''
-          }
-          onReschedule={handleReschedule}
-        />
-      )}
+      {rescheduleDialogElement}
     </>
   );
 };
