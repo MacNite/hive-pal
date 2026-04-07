@@ -176,7 +176,8 @@
         "queenNotSeen": "Dronning ikke observerret",
         "photos": "Fotos",
         "documents": "Dokumenter",
-        "fromInspection": "Fra inspektion"
+        "fromInspection": "Fra inspektion",
+        "maintenance": "Vedligehold"
     },
     "reports": {
         "title": "Rappoter",
