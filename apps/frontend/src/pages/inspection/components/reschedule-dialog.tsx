@@ -262,8 +262,7 @@ export const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
                   {hiveName}
                 </span>
               </div>
-              <div className="flex items-center gap-2 pt-1">
-                <InspectionDateTimePicker
+              <InspectionDateTimePicker
                   date={selectedDate}
                   isAllDay={isAllDay}
                   onDateChange={setSelectedDate}
