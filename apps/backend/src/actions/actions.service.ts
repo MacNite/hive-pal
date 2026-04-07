@@ -848,8 +848,13 @@ export class ActionsService {
           type: ActionType.MAINTENANCE,
           details: {
             type: ActionType.MAINTENANCE as const,
-            component: prismaAction.maintenanceAction.component as 'BOX' | 'BOTTOM_BOARD' | 'COVER',
-            status: prismaAction.maintenanceAction.status as 'CLEANED' | 'REPLACED',
+            component: prismaAction.maintenanceAction.component as
+              | 'BOX'
+              | 'BOTTOM_BOARD'
+              | 'COVER',
+            status: prismaAction.maintenanceAction.status as
+              | 'CLEANED'
+              | 'REPLACED',
           },
         };
 
