@@ -24,8 +24,9 @@ import {
 } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils.ts';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Clock } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
+import { Switch } from '@/components/ui/switch';
 import { InspectionFormData, inspectionSchema } from './schema';
 import { WeatherSection } from '@/pages/inspection/components/inspection-form/weather.tsx';
 import { ObservationsSection } from '@/pages/inspection/components/inspection-form/observations.tsx';
@@ -39,6 +40,7 @@ import {
   useWeatherForDate,
   useUpsertInspection,
 } from '@/api/hooks';
+import { Input } from '@/components/ui/input';
 import { ActionType, InspectionStatus } from 'shared-schemas';
 import { mapWeatherConditionToForm } from '@/utils/weather-mapping';
 import { useEffect, useState } from 'react';
@@ -91,6 +93,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
       hiveId,
       ...inspection,
       date: inspection?.date ? new Date(inspection.date) : new Date(),
+      isAllDay: inspection?.isAllDay ?? true,
       actions:
         inspection?.actions?.map(action => {
           if (action.details.type === ActionType.FEEDING) {
@@ -186,6 +189,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
   });
 
   const date = form.watch('date');
+  const isAllDay = form.watch('isAllDay') ?? true;
   const isInFuture = date && date > new Date();
   const isEdit = Boolean(inspectionId);
   const isCompleted = inspection?.status === InspectionStatus.COMPLETED;
@@ -246,7 +250,9 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                           )}
                         >
                           {field.value ? (
-                            format(field.value, 'PPP')
+                            isAllDay
+                              ? format(field.value, 'PPP')
+                              : format(field.value, 'PPP HH:mm')
                           ) : (
                             <span>{t('inspection:form.pickDate')}</span>
                           )}
@@ -258,11 +264,67 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                       <Calendar
                         mode="single"
                         selected={field.value}
-                        onSelect={field.onChange}
+                        onSelect={selected => {
+                          if (!selected) return;
+                          if (!isAllDay && field.value) {
+                            selected.setHours(
+                              field.value.getHours(),
+                              field.value.getMinutes(),
+                              0,
+                              0,
+                            );
+                          }
+                          field.onChange(selected);
+                        }}
                         initialFocus
                       />
                     </PopoverContent>
                   </Popover>
+
+                  <div className="flex items-center gap-2 mt-1">
+                    <Switch
+                      id="isAllDay"
+                      checked={isAllDay}
+                      onCheckedChange={checked => {
+                        form.setValue('isAllDay', checked);
+                        if (checked && field.value) {
+                          const d = new Date(field.value);
+                          d.setHours(0, 0, 0, 0);
+                          field.onChange(d);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="isAllDay"
+                      className="text-sm cursor-pointer select-none"
+                    >
+                      {t('inspection:form.allDay')}
+                    </label>
+                  </div>
+
+                  {!isAllDay && (
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="time"
+                        className="w-32"
+                        value={
+                          field.value ? format(field.value, 'HH:mm') : ''
+                        }
+                        onChange={e => {
+                          const [hours, minutes] = e.target.value
+                            .split(':')
+                            .map(Number);
+                          const newDate = new Date(
+                            field.value || new Date(),
+                          );
+                          newDate.setHours(hours, minutes, 0, 0);
+                          field.onChange(newDate);
+                        }}
+                      />
+                    </div>
+                  )}
+
                   {isInFuture && (
                     <div className={'p-4 rounded'}>
                       <strong className={'text-blue-500'}>

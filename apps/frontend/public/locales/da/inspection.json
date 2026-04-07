@@ -15,6 +15,8 @@
     "form": {
         "selectHive": "Vælg et stade",
         "pickDate": "Vælg en dato",
+    "allDay": "All day",
+    "specificTime": "Set specific time",
         "newInspection": "Ny inspektion",
         "editInspection": "Rediger inspektion",
         "hive": "Stade",

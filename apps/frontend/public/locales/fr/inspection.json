@@ -211,6 +211,8 @@
         "selectHive": "Sélectionner une ruche",
         "inspectionDate": "Date de l'inspection",
         "pickDate": "Choisir une date",
+        "allDay": "All day",
+        "specificTime": "Set specific time",
         "futureScheduled": "Cette inspection est planifiée dans le futur",
         "futureScheduledDescription": "Vous planifiez une inspection pour une date future.",
         "cancel": "Annuler",
@@ -308,7 +310,7 @@
         "allInspections": "Toutes les inspections",
         "recentInspections": "Inspections récentes",
         "goBack": "Retour",
-        "deleteFailed": "Échec de la suppression de l’inspection"
+        "deleteFailed": "Échec de la suppression de l'inspection"
     },
     "timeline": {
         "scheduledInspections": "Inspections planifiées",

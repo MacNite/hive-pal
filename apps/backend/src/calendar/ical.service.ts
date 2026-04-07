@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { addDays, format, startOfDay, isBefore } from 'date-fns';
+import { addDays, addHours, format, startOfDay, isBefore } from 'date-fns';
 
 interface HiveWithSettings {
   id: string;
@@ -21,6 +21,7 @@ interface ICalEvent {
   dtstart: Date;
   description: string;
   isOverdue?: boolean;
+  isAllDay?: boolean;
 }
 
 @Injectable()
@@ -95,6 +96,7 @@ export class ICalService {
       select: {
         id: true,
         date: true,
+        isAllDay: true,
         hive: { select: { name: true } },
       },
     });
@@ -103,8 +105,11 @@ export class ICalService {
       events.push({
         uid: `inspection-${inspection.id}@hivepal`,
         summary: `${inspection.hive.name} Inspection`,
-        dtstart: startOfDay(inspection.date),
+        dtstart: inspection.isAllDay
+          ? startOfDay(inspection.date)
+          : inspection.date,
         description: `Scheduled inspection for ${inspection.hive.name}`,
+        isAllDay: inspection.isAllDay,
       });
     }
 
@@ -145,6 +150,7 @@ export class ICalService {
           dtstart: today,
           description: `Inspection for ${hive.name} is overdue. Based on ${frequencyDays}-day frequency.`,
           isOverdue: true,
+          isAllDay: true,
         });
 
         // Future inspections project from today
@@ -164,6 +170,7 @@ export class ICalService {
             summary: `${hive.name} Inspection`,
             dtstart: currentDate,
             description: `Scheduled inspection for ${hive.name} (every ${frequencyDays} days)`,
+            isAllDay: true,
           });
         }
         currentDate = addDays(currentDate, frequencyDays);
@@ -191,14 +198,21 @@ export class ICalService {
     const dtstamp = this.formatICalDate(now, true);
 
     for (const event of events) {
+      const allDay = event.isAllDay !== false;
       lines.push('BEGIN:VEVENT');
       lines.push(`UID:${event.uid}`);
       lines.push(`DTSTAMP:${dtstamp}`);
-      lines.push(`DTSTART;VALUE=DATE:${this.formatICalDate(event.dtstart)}`);
-      // All-day events: DTEND is the day after
-      lines.push(
-        `DTEND;VALUE=DATE:${this.formatICalDate(addDays(event.dtstart, 1))}`,
-      );
+      if (allDay) {
+        lines.push(`DTSTART;VALUE=DATE:${this.formatICalDate(event.dtstart)}`);
+        lines.push(
+          `DTEND;VALUE=DATE:${this.formatICalDate(addDays(event.dtstart, 1))}`,
+        );
+      } else {
+        lines.push(`DTSTART:${this.formatICalDate(event.dtstart, true)}`);
+        lines.push(
+          `DTEND:${this.formatICalDate(addHours(event.dtstart, 1), true)}`,
+        );
+      }
       lines.push(`SUMMARY:${this.escapeICalText(event.summary)}`);
       lines.push(`DESCRIPTION:${this.escapeICalText(event.description)}`);
       lines.push('END:VEVENT');

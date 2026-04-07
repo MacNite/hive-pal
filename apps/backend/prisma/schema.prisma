@@ -177,6 +177,7 @@ model Inspection {
   hiveId            String
   hive              Hive               @relation(fields: [hiveId], references: [id])
   date              DateTime
+  isAllDay          Boolean            @default(true)
   notes             InspectionNote[]
   temperature       Float?
   weatherConditions String?

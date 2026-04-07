@@ -43,6 +43,8 @@
     "form": {
         "selectHive": "Изабери кошницу",
         "pickDate": "Изабери датум",
+    "allDay": "All day",
+    "specificTime": "Set specific time",
         "newInspection": "Нови преглед",
         "editInspection": "Измени преглед",
         "hive": "Кошница",

@@ -11,6 +11,7 @@ const inspectionFormSchema = createInspectionSchema
   .omit({ date: true })
   .extend({
     date: z.date().or(z.string().transform(v => new Date(v))),
+    isAllDay: z.boolean().optional().default(true),
   });
 
 // Action schema modifications for the frontend

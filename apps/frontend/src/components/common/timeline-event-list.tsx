@@ -28,6 +28,8 @@ import {
   ClipboardCheck,
   Camera,
   Wrench,
+  MoreVertical,
+  CheckCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,7 +49,15 @@ import {
   DocumentResponse,
 } from 'shared-schemas';
 import { getFeedTypeLabel } from '@/pages/inspection/components/inspection-form/actions/feeding';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { RescheduleDialog } from '@/pages/inspection/components/reschedule-dialog';
+import { useUpdateInspection } from '@/api/hooks/useInspections';
 import { cn } from '@/lib/utils';
 import { PhotoGallery } from './photo-gallery';
 import { StandalonePhotoPreview } from './standalone-photo-preview';
@@ -196,12 +206,40 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
   headerSlot,
 }) => {
   const { t } = useTranslation('common');
+  const navigate = useNavigate();
   const [showAll, setShowAll] = useState(false);
   const [eventTypeFilter, setEventTypeFilter] =
     useState<EventTypeFilter>('all');
   const [dateRangeFilter, setDateRangeFilter] =
     useState<DateRangeFilter>('all');
   const [hiveFilter, setHiveFilter] = useState<string>('all');
+  const [reschedulingInspection, setReschedulingInspection] =
+    useState<InspectionResponse | null>(null);
+
+  const { mutate: updateInspection } = useUpdateInspection();
+
+  const handleDoInspection = (inspection: InspectionResponse) => {
+    navigate(`/inspections/${inspection.id}/edit?from=scheduled`);
+  };
+
+  const handleReschedule = (newDate: Date, isAllDay: boolean) => {
+    if (!reschedulingInspection) return;
+    updateInspection(
+      {
+        id: reschedulingInspection.id,
+        data: {
+          date: newDate.toISOString(),
+          isAllDay,
+          status: InspectionStatus.SCHEDULED,
+        },
+      },
+      {
+        onSuccess: () => {
+          setReschedulingInspection(null);
+        },
+      },
+    );
+  };
 
   const timelineEvents = useMemo(() => {
     const events: TimelineEvent[] = [];
@@ -446,75 +484,119 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
             <div
               className={cn(
                 'rounded-lg p-2 -ml-2 transition-colors',
-                onInspectionClick && 'cursor-pointer',
+                onInspectionClick && !isScheduled && 'cursor-pointer',
                 isOverdue ? 'bg-red-50 hover:bg-red-100' : 'hover:bg-gray-50',
               )}
               onClick={
-                onInspectionClick
+                onInspectionClick && !isScheduled
                   ? () => onInspectionClick(inspection)
                   : undefined
               }
             >
-              <div className="flex items-center gap-2 mb-1">
-                {isOverdue ? (
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                ) : (
-                  <CalendarIcon className="h-4 w-4 text-blue-500" />
-                )}
-                <span className="font-medium text-sm">{t('common:timeline.inspection')}</span>
-                {renderHiveName(event)}
-                {isOverdue && (
-                  <Badge variant="destructive" className="text-xs">
-                    {t('common:timeline.overdue')}
-                  </Badge>
-                )}
-                {isScheduled && !isOverdue && (
-                  <Badge
-                    variant="outline"
-                    className="text-amber-600 border-amber-600 text-xs"
-                  >
-                    {t('common:timeline.scheduled')}
-                  </Badge>
-                )}
-                {isCancelled && (
-                  <Badge
-                    variant="outline"
-                    className="text-gray-500 border-gray-300 text-xs"
-                  >
-                    {t('common:timeline.cancelled')}
-                  </Badge>
+              <div className="flex items-start justify-between gap-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    {isOverdue ? (
+                      <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+                    ) : (
+                      <CalendarIcon className="h-4 w-4 text-blue-500 shrink-0" />
+                    )}
+                    <span className="font-medium text-sm">
+                      {isScheduled
+                        ? t('common:timeline.inspectHive', { hiveName: getHiveName?.(inspection.hiveId) ?? '' })
+                        : t('common:timeline.inspection')}
+                    </span>
+                    {!isScheduled && renderHiveName(event)}
+                    {isOverdue && (
+                      <Badge variant="destructive" className="text-xs">
+                        {t('common:timeline.overdue')}
+                      </Badge>
+                    )}
+                    {isScheduled && !isOverdue && (
+                      <Badge
+                        variant="outline"
+                        className="text-amber-600 border-amber-600 text-xs"
+                      >
+                        {t('common:timeline.scheduled')}
+                      </Badge>
+                    )}
+                    {isCancelled && (
+                      <Badge
+                        variant="outline"
+                        className="text-gray-500 border-gray-300 text-xs"
+                      >
+                        {t('common:timeline.cancelled')}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {!isScheduled && !isCancelled && inspection.observations && (
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
+                      {inspection.observations.strength !== null && (
+                        <span className="flex items-center gap-1">
+                          <ActivityIcon className="h-3 w-3" />
+                          {t('common:timeline.strength')}: {inspection.observations.strength}
+                        </span>
+                      )}
+                      {inspection.observations.honeyStores !== null && (
+                        <span className="flex items-center gap-1">
+                          <DropletsIcon className="h-3 w-3" />
+                          {t('common:timeline.honey')}: {inspection.observations.honeyStores}
+                        </span>
+                      )}
+                      {inspection.observations.queenSeen !== null && (
+                        <span className="flex items-center gap-1">
+                          <Crown className="h-3 w-3" />
+                          {inspection.observations.queenSeen ? t('common:timeline.queenSeen') : t('common:timeline.queenNotSeen')}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {inspection.notes && (
+                    <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                      <FileTextIcon className="h-3 w-3" />
+                      <span>{t('common:timeline.notesAvailable')}</span>
+                    </div>
+                  )}
+                </div>
+
+                {isScheduled && !isCancelled && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 shrink-0"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <MoreVertical className="h-3 w-3" />
+                        <span className="sr-only">Open menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleDoInspection(inspection);
+                        }}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        {t('common:timeline.doInspection')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={e => {
+                          e.stopPropagation();
+                          setReschedulingInspection(inspection);
+                        }}
+                      >
+                        <CalendarIcon className="h-4 w-4 mr-2" />
+                        {t('common:timeline.reschedule')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
               </div>
-
-              {!isScheduled && !isCancelled && inspection.observations && (
-                <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                  {inspection.observations.strength !== null && (
-                    <span className="flex items-center gap-1">
-                      <ActivityIcon className="h-3 w-3" />
-                      {t('common:timeline.strength')}: {inspection.observations.strength}
-                    </span>
-                  )}
-                  {inspection.observations.honeyStores !== null && (
-                    <span className="flex items-center gap-1">
-                      <DropletsIcon className="h-3 w-3" />
-                      {t('common:timeline.honey')}: {inspection.observations.honeyStores}
-                    </span>
-                  )}
-                  {inspection.observations.queenSeen !== null && (
-                    <span className="flex items-center gap-1">
-                      <Crown className="h-3 w-3" />
-                      {inspection.observations.queenSeen ? t('common:timeline.queenSeen') : t('common:timeline.queenNotSeen')}
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {inspection.notes && (
-                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
-                  <FileTextIcon className="h-3 w-3" />
-                  <span>{t('common:timeline.notesAvailable')}</span>
-                </div>
-              )}
             </div>
           )}
 
@@ -860,6 +942,20 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
           </>
         )}
       </div>
+
+      {reschedulingInspection && (
+        <RescheduleDialog
+          open={!!reschedulingInspection}
+          onOpenChange={open => !open && setReschedulingInspection(null)}
+          inspection={reschedulingInspection}
+          hiveName={
+            (reschedulingInspection.hiveId && getHiveName
+              ? getHiveName(reschedulingInspection.hiveId)
+              : undefined) ?? ''
+          }
+          onReschedule={handleReschedule}
+        />
+      )}
     </>
   );
 };

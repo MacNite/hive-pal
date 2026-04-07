@@ -210,6 +210,8 @@
         "selectHive": "Vybrať úľ",
         "inspectionDate": "Dátum prehliadky",
         "pickDate": "Vybrať dátum",
+        "allDay": "All day",
+        "specificTime": "Set specific time",
         "futureScheduled": "Táto prehliadka je naplánovaná na budúci dátum",
         "futureScheduledDescription": "Plánujete prehliadku na budúci dátum.",
         "cancel": "Zrušiť",

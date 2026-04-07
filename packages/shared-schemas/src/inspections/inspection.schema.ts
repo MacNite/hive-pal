@@ -17,6 +17,7 @@ export const createInspectionSchema = z.object({
   id: z.string().uuid().optional(),
   hiveId: z.string().uuid(),
   date: z.string().datetime(),
+  isAllDay: z.boolean().optional(),
   temperature: z.number().nullish(),
   weatherConditions: z.string().nullish(),
   notes: z.string().nullish(),
@@ -36,6 +37,7 @@ export const updateInspectionResponseSchema = z.object({
   status: inspectionStatusSchema.optional(),
   date: z.string().datetime(),
   hiveId: z.string().uuid(),
+  isAllDay: z.boolean().optional(),
 });
 
 export const scoreSchema = z.object({
@@ -51,6 +53,7 @@ export const createInsectionResponseSchema = z.object({
   hiveId: z.string().uuid(),
   status: inspectionStatusSchema,
   date: z.string().datetime(),
+  isAllDay: z.boolean().optional(),
   id: z.string().uuid(),
 });
 

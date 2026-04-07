@@ -32,6 +32,7 @@ import {
   CalendarPlus,
   Home,
   X,
+  Clock,
 } from 'lucide-react';
 import { format, addDays, isSameDay, startOfDay } from 'date-fns';
 import {
@@ -46,6 +47,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
@@ -53,6 +55,7 @@ const scheduleSchema = z
   .object({
     hiveIds: z.array(z.string()).min(1, 'Please select at least one hive'),
     date: z.date(),
+    isAllDay: z.boolean().default(true),
     notes: z.string().optional(),
     createAsBatch: z.boolean().optional(),
     batchName: z.string().optional(),
@@ -119,6 +122,7 @@ export const ScheduleInspectionPage = () => {
     resolver: zodResolver(scheduleSchema),
     defaultValues: {
       hiveIds: [],
+      isAllDay: true,
       notes: '',
       createAsBatch: false,
       batchName: '',
@@ -126,9 +130,10 @@ export const ScheduleInspectionPage = () => {
   });
 
   const createAsBatch = form.watch('createAsBatch');
+  const isAllDay = form.watch('isAllDay') ?? true;
 
   const handleSchedule = form.handleSubmit(async data => {
-    const { hiveIds, date, notes, createAsBatch, batchName } = data;
+    const { hiveIds, date, isAllDay, notes, createAsBatch, batchName } = data;
 
     // Get the apiary ID from the first selected hive
     const firstHive = hives?.find(h => h.id === hiveIds[0]);
@@ -170,6 +175,7 @@ export const ScheduleInspectionPage = () => {
               {
                 hiveId,
                 date: date.toISOString(),
+                isAllDay,
                 notes,
                 status: InspectionStatus.SCHEDULED,
                 actions: [],
@@ -243,6 +249,12 @@ export const ScheduleInspectionPage = () => {
   };
 
   const handleDateSelect = (date: Date) => {
+    if (!isAllDay) {
+      const current = form.getValues('date');
+      if (current) {
+        date.setHours(current.getHours(), current.getMinutes(), 0, 0);
+      }
+    }
     setSelectedDate(date);
     form.setValue('date', date);
   };
@@ -509,6 +521,49 @@ export const ScheduleInspectionPage = () => {
                       );
                     })}
                   </div>
+                </div>
+
+                <div className="mb-4 flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      id="scheduleIsAllDay"
+                      checked={isAllDay}
+                      onCheckedChange={checked => {
+                        form.setValue('isAllDay', checked);
+                        if (checked && selectedDate) {
+                          const d = new Date(selectedDate);
+                          d.setHours(0, 0, 0, 0);
+                          setSelectedDate(d);
+                          form.setValue('date', d);
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor="scheduleIsAllDay"
+                      className="text-sm cursor-pointer select-none"
+                    >
+                      {t('inspection:form.allDay')}
+                    </label>
+                  </div>
+                  {!isAllDay && selectedDate && (
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="time"
+                        className="w-32"
+                        value={format(selectedDate, 'HH:mm')}
+                        onChange={e => {
+                          const [hours, minutes] = e.target.value
+                            .split(':')
+                            .map(Number);
+                          const newDate = new Date(selectedDate);
+                          newDate.setHours(hours, minutes, 0, 0);
+                          setSelectedDate(newDate);
+                          form.setValue('date', newDate);
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-4">

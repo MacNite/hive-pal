@@ -216,6 +216,8 @@
     "selectHive": "Select a hive",
     "inspectionDate": "Inspection date",
     "pickDate": "Pick a date",
+    "allDay": "All day",
+    "specificTime": "Set specific time",
     "futureScheduled": "This inspection is scheduled for the future",
     "futureScheduledDescription": "You are scheduling an inspection for a future date.",
     "cancel": "Cancel",

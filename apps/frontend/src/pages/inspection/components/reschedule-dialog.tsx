@@ -4,6 +4,7 @@ import { format, addDays, isSameDay, startOfDay } from 'date-fns';
 import {
   Calendar,
   CalendarPlus,
+  Clock,
   Cloud,
   CloudRain,
   CloudSnow,
@@ -24,6 +25,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { InspectionResponse } from 'shared-schemas';
 import { WeatherCondition } from 'shared-schemas';
@@ -35,7 +38,7 @@ interface RescheduleDialogProps {
   onOpenChange: (open: boolean) => void;
   inspection: InspectionResponse;
   hiveName: string;
-  onReschedule: (date: Date) => void;
+  onReschedule: (date: Date, isAllDay: boolean) => void;
 }
 
 const getWeatherIcon = (condition: WeatherCondition) => {
@@ -68,6 +71,7 @@ export const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
 }) => {
   const { t } = useTranslation(['inspection']);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isAllDay, setIsAllDay] = useState(inspection.isAllDay ?? true);
   const [daysToShow, setDaysToShow] = useState(7);
 
   const { data: hives } = useHives();
@@ -103,8 +107,9 @@ export const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
 
   const handleReschedule = () => {
     if (selectedDate) {
-      onReschedule(selectedDate);
+      onReschedule(selectedDate, isAllDay);
       setSelectedDate(null);
+      setIsAllDay(true);
       setDaysToShow(7);
     }
   };
@@ -112,6 +117,7 @@ export const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
   const handleCancel = () => {
     onOpenChange(false);
     setSelectedDate(null);
+    setIsAllDay(true);
     setDaysToShow(7);
   };
 
@@ -238,21 +244,61 @@ export const RescheduleDialog: React.FC<RescheduleDialogProps> = ({
           )}
 
           {selectedDate && (
-            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg space-y-3">
               <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                 <Calendar className="h-4 w-4" />
                 <span className="text-sm font-medium">
                   {t('inspection:dialogs.reschedule.newDate', {
-                    date: format(selectedDate, 'EEEE, MMMM d, yyyy'),
+                    date: isAllDay
+                      ? format(selectedDate, 'EEEE, MMMM d, yyyy')
+                      : format(selectedDate, 'EEEE, MMMM d, yyyy HH:mm'),
                   })}
                 </span>
               </div>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2">
                 <Home className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                 <span className="text-sm text-blue-600 dark:text-blue-400">
                   {hiveName}
                 </span>
               </div>
+              <div className="flex items-center gap-2 pt-1">
+                <Switch
+                  id="rescheduleIsAllDay"
+                  checked={isAllDay}
+                  onCheckedChange={checked => {
+                    setIsAllDay(checked);
+                    if (checked) {
+                      const d = new Date(selectedDate);
+                      d.setHours(0, 0, 0, 0);
+                      setSelectedDate(d);
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="rescheduleIsAllDay"
+                  className="text-sm cursor-pointer select-none text-blue-600 dark:text-blue-400"
+                >
+                  {t('inspection:form.allDay')}
+                </label>
+              </div>
+              {!isAllDay && (
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <Input
+                    type="time"
+                    className="w-32"
+                    value={format(selectedDate, 'HH:mm')}
+                    onChange={e => {
+                      const [hours, minutes] = e.target.value
+                        .split(':')
+                        .map(Number);
+                      const newDate = new Date(selectedDate);
+                      newDate.setHours(hours, minutes, 0, 0);
+                      setSelectedDate(newDate);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

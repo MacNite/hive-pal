@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AlertTriangle,
@@ -10,6 +10,8 @@ import {
   MapPin,
   PieChart,
   TrendingUp,
+  MoreVertical,
+  CheckCircle,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardTitle } from '@/components/ui/card';
@@ -23,8 +25,17 @@ import {
   useOverdueInspections,
   useDueTodayInspections,
   useUpcomingInspections,
+  useUpdateInspection,
 } from '@/api/hooks/useInspections';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { RescheduleDialog } from '@/pages/inspection/components/reschedule-dialog';
 import { format } from 'date-fns';
+import { InspectionResponse, InspectionStatus } from 'shared-schemas';
 
 export const ApiaryHeader: React.FC = () => {
   const { t } = useTranslation(['common', 'inspection']);
@@ -55,7 +66,26 @@ export const ApiaryHeader: React.FC = () => {
 
   const getHiveName = (hiveId: string) => hiveNameMap.get(hiveId) || hiveId;
 
-  const overdueCount = overdueInspections?.length ?? 0;
+  const [reschedulingInspection, setReschedulingInspection] =
+    useState<InspectionResponse | null>(null);
+  const { mutate: updateInspection } = useUpdateInspection();
+
+  const handleDoInspection = (inspection: InspectionResponse) => {
+    navigate(`/inspections/${inspection.id}/edit?from=scheduled`);
+  };
+
+  const handleReschedule = (newDate: Date, isAllDay: boolean) => {
+    if (!reschedulingInspection) return;
+    updateInspection(
+      {
+        id: reschedulingInspection.id,
+        data: { date: newDate.toISOString(), isAllDay, status: InspectionStatus.SCHEDULED },
+      },
+      { onSuccess: () => setReschedulingInspection(null) },
+    );
+  };
+
+  const overdueCount= overdueInspections?.length ?? 0;
   const dueTodayCount = dueTodayInspections?.length ?? 0;
   const upcomingCount = upcomingInspections?.length ?? 0;
   const inspectionsLoading = overdueLoading || dueTodayLoading || upcomingLoading;
@@ -122,6 +152,7 @@ export const ApiaryHeader: React.FC = () => {
   };
 
   return (
+    <>
     <Card className={`h-full flex overflow-hidden gap-0 py-0 border-none shadow-none ${imageMode === 'side' && apiary?.featurePhotoUrl ? 'flex-col sm:flex-row' : 'flex-col'}`}>
       {imageMode !== 'hidden' && apiary?.featurePhotoUrl && (
         <img
@@ -248,21 +279,38 @@ export const ApiaryHeader: React.FC = () => {
                 {upcomingInspections?.map(inspection => (
                   <div
                     key={inspection.id}
-                    className="flex flex-col gap-1 text-sm p-2 rounded-md bg-blue-50 border border-blue-100"
+                    className="flex items-start justify-between gap-2 text-sm p-2 rounded-md bg-blue-50 border border-blue-100"
                   >
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <span>{format(new Date(inspection.date), 'MMM d')}</span>
-                      <span>{format(new Date(inspection.date), 'HH:mm')}</span>
-                      <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
-                        {t('inspection:status.pending', 'Scheduled')}
+                    <div className="flex flex-col gap-1 flex-1 min-w-0">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <span>{format(new Date(inspection.date), 'MMM d')}</span>
+                        {!inspection.isAllDay && <span>{format(new Date(inspection.date), 'HH:mm')}</span>}
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                          {t('inspection:status.pending', 'Scheduled')}
+                        </span>
+                      </div>
+                      <span className="font-medium text-blue-700">
+                        {t('common:timeline.inspectHive', { hiveName: getHiveName(inspection.hiveId) })}
                       </span>
                     </div>
-                    <Link
-                      to={`/hives/${inspection.hiveId}`}
-                      className="font-medium text-blue-700 hover:underline"
-                    >
-                      {getHiveName(inspection.hiveId)}
-                    </Link>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 -mr-1">
+                          <MoreVertical className="h-3 w-3" />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem onClick={() => handleDoInspection(inspection)}>
+                          <CheckCircle className="h-4 w-4 mr-2" />
+                          {t('common:timeline.doInspection')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setReschedulingInspection(inspection)}>
+                          <CalendarDays className="h-4 w-4 mr-2" />
+                          {t('common:timeline.reschedule')}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 ))}
               </div>
@@ -272,5 +320,16 @@ export const ApiaryHeader: React.FC = () => {
       )}
       </div>
     </Card>
+
+    {reschedulingInspection && (
+      <RescheduleDialog
+        open={!!reschedulingInspection}
+        onOpenChange={open => !open && setReschedulingInspection(null)}
+        inspection={reschedulingInspection}
+        hiveName={getHiveName(reschedulingInspection.hiveId)}
+        onReschedule={handleReschedule}
+      />
+    )}
+    </>
   );
 };

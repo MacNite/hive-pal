@@ -225,5 +225,8 @@
   },
   "footer": {
     "privacyPolicy": "Informativa sulla privacy"
+  },
+  "timeline": {
+    "inspectHive": "Ispeziona {{hiveName}}"
   }
 }
