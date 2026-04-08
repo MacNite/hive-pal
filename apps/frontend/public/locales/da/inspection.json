@@ -96,6 +96,19 @@
                 "remove": "Fjern",
                 "saveNote": "Gem notat",
                 "edit": "Rediger"
+            },
+            "maintenance": "Vedligehold",
+            "maintenance_section": {
+                "title": "Vedligehold",
+                "component": "Komponent",
+                "box": "Magasin",
+                "bottomBoard": "Bund",
+                "cover": "Låg",
+                "status": "Status",
+                "cleaned": "Rengjort",
+                "replaced": "Udskiftet",
+                "notesOptional": "Noter (frivilligt)",
+                "notesPlaceholder": "Yderligere noter omkring dette vedligehold..."
             }
         },
         "audio": {
@@ -109,8 +122,12 @@
         "population": "Bipopulation",
         "stores": "Beholdninger",
         "queen": "Dronning",
-        "title": "Inspektion scores",
-        "warnings": "Advarsler"
+        "title": "Sundheds score",
+        "warnings": "Advarsler",
+        "override": "Tilsidesæt",
+        "resetToCalculated": "Nulstil til beregnet",
+        "autoCalculated": "Auto-beregnet",
+        "overridden": "Tilpasset"
     },
     "actions": {
         "details": "Detaljer",
@@ -191,7 +208,7 @@
             "ants_present": "Myrer observeret",
             "healthy": "Sund",
             "active": "Aktiv",
-            "sluggish": "Træg",
+            "sluggish": "Svag",
             "thriving": "Trives"
         },
         "reminderObservations": "Påmindelser",
@@ -313,7 +330,7 @@
         "recentInspections": "Seneste inspektioner",
         "upcomingInspections": "Kommende inspektioner",
         "printInspectionList": "Udskriv inspektionsliste",
-        "shareInspectionList": "Del inspektions liste"
+        "shareInspectionList": "Del inspektionsliste"
     },
     "scheduled": {
         "title": "Planlagte inspektioner",
