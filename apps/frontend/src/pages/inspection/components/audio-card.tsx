@@ -61,6 +61,7 @@ function RecordingRow({
   const [copyJsonState, setCopyJsonState] = useState<'idle' | 'copied' | 'error'>(
     'idle',
   );
+  const [prefillMessage, setPrefillMessage] = useState<string | null>(null);
 
   const startAiMutation = useStartInspectionAudioAi(inspectionId, recording.id);
 
@@ -83,12 +84,17 @@ function RecordingRow({
   const navigate = useNavigate();
 
   const handlePrefillInspection = () => {
-    const mapped = mapAiDraftToInspectionForm(aiResult?.inspectionDraft);
+    if (!aiResult?.inspectionDraft) {
+      setPrefillMessage('Run analysis first.');
+      window.setTimeout(() => setPrefillMessage(null), 2000);
+      return;
+    }
+
+    const mapped = mapAiDraftToInspectionForm(aiResult.inspectionDraft);
 
     navigate(`/inspections/${inspectionId}/edit?from=ai`, {
       state: {
         aiDraft: mapped.values,
-        aiSuggestedFields: mapped.suggestedFields,
         aiSourceAudioId: recording.id,
       },
     });
@@ -206,24 +212,38 @@ function RecordingRow({
         </div>
       )}
 
-      <div>
-        <Button
-          type="button"
-          onClick={handleAnalyze}
-          disabled={
-            startAiMutation.isPending ||
-            effectiveStatus === 'PROCESSING' ||
-            effectiveStatus === 'PENDING'
-          }
-        >
-          {startAiMutation.isPending
-            ? 'Starting...'
-            : effectiveStatus === 'PENDING'
-              ? 'Queued...'
-              : effectiveStatus === 'PROCESSING'
-                ? 'Analyzing...'
-                : 'Analyze using AI'}
-        </Button>
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            onClick={handleAnalyze}
+            disabled={
+              startAiMutation.isPending ||
+              effectiveStatus === 'PROCESSING' ||
+              effectiveStatus === 'PENDING'
+            }
+          >
+            {startAiMutation.isPending
+              ? 'Starting...'
+              : effectiveStatus === 'PENDING'
+                ? 'Queued...'
+                : effectiveStatus === 'PROCESSING'
+                  ? 'Analyzing...'
+                  : 'Analyze using AI'}
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handlePrefillInspection}
+          >
+            Prefill inspection from AI
+          </Button>
+        </div>
+
+        {prefillMessage && (
+          <div className="text-sm text-muted-foreground">{prefillMessage}</div>
+        )}
       </div>
 
       {shouldShowAiPanel && (
@@ -301,16 +321,6 @@ function RecordingRow({
                 <pre className="overflow-x-auto rounded bg-muted p-3 text-xs">
                   {JSON.stringify(aiResult.inspectionDraft ?? aiResult, null, 2)}
                 </pre>
-              </div>
-
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  onClick={handlePrefillInspection}
-                  disabled={!aiResult?.inspectionDraft}
-                >
-                  Prefill inspection from AI
-                </Button>
               </div>
 
               <details className="rounded-md border p-3 text-xs">
