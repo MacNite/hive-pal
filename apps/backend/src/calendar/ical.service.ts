@@ -9,6 +9,7 @@ interface HiveWithSettings {
   settings: {
     inspection?: {
       frequencyDays?: number;
+      calendarEnabled?: boolean;
     };
   } | null;
   lastInspectionDate: Date | null;
@@ -82,8 +83,32 @@ export class ICalService {
       lastInspectionDate: hive.inspections[0]?.date ?? null,
     }));
 
-    // Generate scheduled inspection events
+    // Generate auto-projected inspection events
     const events = this.generateScheduledInspections(hivesWithLastInspection);
+
+    // Fetch manually scheduled inspections
+    const scheduledInspections = await this.prisma.inspection.findMany({
+      where: {
+        hive: { apiaryId, status: 'ACTIVE' },
+        status: 'SCHEDULED',
+      },
+      select: {
+        id: true,
+        date: true,
+        hive: { select: { name: true } },
+      },
+    });
+
+    for (const inspection of scheduledInspections) {
+      events.push({
+        uid: `inspection-${inspection.id}@hivepal`,
+        summary: `${inspection.hive.name} Inspection`,
+        dtstart: startOfDay(inspection.date),
+        description: `Scheduled inspection for ${inspection.hive.name}`,
+      });
+    }
+
+    events.sort((a, b) => a.dtstart.getTime() - b.dtstart.getTime());
 
     // Generate iCal content
     return this.formatICalendar(apiary.name, events);
@@ -96,6 +121,7 @@ export class ICalService {
 
     for (const hive of hives) {
       if (hive.status !== 'ACTIVE') continue;
+      if (hive.settings?.inspection?.calendarEnabled === false) continue;
 
       const frequencyDays = hive.settings?.inspection?.frequencyDays ?? 7;
 

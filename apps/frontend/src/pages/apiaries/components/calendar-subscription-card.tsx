@@ -10,11 +10,16 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   useCalendarSubscription,
   useRegenerateCalendarSubscription,
+  useToggleCalendarInspections,
 } from '@/api/hooks/useCalendar';
+import { useHives } from '@/api/hooks';
+import type { HiveSettings } from 'shared-schemas';
 
 interface CalendarSubscriptionCardProps {
   apiaryId: string;
@@ -27,6 +32,32 @@ export function CalendarSubscriptionCard({
   const [copied, setCopied] = useState(false);
   const { data: subscription, isLoading } = useCalendarSubscription(apiaryId);
   const regenerate = useRegenerateCalendarSubscription();
+  const { data: hives } = useHives();
+  const toggleInspections = useToggleCalendarInspections();
+
+  // Derive checkbox state: checked if any active hive has calendarEnabled !== false
+  const activeHives = hives?.filter(h => h.status === 'ACTIVE') ?? [];
+  const inspectionsEnabled =
+    activeHives.length > 0 &&
+    activeHives.some(
+      h => (h.settings as HiveSettings)?.inspection?.calendarEnabled !== false,
+    );
+
+  const handleToggleInspections = (checked: boolean) => {
+    toggleInspections.mutate(
+      { apiaryId, enabled: !!checked },
+      {
+        onError: () => {
+          toast.error(
+            t(
+              'apiary:calendarSubscription.updateFailed',
+              'Failed to update calendar settings',
+            ),
+          );
+        },
+      },
+    );
+  };
 
   const handleCopy = async () => {
     if (!subscription?.subscriptionUrl) return;
@@ -131,6 +162,24 @@ export function CalendarSubscriptionCard({
             )}
             {t('apiary:calendarSubscription.regenerateUrl')}
           </Button>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id={`inspections-enabled-${apiaryId}`}
+            checked={inspectionsEnabled}
+            onCheckedChange={handleToggleInspections}
+            disabled={toggleInspections.isPending}
+          />
+          <Label
+            htmlFor={`inspections-enabled-${apiaryId}`}
+            className="text-sm font-normal"
+          >
+            {t(
+              'apiary:calendarSubscription.includeScheduledInspections',
+              'Include auto-generated inspections',
+            )}
+          </Label>
         </div>
 
         <p className="text-xs text-muted-foreground">

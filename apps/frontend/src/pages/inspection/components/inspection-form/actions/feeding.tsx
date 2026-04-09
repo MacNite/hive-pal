@@ -14,24 +14,28 @@ import { Badge } from '@/components/ui/badge';
 import { EditIcon, TrashIcon } from 'lucide-react';
 import { TEST_SELECTORS } from '@/utils/test-selectors.ts';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { useUnitFormat } from '@/hooks/use-unit-format';
 import { parseVolume } from '@/utils/unit-conversion';
 
-export type FeedType = 'SYRUP' | 'HONEY' | 'CANDY';
+export type FeedType = 'SYRUP' | 'HONEY' | 'CANDY' | 'PROTEIN_CANDY' | 'POLLEN_PATTY' | 'OTHER';
 
 export type FeedingActionType = {
   type: 'FEEDING';
-  feedType: FeedType;
+  feedType: string;
   quantity: number;
   unit: string;
   concentration?: string;
   notes?: string;
 };
 
-const FEED_TYPES = [
-  { id: 'SYRUP', label: 'Syrup' },
-  { id: 'HONEY', label: 'Honey' },
-  { id: 'CANDY', label: 'Candy' },
+export const FEED_TYPES: { id: FeedType; fallbackLabel: string }[] = [
+  { id: 'SYRUP', fallbackLabel: 'Syrup' },
+  { id: 'HONEY', fallbackLabel: 'Honey' },
+  { id: 'CANDY', fallbackLabel: 'Candy' },
+  { id: 'PROTEIN_CANDY', fallbackLabel: 'Protein Candy' },
+  { id: 'POLLEN_PATTY', fallbackLabel: 'Pollen Patty' },
+  { id: 'OTHER', fallbackLabel: 'Other' },
 ];
 
 const CONCENTRATIONS = ['1:1', '2:1', '3:2'];
@@ -48,11 +52,18 @@ export const FeedingForm: React.FC<FeedingActionProps> = ({
   const { t } = useTranslation('inspection');
   const { unitPreference } = useUnitFormat();
 
-  const feedTypeLabels: Record<string, string> = {
-    'SYRUP': t('inspection:form.actions.feeding_section.syrup'),
-    'HONEY': t('inspection:form.actions.feeding_section.honey'),
-    'CANDY': t('inspection:form.actions.feeding_section.candy'),
+  const feedTypeI18nKeys: Record<FeedType, string> = {
+    SYRUP: t('inspection:form.actions.feeding_section.syrup'),
+    HONEY: t('inspection:form.actions.feeding_section.honey'),
+    CANDY: t('inspection:form.actions.feeding_section.candy'),
+    PROTEIN_CANDY: t('inspection:form.actions.feeding_section.proteinCandy'),
+    POLLEN_PATTY: t('inspection:form.actions.feeding_section.pollenPatty'),
+    OTHER: t('inspection:form.actions.feeding_section.other'),
   };
+
+  // If the stored feedType is not in the known list, treat it as OTHER with custom name
+  const knownFeedTypes = new Set<string>(FEED_TYPES.map(f => f.id));
+  const isKnownType = knownFeedTypes.has(action?.feedType ?? 'SYRUP');
 
   const [quantity, setQuantity] = useState<number | null>(
     action?.quantity ?? 100,
@@ -61,7 +72,10 @@ export const FeedingForm: React.FC<FeedingActionProps> = ({
     action?.concentration ?? '1:1',
   );
   const [feedType, setFeedType] = useState<FeedType | null>(
-    action?.feedType ?? 'SYRUP',
+    isKnownType ? (action?.feedType as FeedType ?? 'SYRUP') : 'OTHER',
+  );
+  const [customFeedName, setCustomFeedName] = useState<string>(
+    isKnownType ? '' : (action?.feedType ?? ''),
   );
   const [notes, setNotes] = useState<string>(action?.notes ?? '');
 
@@ -85,8 +99,8 @@ export const FeedingForm: React.FC<FeedingActionProps> = ({
       <h3 className="md:col-span-2 col-span-1 text-lg font-bold">{t('inspection:form.actions.feeding_section.title')}</h3>
       <div className="lg:col-span-2 flex flex-col gap-4">
         <label>{t('inspection:form.actions.feeding_section.feedType')}</label>
-        <div className="flex gap-4">
-          {FEED_TYPES.map(({ id, label }) => (
+        <div className="flex flex-wrap gap-4">
+          {FEED_TYPES.map(({ id, fallbackLabel }) => (
             <Pill
               key={id}
               color={'blue'}
@@ -96,15 +110,29 @@ export const FeedingForm: React.FC<FeedingActionProps> = ({
                 if (feedType === id) {
                   setFeedType(null);
                 } else {
-                  setFeedType(id as FeedType);
+                  setFeedType(id);
+                  if (id !== 'OTHER') {
+                    setCustomFeedName('');
+                  }
                 }
               }}
             >
-              {feedTypeLabels[id] || label}
+              {feedTypeI18nKeys[id] || fallbackLabel}
             </Pill>
           ))}
         </div>
       </div>
+      {feedType === 'OTHER' && (
+        <div className="lg:col-span-2 flex flex-col gap-4">
+          <label htmlFor="customFeedName">{t('inspection:form.actions.feeding_section.customFeedName')}</label>
+          <Input
+            id="customFeedName"
+            placeholder={t('inspection:form.actions.feeding_section.customFeedNamePlaceholder')}
+            value={customFeedName}
+            onChange={e => setCustomFeedName(e.target.value)}
+          />
+        </div>
+      )}
       {feedType && (
         <div className={'flex flex-col gap-4'}>
           <label htmlFor={'quantity'}>{t('inspection:form.actions.feeding_section.quantity')}</label>
@@ -163,51 +191,54 @@ export const FeedingForm: React.FC<FeedingActionProps> = ({
       </div>
 
       <div className="lg:col-span-2 flex justify-end">
-        {feedType && quantity && (
-          <Button
-            onClick={() => {
-              // Convert user input to metric units for API submission
-              let apiQuantity = quantity;
-              let apiUnit = 'ml'; // Default to ml for volume
-
-              if (feedType === 'SYRUP') {
-                // For syrup (volume), convert to ml (metric)
-                if (unitPreference === 'imperial') {
-                  // Convert fl oz to ml
-                  const volumeInLiters = parseVolume(
-                    quantity,
-                    'fl oz',
-                    unitPreference,
-                  );
-                  apiQuantity = volumeInLiters * 1000; // Convert to ml
-                }
-                apiUnit = 'ml';
-              } else {
-                // For honey/candy (weight), convert to grams (metric)
-                if (unitPreference === 'imperial') {
-                  // Convert oz to grams (1 oz = 28.3495 g)
-                  apiQuantity = quantity * 28.3495;
-                }
-                apiUnit = 'g';
-              }
-
-              onSave({
-                type: 'FEEDING',
-                feedType: feedType,
-                quantity: apiQuantity,
-                concentration,
-                unit: apiUnit,
-                notes: notes.trim() || undefined,
-              });
-            }}
-          >
+        {feedType && quantity && (feedType !== 'OTHER' || customFeedName.trim()) && (
+          <Button onClick={handleSave}>
             {t('inspection:form.actions.save')}
           </Button>
         )}
       </div>
     </div>
   );
+
+  function handleSave() {
+    if (!feedType || !quantity) return;
+
+    let apiQuantity = quantity;
+    let apiUnit: string;
+
+    if (feedType === 'SYRUP') {
+      apiUnit = 'ml';
+      if (unitPreference === 'imperial') {
+        // fl oz → ml
+        apiQuantity = parseVolume(quantity, 'fl oz', unitPreference) * 1000;
+      }
+    } else {
+      apiUnit = 'g';
+      if (unitPreference === 'imperial') {
+        // oz → grams
+        apiQuantity = quantity * 28.3495;
+      }
+    }
+
+    onSave({
+      type: 'FEEDING',
+      feedType: feedType === 'OTHER' ? customFeedName.trim() : feedType,
+      quantity: apiQuantity,
+      concentration: feedType === 'SYRUP' ? concentration : undefined,
+      unit: apiUnit,
+      notes: notes.trim() || undefined,
+    });
+  }
 };
+
+// Maps a feedType string to its English display label.
+// For unknown feed types (custom OTHER values), returns the raw feedType string.
+const FEED_TYPE_LABELS = Object.fromEntries(
+  FEED_TYPES.map(({ id, fallbackLabel }) => [id, fallbackLabel]),
+) as Record<string, string>;
+
+export const getFeedTypeLabel = (feedType: string): string =>
+  FEED_TYPE_LABELS[feedType] ?? feedType;
 
 export const FeedingView: React.FC<FeedingActionProps> = ({
   action,
@@ -251,9 +282,11 @@ export const FeedingView: React.FC<FeedingActionProps> = ({
       <div className={'flex flex-col gap-2'}>
         <h3 className="font-medium">{t('inspection:form.actions.feeding_section.title')}</h3>
         <div className={'flex gap-5 text-sm'}>
-          <Badge>{action.feedType}</Badge>
+          <Badge>{getFeedTypeLabel(action.feedType)}</Badge>
           <span>{getDisplayValue()}</span>
-          <span>{action.concentration}</span>
+          {action.feedType === 'SYRUP' && action.concentration && (
+            <span>{action.concentration}</span>
+          )}
         </div>
         {action.notes && (
           <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">

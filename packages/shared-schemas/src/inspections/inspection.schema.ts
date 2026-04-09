@@ -3,6 +3,15 @@ import { observationSchema } from './observations.schema';
 import {  inspectionStatusSchema } from './status';
 import {actionResponseSchema, createActionSchema} from '../actions';
 
+export const scoreOverrideSchema = z.object({
+  overallScore: z.number().min(0).max(10).nullable(),
+  populationScore: z.number().min(0).max(10).nullable(),
+  storesScore: z.number().min(0).max(10).nullable(),
+  queenScore: z.number().min(0).max(10).nullable(),
+});
+
+export type ScoreOverride = z.infer<typeof scoreOverrideSchema>;
+
 // Base schema for creating inspections
 export const createInspectionSchema = z.object({
   id: z.string().uuid().optional(),
@@ -14,6 +23,7 @@ export const createInspectionSchema = z.object({
   observations: observationSchema.optional(),
   actions: z.array(createActionSchema).optional(),
   status: inspectionStatusSchema.optional(),
+  score: scoreOverrideSchema.optional(),
 });
 
 // Schema for updating inspections
@@ -54,6 +64,7 @@ export const inspectionResponseSchema = createInspectionSchema.extend({
     .or(z.string().datetime()),
   score: scoreSchema.optional(),
   actions: z.array(actionResponseSchema),
+  createdByUserName: z.string().nullish(),
 });
 
 // Schema for filtering inspections

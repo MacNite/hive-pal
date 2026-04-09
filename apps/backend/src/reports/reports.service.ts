@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MetricsService } from '../metrics/metrics.service';
 import { CustomLoggerService } from '../logger/logger.service';
@@ -37,27 +37,18 @@ export class ReportsService {
 
   async getApiaryStatistics(
     apiaryId: string,
-    userId: string,
     period: ReportPeriod = ReportPeriod.ALL,
   ): Promise<ApiaryStatisticsDto> {
     this.logger.log(
       `Getting statistics for apiary ${apiaryId}, period: ${period}`,
     );
 
-    // Verify apiary ownership
-    const apiary = await this.prisma.apiary.findFirst({
-      where: {
-        id: apiaryId,
-        userId,
-      },
-    });
-
-    if (!apiary) {
-      this.logger.warn(`Apiary ${apiaryId} not found for user ${userId}`);
-      throw new NotFoundException('Apiary not found or access denied');
-    }
-
     const { startDate, endDate } = this.calculateDateRange(period);
+
+    const apiary = await this.prisma.apiary.findUniqueOrThrow({
+      where: { id: apiaryId },
+      select: { id: true, name: true },
+    });
 
     // Get all hives for the apiary
     const hives = await this.prisma.hive.findMany({
@@ -406,25 +397,16 @@ export class ReportsService {
 
   async getTrends(
     apiaryId: string,
-    userId: string,
     period: ReportPeriod = ReportPeriod.ALL,
   ): Promise<ApiaryTrendsDto> {
     this.logger.log(`Getting trends for apiary ${apiaryId}, period: ${period}`);
 
-    // Verify apiary ownership
-    const apiary = await this.prisma.apiary.findFirst({
-      where: {
-        id: apiaryId,
-        userId,
-      },
-    });
-
-    if (!apiary) {
-      this.logger.warn(`Apiary ${apiaryId} not found for user ${userId}`);
-      throw new NotFoundException('Apiary not found or access denied');
-    }
-
     const { startDate, endDate } = this.calculateDateRange(period);
+
+    const apiary = await this.prisma.apiary.findUniqueOrThrow({
+      where: { id: apiaryId },
+      select: { id: true, name: true },
+    });
 
     // Get all hives for the apiary
     const hives = await this.prisma.hive.findMany({
@@ -926,12 +908,11 @@ export class ReportsService {
 
   async exportCsv(
     apiaryId: string,
-    userId: string,
     period: ReportPeriod = ReportPeriod.ALL,
   ): Promise<string> {
     this.logger.log(`Exporting CSV for apiary ${apiaryId}, period: ${period}`);
 
-    const stats = await this.getApiaryStatistics(apiaryId, userId, period);
+    const stats = await this.getApiaryStatistics(apiaryId, period);
 
     // Helper function to escape CSV values
     const escapeCsv = (value: string | number | null | undefined): string => {
@@ -1002,12 +983,11 @@ export class ReportsService {
 
   async exportPdf(
     apiaryId: string,
-    userId: string,
     period: ReportPeriod = ReportPeriod.ALL,
   ): Promise<Buffer> {
     this.logger.log(`Exporting PDF for apiary ${apiaryId}, period: ${period}`);
 
-    const stats = await this.getApiaryStatistics(apiaryId, userId, period);
+    const stats = await this.getApiaryStatistics(apiaryId, period);
 
     return new Promise((resolve, reject) => {
       const doc = new PDFDocument({ margin: 50 });

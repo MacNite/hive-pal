@@ -27,10 +27,15 @@ export class DocumentsService {
   async create(
     dto: CreateDocument,
     file: Express.Multer.File,
-    filter: ApiaryUserFilter,
+    _filter: ApiaryUserFilter,
   ): Promise<DocumentResponse> {
     this.fileUpload.validateFile(file, CONFIG);
-    await this.fileUpload.validateOwnership(dto.apiaryId, filter.userId, dto.hiveId);
+    if (dto.hiveId) {
+      await this.fileUpload.validateHiveBelongsToApiary(
+        dto.hiveId,
+        dto.apiaryId,
+      );
+    }
 
     const { id, storageKey } = await this.fileUpload.uploadFile(
       file,
@@ -52,12 +57,15 @@ export class DocumentsService {
       },
     });
 
-    this.logger.log({ message: 'Document created', documentId: id, apiaryId: dto.apiaryId });
+    this.logger.log({
+      message: 'Document created',
+      documentId: id,
+      apiaryId: dto.apiaryId,
+    });
     return this.mapToResponse(document);
   }
 
   async findAll(filter: FileFilterInternal): Promise<DocumentResponse[]> {
-    await this.fileUpload.validateOwnership(filter.apiaryId, filter.userId);
     const where = this.fileUpload.buildWhereClause(filter);
 
     const documents = await this.prisma.document.findMany({
@@ -68,7 +76,10 @@ export class DocumentsService {
     return documents.map((d) => this.mapToResponse(d));
   }
 
-  async findOne(id: string, filter: ApiaryUserFilter): Promise<DocumentResponse> {
+  async findOne(
+    id: string,
+    filter: ApiaryUserFilter,
+  ): Promise<DocumentResponse> {
     const document = await this.prisma.document.findFirst({
       where: this.fileUpload.ownershipWhere(id, filter),
     });

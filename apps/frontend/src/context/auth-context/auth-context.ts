@@ -19,6 +19,7 @@ interface AuthContextType {
     name?: string,
     privacyPolicyConsent?: boolean,
     newsletterConsent?: boolean,
+    redirectTo?: string,
   ) => Promise<boolean>;
   logout: () => void;
   isLoggedIn: boolean;

@@ -81,7 +81,9 @@
     "copied": "Subscription URL copied to clipboard",
     "copyFailed": "Failed to copy to clipboard",
     "readOnlyNote": "This URL provides read-only access to your inspection schedule. Regenerating the URL will invalidate the previous one.",
-    "copyUrl": "Copy URL"
+    "copyUrl": "Copy URL",
+    "includeScheduledInspections": "Include auto-generated inspections",
+    "updateFailed": "Failed to update calendar settings"
   },
   "form": {
     "namePlaceholder": "Apiary name",

@@ -10,7 +10,7 @@ export const useApiaryStatistics = (
     queryKey: ['reports', 'statistics', apiaryId, period],
     queryFn: async () => {
       const response = await apiClient.get<ApiaryStatistics>(
-        `/api/reports/apiary/${apiaryId}/statistics`,
+        `/api/reports/statistics`,
         { params: { period } },
       );
       return response.data;
@@ -28,7 +28,7 @@ export const useApiaryTrends = (
     queryKey: ['reports', 'trends', apiaryId, period],
     queryFn: async () => {
       const response = await apiClient.get<TrendData>(
-        `/api/reports/apiary/${apiaryId}/trends`,
+        `/api/reports/trends`,
         { params: { period } },
       );
       return response.data;

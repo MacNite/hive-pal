@@ -8,7 +8,8 @@ import { StorageService } from './storage.interface';
 
 export class LocalStorageService
   extends StorageService
-  implements OnModuleInit {
+  implements OnModuleInit
+{
   private basePath: string;
   private jwtSecret: string;
 

@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Param,
   Query,
   UseGuards,
   Req,
@@ -11,7 +10,9 @@ import {
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RequestWithUser } from '../auth/interface/request-with-user.interface';
+import { ApiaryContextGuard } from '../guards/apiary-context.guard';
+import { ApiaryPermissionGuard } from '../guards/apiary-permission.guard';
+import { RequestWithApiary } from '../interface/request-with.apiary';
 import { CustomLoggerService } from '../logger/logger.service';
 import {
   ApiaryStatisticsDto,
@@ -20,7 +21,7 @@ import {
 } from './dto/apiary-statistics.dto';
 
 @Controller('reports')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, ApiaryContextGuard, ApiaryPermissionGuard)
 export class ReportsController {
   constructor(
     private readonly reportsService: ReportsService,
@@ -29,14 +30,13 @@ export class ReportsController {
     this.logger.setContext('ReportsController');
   }
 
-  @Get('apiary/:apiaryId/statistics')
+  @Get('statistics')
   async getApiaryStatistics(
-    @Param('apiaryId') apiaryId: string,
     @Query('period') period: string = ReportPeriod.ALL,
-    @Req() req: RequestWithUser,
+    @Req() req: RequestWithApiary,
   ): Promise<ApiaryStatisticsDto> {
     this.logger.log(
-      `Getting statistics for apiary ${apiaryId}, period: ${period}, user: ${req.user.id}`,
+      `Getting statistics for apiary ${req.apiaryId}, period: ${period}, user: ${req.user.id}`,
     );
 
     // Validate period
@@ -48,20 +48,18 @@ export class ReportsController {
     }
 
     return this.reportsService.getApiaryStatistics(
-      apiaryId,
-      req.user.id,
+      req.apiaryId,
       period as ReportPeriod,
     );
   }
 
-  @Get('apiary/:apiaryId/trends')
+  @Get('trends')
   async getApiaryTrends(
-    @Param('apiaryId') apiaryId: string,
     @Query('period') period: string = ReportPeriod.ALL,
-    @Req() req: RequestWithUser,
+    @Req() req: RequestWithApiary,
   ): Promise<ApiaryTrendsDto> {
     this.logger.log(
-      `Getting trends for apiary ${apiaryId}, period: ${period}, user: ${req.user.id}`,
+      `Getting trends for apiary ${req.apiaryId}, period: ${period}, user: ${req.user.id}`,
     );
 
     // Validate period
@@ -72,23 +70,18 @@ export class ReportsController {
       );
     }
 
-    return this.reportsService.getTrends(
-      apiaryId,
-      req.user.id,
-      period as ReportPeriod,
-    );
+    return this.reportsService.getTrends(req.apiaryId, period as ReportPeriod);
   }
 
-  @Get('apiary/:apiaryId/export/csv')
+  @Get('export/csv')
   @Header('Content-Type', 'text/csv')
   @Header('Content-Disposition', 'attachment; filename="apiary-report.csv"')
   async exportCsv(
-    @Param('apiaryId') apiaryId: string,
     @Query('period') period: string = ReportPeriod.ALL,
-    @Req() req: RequestWithUser,
+    @Req() req: RequestWithApiary,
   ): Promise<string> {
     this.logger.log(
-      `Exporting CSV for apiary ${apiaryId}, period: ${period}, user: ${req.user.id}`,
+      `Exporting CSV for apiary ${req.apiaryId}, period: ${period}, user: ${req.user.id}`,
     );
 
     // Validate period
@@ -99,23 +92,18 @@ export class ReportsController {
       );
     }
 
-    return this.reportsService.exportCsv(
-      apiaryId,
-      req.user.id,
-      period as ReportPeriod,
-    );
+    return this.reportsService.exportCsv(req.apiaryId, period as ReportPeriod);
   }
 
-  @Get('apiary/:apiaryId/export/pdf')
+  @Get('export/pdf')
   @Header('Content-Type', 'application/pdf')
   @Header('Content-Disposition', 'attachment; filename="apiary-report.pdf"')
   async exportPdf(
-    @Param('apiaryId') apiaryId: string,
     @Query('period') period: string = ReportPeriod.ALL,
-    @Req() req: RequestWithUser,
+    @Req() req: RequestWithApiary,
   ): Promise<StreamableFile> {
     this.logger.log(
-      `Exporting PDF for apiary ${apiaryId}, period: ${period}, user: ${req.user.id}`,
+      `Exporting PDF for apiary ${req.apiaryId}, period: ${period}, user: ${req.user.id}`,
     );
 
     // Validate period
@@ -127,8 +115,7 @@ export class ReportsController {
     }
 
     const buffer = await this.reportsService.exportPdf(
-      apiaryId,
-      req.user.id,
+      req.apiaryId,
       period as ReportPeriod,
     );
     return new StreamableFile(buffer);

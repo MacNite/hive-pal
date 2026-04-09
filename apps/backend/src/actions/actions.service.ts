@@ -21,6 +21,8 @@ type ActionWithRelations = Prisma.ActionGetPayload<{
     frameAction: true;
     harvestAction: true;
     boxConfigurationAction: true;
+    maintenanceAction: true;
+    createdByUser: { select: { name: true; email: true } };
   };
 }>;
 
@@ -128,6 +130,7 @@ export class ActionsService {
     inspectionId: string,
     actions: CreateAction[],
     tx: Prisma.TransactionClient,
+    userId?: string,
   ): Promise<void> {
     if (!actions || actions.length === 0) {
       return;
@@ -136,7 +139,7 @@ export class ActionsService {
     // Get the hiveId from the inspection
     const inspection = await tx.inspection.findUnique({
       where: { id: inspectionId },
-      select: { hiveId: true },
+      select: { hiveId: true, date: true },
     });
 
     if (!inspection) {
@@ -153,6 +156,8 @@ export class ActionsService {
           inspectionId,
           type,
           notes,
+          date: inspection.date,
+          ...(userId && { createdByUserId: userId }),
         },
       });
 
@@ -200,6 +205,14 @@ export class ActionsService {
             framesRemoved: details.framesRemoved,
             totalBoxes: details.totalBoxes,
             totalFrames: details.totalFrames,
+          },
+        });
+      } else if (details.type === ActionType.MAINTENANCE) {
+        await tx.maintenanceAction.create({
+          data: {
+            actionId: createdAction.id,
+            component: details.component,
+            status: details.status,
           },
         });
       }
@@ -253,13 +266,14 @@ export class ActionsService {
     inspectionId: string,
     actions: CreateAction[],
     tx: Prisma.TransactionClient,
+    userId?: string,
   ): Promise<void> {
     // Delete existing actions
     await this.deleteActions(inspectionId, tx);
 
     // Create new actions if provided
     if (actions && actions.length > 0) {
-      await this.createActions(inspectionId, actions, tx);
+      await this.createActions(inspectionId, actions, tx, userId);
     }
   }
 
@@ -289,7 +303,6 @@ export class ActionsService {
         ...(filter.apiaryId && {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         }),
       },
@@ -304,6 +317,8 @@ export class ActionsService {
         frameAction: true,
         harvestAction: true,
         boxConfigurationAction: true,
+        maintenanceAction: true,
+        createdByUser: { select: { name: true, email: true } },
       },
     });
 
@@ -362,6 +377,7 @@ export class ActionsService {
           type,
           notes,
           date: date ? new Date(date) : new Date(),
+          createdByUserId: userId,
         },
       });
 
@@ -411,6 +427,14 @@ export class ActionsService {
             totalFrames: details.totalFrames,
           },
         });
+      } else if (details.type === ActionType.MAINTENANCE) {
+        await tx.maintenanceAction.create({
+          data: {
+            actionId: createdAction.id,
+            component: details.component,
+            status: details.status,
+          },
+        });
       }
 
       // Fetch the complete action with relations
@@ -422,6 +446,8 @@ export class ActionsService {
           frameAction: true,
           harvestAction: true,
           boxConfigurationAction: true,
+          maintenanceAction: true,
+          createdByUser: { select: { name: true, email: true } },
         },
       });
     });
@@ -472,6 +498,8 @@ export class ActionsService {
         frameAction: true,
         harvestAction: true,
         boxConfigurationAction: true,
+        maintenanceAction: true,
+        createdByUser: { select: { name: true, email: true } },
       },
     });
 
@@ -555,6 +583,14 @@ export class ActionsService {
               unit: details.unit,
             },
           });
+        } else if (details.type === ActionType.MAINTENANCE) {
+          await tx.maintenanceAction.create({
+            data: {
+              actionId,
+              component: details.component,
+              status: details.status,
+            },
+          });
         }
         // NOTE type doesn't need additional details, content is in notes
       }
@@ -568,6 +604,8 @@ export class ActionsService {
           frameAction: true,
           harvestAction: true,
           boxConfigurationAction: true,
+          maintenanceAction: true,
+          createdByUser: { select: { name: true, email: true } },
         },
       });
     });
@@ -639,6 +677,7 @@ export class ActionsService {
     await tx.frameAction.deleteMany({ where: { actionId } });
     await tx.harvestAction.deleteMany({ where: { actionId } });
     await tx.boxConfigurationAction.deleteMany({ where: { actionId } });
+    await tx.maintenanceAction.deleteMany({ where: { actionId } });
   }
 
   // Prisma-to-Domain Transformation Function
@@ -653,6 +692,8 @@ export class ActionsService {
       harvestId: prismaAction.harvestId,
       date: prismaAction.date.toISOString(),
       notes: prismaAction.notes || undefined,
+      createdByUserName:
+        prismaAction.createdByUser?.name || prismaAction.createdByUser?.email,
     };
 
     const unitPreference = userPreferences?.units || 'metric';
@@ -797,6 +838,25 @@ export class ActionsService {
           },
         };
       }
+
+      case ActionType.MAINTENANCE:
+        if (!prismaAction.maintenanceAction) {
+          throw new Error('Maintenance action details missing');
+        }
+        return {
+          ...base,
+          type: ActionType.MAINTENANCE,
+          details: {
+            type: ActionType.MAINTENANCE as const,
+            component: prismaAction.maintenanceAction.component as
+              | 'BOX'
+              | 'BOTTOM_BOARD'
+              | 'COVER',
+            status: prismaAction.maintenanceAction.status as
+              | 'CLEANED'
+              | 'REPLACED',
+          },
+        };
 
       case ActionType.NOTE:
         return {

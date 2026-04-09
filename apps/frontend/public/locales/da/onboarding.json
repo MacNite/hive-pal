@@ -18,7 +18,8 @@
     },
     "hive": {
         "title": "Tilføj dit første stade",
-        "description": "Nu skal vi tilføje dit første stade til din nye bigård: {{apiaryName}}."
+        "description": "Nu skal vi tilføje dit første stade til din nye bigård: {{apiaryName}}.",
+        "skip": "Spring over"
     },
     "complete": {
         "title": "Tillykke!",

@@ -16,7 +16,9 @@ const INITIAL_COLS = 5;
 
 export const HivesLayout = ({ apiaryId }: HivesLayoutProps) => {
   const { t } = useTranslation('hive');
-  const { data: allHives = [], refetch } = useHivesWithBoxes({ apiaryId });
+  const { data: rawHives = [], refetch } = useHivesWithBoxes({ apiaryId, includeInactive: true });
+  // Only ARCHIVED hives are hidden from the grid — all other statuses remain placeable
+  const allHives = rawHives.filter((h) => h.status !== 'ARCHIVED');
   const updateHiveMutation = useUpdateHive();
   const [draggedHive, setDraggedHive] = useState<HiveWithBoxesResponse | null>(
     null,

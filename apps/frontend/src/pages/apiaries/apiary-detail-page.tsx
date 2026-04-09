@@ -3,8 +3,11 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Section } from '@/components/common/section';
 import { ApiaryActionSidebar, HivesLayout } from './components';
+import { SharingTab } from './components/sharing-tab';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 import { CalendarSubscriptionCard } from './components/calendar-subscription-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ImagePlus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   MainContent,
@@ -31,11 +34,11 @@ export const ApiaryDetailPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { setActiveApiaryId } = useApiaryStore();
 
+  const { isOwner } = useApiaryPermission();
+
   const tabParam = searchParams.get('tab');
-  const currentTab =
-    tabParam === 'overview' || tabParam === 'hives' || tabParam === 'location'
-      ? tabParam
-      : 'overview';
+  const validTabs = ['overview', 'hives', 'location', ...(isOwner ? ['sharing'] : [])];
+  const currentTab = validTabs.includes(tabParam ?? '') ? tabParam! : 'overview';
 
   const { data: apiary, isLoading, refetch } = useApiary(id ?? '');
   const { data: hives = [] } = useHives({ apiaryId: id ?? '' });
@@ -79,11 +82,25 @@ export const ApiaryDetailPage = () => {
             <TabsTrigger value="location">
               {t('apiary:detail.tabs.location')}
             </TabsTrigger>
+            {isOwner && (
+              <TabsTrigger value="sharing">Sharing</TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="overview">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <Card>
+              <Card className="overflow-hidden">
+                {apiary.featurePhotoUrl ? (
+                  <img
+                    src={apiary.featurePhotoUrl}
+                    alt={`${apiary.name} feature photo`}
+                    className="w-full h-40 object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-24 bg-muted/50 flex items-center justify-center">
+                    <ImagePlus className="h-8 w-8 text-muted-foreground/30" />
+                  </div>
+                )}
                 <CardHeader>
                   <CardTitle>{t('apiary:detail.apiaryInformation')}</CardTitle>
                 </CardHeader>
@@ -138,6 +155,12 @@ export const ApiaryDetailPage = () => {
           <TabsContent value="hives">
             <HivesLayout apiaryId={apiary.id} />
           </TabsContent>
+
+          {isOwner && (
+            <TabsContent value="sharing">
+              <SharingTab apiaryId={apiary.id} />
+            </TabsContent>
+          )}
 
           <TabsContent value="location">
             <Section title={t('apiary:detail.apiaryLocation')}>

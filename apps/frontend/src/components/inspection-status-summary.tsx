@@ -8,14 +8,8 @@ import {
   useUpcomingInspections,
 } from '@/api/hooks/useInspections';
 import { useHives } from '@/api/hooks';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { ViewDetailsLink } from '@/components/ui/view-details-link';
+import { Card, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 
 export const InspectionStatusSummary: React.FC = () => {
@@ -73,14 +67,20 @@ export const InspectionStatusSummary: React.FC = () => {
   }
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-3">
+    <Card className="h-full flex flex-col overflow-hidden gap-0 py-0 border-none shadow-none">
+      <div className="flex items-center justify-between px-4 pt-3 pb-1">
         <CardTitle className="text-lg flex items-center gap-2">
           <CalendarDays className="h-5 w-5" />
           {t('inspection:dashboard.title', 'Upcoming Inspections')}
         </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/calendar">
+            <CalendarDays className="h-4 w-4" />
+            {t('inspection:dashboard.viewCalendar', 'View calendar')}
+          </Link>
+        </Button>
+      </div>
+      <div className="px-4 pb-3 space-y-3">
         {/* Alerts Section */}
         {(overdueCount > 0 || dueTodayCount > 0) && (
           <div className="space-y-2">
@@ -151,12 +151,7 @@ export const InspectionStatusSummary: React.FC = () => {
             )}
           </p>
         )}
-      </CardContent>
-      <CardFooter className="mt-auto">
-        <ViewDetailsLink to="/calendar">
-          {t('inspection:dashboard.viewCalendar', 'View calendar')}
-        </ViewDetailsLink>
-      </CardFooter>
+      </div>
     </Card>
   );
 };

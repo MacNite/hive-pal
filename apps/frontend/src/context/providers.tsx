@@ -1,8 +1,10 @@
 import { Fragment, PropsWithChildren } from 'react';
 import { AuthProvider } from '@/context/auth-context';
 import { ThemeProvider } from './theme-provider';
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import { AxiosError } from 'axios';
 import { SidebarProvider } from '@/components/ui/sidebar.tsx';
 
@@ -15,8 +17,14 @@ const queryClient = new QueryClient({
         }
         return failureCount < 3;
       },
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours — keep cached data for persistence
     },
   },
+});
+
+const persister = createSyncStoragePersister({
+  storage: window.localStorage,
+  key: 'hive-pal-query-cache',
 });
 
 const SKIP_SIDEBAR_PAGES = ['/login', '/register', '/onboarding'];
@@ -26,12 +34,15 @@ export const Providers: React.FC<PropsWithChildren> = ({ children }) => {
   const SidebarProviderComponent = skipSidebar ? Fragment : SidebarProvider;
   return (
     <SidebarProviderComponent>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
+      >
         <AuthProvider>
           <ThemeProvider defaultTheme="light">{children}</ThemeProvider>
         </AuthProvider>
         <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </SidebarProviderComponent>
   );
 };

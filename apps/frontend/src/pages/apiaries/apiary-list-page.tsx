@@ -18,6 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { ApiaryActionSidebar } from './components';
+import { Badge } from '@/components/ui/badge';
 import { ChevronRight, Search } from 'lucide-react';
 import { useApiaries } from '@/api/hooks';
 
@@ -79,7 +80,16 @@ export const ApiaryListPage = () => {
             <TableBody>
               {apiaries.map(apiary => (
                 <TableRow key={apiary.id}>
-                  <TableCell className="font-medium">{apiary.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <span className="flex items-center gap-2">
+                      {apiary.name}
+                      {apiary.isShared && (
+                        <Badge variant="secondary" className="text-xs">
+                          {apiary.role === 'EDITOR' ? 'Shared · Edit' : 'Shared · View'}
+                        </Badge>
+                      )}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     {apiary.location || t('apiary:fields.noLocation')}
                   </TableCell>

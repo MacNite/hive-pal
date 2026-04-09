@@ -61,30 +61,18 @@ export class FileUploadService {
     }
   }
 
-  /** Verifies apiary belongs to user, and optionally that hiveId belongs to the apiary. */
-  async validateOwnership(
+  /** Verifies that a hive belongs to the given apiary.
+   *  Apiary existence and user authorization are handled by ApiaryContextGuard. */
+  async validateHiveBelongsToApiary(
+    hiveId: string,
     apiaryId: string,
-    userId: string,
-    hiveId?: string,
   ): Promise<void> {
-    const apiary = await this.prisma.apiary.findFirst({
-      where: { id: apiaryId, userId },
+    const hive = await this.prisma.hive.findFirst({
+      where: { id: hiveId, apiaryId },
     });
 
-    if (!apiary) {
-      throw new NotFoundException(`Apiary with ID ${apiaryId} not found`);
-    }
-
-    if (hiveId) {
-      const hive = await this.prisma.hive.findFirst({
-        where: { id: hiveId, apiaryId },
-      });
-
-      if (!hive) {
-        throw new NotFoundException(
-          `Hive with ID ${hiveId} not found in apiary`,
-        );
-      }
+    if (!hive) {
+      throw new NotFoundException(`Hive with ID ${hiveId} not found in apiary`);
     }
   }
 
@@ -144,7 +132,7 @@ export class FileUploadService {
   /** Builds a Prisma where clause for list queries with apiary ownership, optional hive and date filters. */
   buildWhereClause(filter: FileFilterInternal): Record<string, unknown> {
     const where: Record<string, unknown> = {
-      apiary: { id: filter.apiaryId, userId: filter.userId },
+      apiary: { id: filter.apiaryId },
     };
 
     if (filter.hiveId) {
@@ -165,10 +153,10 @@ export class FileUploadService {
   ownershipWhere(
     id: string,
     filter: ApiaryUserFilter,
-  ): { id: string; apiary: { id: string; userId: string } } {
+  ): { id: string; apiary: { id: string } } {
     return {
       id,
-      apiary: { id: filter.apiaryId, userId: filter.userId },
+      apiary: { id: filter.apiaryId },
     };
   }
 }

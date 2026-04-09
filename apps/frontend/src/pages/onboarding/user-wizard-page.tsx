@@ -41,7 +41,7 @@ export const UserWizardPage = () => {
   ];
 
   // Fetch existing data to determine starting step
-  const { data: apiaries, isLoading: apiariesLoading } = useApiaries();
+  const { data: apiaries, isLoading: apiariesLoading, pendingMemberships } = useApiaries();
   const hasApiaries = !!apiaries && apiaries.length > 0;
   const { data: hives, isLoading: hivesLoading } = useHives(undefined, {
     enabled: hasApiaries,
@@ -59,6 +59,12 @@ export const UserWizardPage = () => {
 
     if (hasApiaries && hasHives) {
       // User has both - skip onboarding entirely
+      window.location.href = '/';
+      return;
+    }
+
+    // If user has pending membership requests, skip onboarding — they're waiting for approval
+    if (!hasApiaries && pendingMemberships > 0) {
       window.location.href = '/';
       return;
     }
@@ -208,6 +214,18 @@ export const UserWizardPage = () => {
                 data-umami-event="Onboarding Start"
               >
                 {t('welcome.action')}
+              </Button>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="w-full flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => setStep(3)}
+                data-umami-event="Onboarding Skip Hive"
+              >
+                {t('hive.skip')}
               </Button>
             </div>
           )}

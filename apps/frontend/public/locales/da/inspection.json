@@ -57,6 +57,11 @@
                 "syrup": "Sirup",
                 "honey": "Honning",
                 "candy": "Foderdej",
+                "proteinCandy": "Protein Candy",
+                "pollenPatty": "Pollen Patty",
+                "other": "Andet",
+                "customFeedName": "Fodernavn",
+                "customFeedNamePlaceholder": "Indtast brugerdefineret fodertype",
                 "quantity": "Mængde",
                 "concentration": "Koncentration",
                 "selectConcentration": "Vælg en koncentration",
@@ -91,6 +96,19 @@
                 "remove": "Fjern",
                 "saveNote": "Gem notat",
                 "edit": "Rediger"
+            },
+            "maintenance": "Vedligehold",
+            "maintenance_section": {
+                "title": "Vedligehold",
+                "component": "Komponent",
+                "box": "Magasin",
+                "bottomBoard": "Bund",
+                "cover": "Låg",
+                "status": "Status",
+                "cleaned": "Rengjort",
+                "replaced": "Udskiftet",
+                "notesOptional": "Noter (frivilligt)",
+                "notesPlaceholder": "Yderligere noter omkring dette vedligehold..."
             }
         },
         "audio": {
@@ -104,8 +122,12 @@
         "population": "Bipopulation",
         "stores": "Beholdninger",
         "queen": "Dronning",
-        "title": "Inspektion scores",
-        "warnings": "Advarsler"
+        "title": "Sundheds score",
+        "warnings": "Advarsler",
+        "override": "Tilsidesæt",
+        "resetToCalculated": "Nulstil til beregnet",
+        "autoCalculated": "Auto-beregnet",
+        "overridden": "Tilpasset"
     },
     "actions": {
         "details": "Detaljer",
@@ -119,7 +141,8 @@
         "shareList": "Del liste",
         "doInspection": "Udfør inspektion",
         "reschedule": "Omlægge",
-        "completeInspection": "Færdiggør inspektion"
+        "completeInspection": "Færdiggør inspektion",
+        "addInspection": "Tilføj inspektion"
     },
     "messages": {
         "exportComingSoon": "Funktionen \"eksporter\" kommer snart",
@@ -156,7 +179,7 @@
         "strength": "Styrke",
         "cappedBrood": "Forseglet yngel",
         "uncappedBrood": "Åben yngel",
-        "honeyStores": "Honning mængde",
+        "honeyStores": "Honning beholdning",
         "pollenStores": "Pollen beholdning",
         "queenCells": "Dronningeceller",
         "swarmCells": "Sværmceller",
@@ -185,7 +208,7 @@
             "ants_present": "Myrer observeret",
             "healthy": "Sund",
             "active": "Aktiv",
-            "sluggish": "Træg",
+            "sluggish": "Svag",
             "thriving": "Trives"
         },
         "reminderObservations": "Påmindelser",
@@ -255,7 +278,8 @@
         "navigation": "Navigation",
         "allInspections": "Alle inspektioner",
         "recentInspections": "Seneste inspektioner",
-        "goBack": "Tilbage"
+        "goBack": "Tilbage",
+        "deleteFailed": "Sletning af inspektion fejlede"
     },
     "schedule": {
         "title": "Planlæg inspektion",
@@ -306,7 +330,7 @@
         "recentInspections": "Seneste inspektioner",
         "upcomingInspections": "Kommende inspektioner",
         "printInspectionList": "Udskriv inspektionsliste",
-        "shareInspectionList": "Del inspektions liste"
+        "shareInspectionList": "Del inspektionsliste"
     },
     "scheduled": {
         "title": "Planlagte inspektioner",

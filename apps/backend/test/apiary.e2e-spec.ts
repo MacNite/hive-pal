@@ -122,10 +122,10 @@ describe('Apiaries (e2e)', () => {
       .expect(200);
 
     // Should have at least 3 apiaries (including the one created in the previous test)
-    expect(response.body.length).toBeGreaterThanOrEqual(3);
+    expect(response.body.apiaries.length).toBeGreaterThanOrEqual(3);
 
     // Check if our test apiary is in the results
-    const foundApiary = response.body.find(
+    const foundApiary = response.body.apiaries.find(
       (apiary) => apiary.id === testApiaryId,
     );
     expect(foundApiary).toBeDefined();

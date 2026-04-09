@@ -38,12 +38,16 @@
     "no": "No"
   },
   "scores": {
-    "title": "Inspection Scores",
+    "title": "Health Scores",
     "population": "Population",
     "stores": "Stores",
     "queen": "Queen",
     "overall": "Overall",
-    "warnings": "Warnings"
+    "warnings": "Warnings",
+    "override": "Override",
+    "resetToCalculated": "Reset to calculated",
+    "autoCalculated": "Auto-calculated",
+    "overridden": "Custom"
   },
   "observations": {
     "title": "Observations",
@@ -62,7 +66,7 @@
     "selectBroodPattern": "Select brood pattern",
     "broodPatternOptions": {
       "solid": "Solid",
-      "spotty": "Spotty", 
+      "spotty": "Spotty",
       "scattered": "Scattered",
       "patchy": "Patchy",
       "excellent": "Excellent",
@@ -97,6 +101,7 @@
   "actions": {
     "details": "Details",
     "createInspection": "Create Inspection",
+    "addInspection": "Add Inspection",
     "scheduleInspection": "Schedule Inspection",
     "refreshData": "Refresh Data",
     "exportCSV": "Export to CSV",
@@ -247,6 +252,11 @@
         "syrup": "Syrup",
         "honey": "Honey",
         "candy": "Candy",
+        "proteinCandy": "Protein Candy",
+        "pollenPatty": "Pollen Patty",
+        "other": "Other",
+        "customFeedName": "Feed Name",
+        "customFeedNamePlaceholder": "Enter custom feed type name",
         "quantity": "Quantity",
         "concentration": "Concentration",
         "selectConcentration": "Select a concentration",
@@ -281,6 +291,19 @@
         "remove": "Remove",
         "saveNote": "Save Note",
         "edit": "Edit"
+      },
+      "maintenance": "Maintenance",
+      "maintenance_section": {
+        "title": "Maintenance",
+        "component": "Component",
+        "box": "Box",
+        "bottomBoard": "Bottom Board",
+        "cover": "Cover",
+        "status": "Status",
+        "cleaned": "Cleaned",
+        "replaced": "Replaced",
+        "notesOptional": "Notes (optional)",
+        "notesPlaceholder": "Additional notes about the maintenance..."
       }
     },
     "audio": {
@@ -294,6 +317,7 @@
     "editInspection": "Edit Inspection",
     "printDetails": "Print Details",
     "deleteInspection": "Delete Inspection",
+    "deleteFailed": "Failed to delete inspection",
     "relatedActions": "Related Actions",
     "viewHive": "View Hive",
     "newInspection": "New Inspection",

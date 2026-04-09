@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Droplet, Grid, Pill, StickyNote } from 'lucide-react';
+import { Droplet, Grid, Pill, StickyNote, Wrench } from 'lucide-react';
 import { ReactNode, useCallback, useMemo, useState } from 'react';
 import {
   FeedingActionType,
@@ -21,6 +21,11 @@ import {
   NoteForm,
   NoteView,
 } from '@/pages/inspection/components/inspection-form/actions/note.tsx';
+import {
+  MaintenanceActionType,
+  MaintenanceForm,
+  MaintenanceView,
+} from '@/pages/inspection/components/inspection-form/actions/maintenance.tsx';
 import { Button } from '@/components/ui/button';
 import { TEST_SELECTORS } from '@/utils/test-selectors.ts';
 import { useFormContext } from 'react-hook-form';
@@ -30,6 +35,7 @@ const actionTypes = [
   { id: 'FEEDING', label: 'Feeding', Icon: Droplet },
   { id: 'TREATMENT', label: 'Treatment', Icon: Pill },
   { id: 'FRAME', label: 'Frames', Icon: Grid },
+  { id: 'MAINTENANCE', label: 'Maintenance', Icon: Wrench },
   { id: 'NOTE', label: 'Note', Icon: StickyNote },
 ];
 
@@ -42,6 +48,7 @@ export type ActionType =
   | FeedingActionType
   | TreatmentActionType
   | FramesActionType
+  | MaintenanceActionType
   | NoteActionType
   | OtherActionType;
 
@@ -60,6 +67,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
     'FEEDING': t('inspection:form.actions.feeding'),
     'TREATMENT': t('inspection:form.actions.treatment'),
     'FRAME': t('inspection:form.actions.frames'),
+    'MAINTENANCE': t('inspection:form.actions.maintenance'),
     'NOTE': t('inspection:form.actions.note'),
   };
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
@@ -106,6 +114,8 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
         return <TreatmentForm onSave={handleSave} onRemove={handleRemove} />;
       case 'FRAME':
         return <FramesForm onSave={handleSave} onRemove={handleRemove} />;
+      case 'MAINTENANCE':
+        return <MaintenanceForm onSave={handleSave} onRemove={handleRemove} />;
       case 'NOTE':
         return <NoteForm onSave={handleSave} onRemove={handleRemove} />;
       default:
@@ -137,6 +147,15 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
         return (
           <FramesView
             key="frames"
+            onSave={handleSave}
+            action={action}
+            onRemove={handleRemove}
+          />
+        );
+      case 'MAINTENANCE':
+        return (
+          <MaintenanceView
+            key="maintenance"
             onSave={handleSave}
             action={action}
             onRemove={handleRemove}

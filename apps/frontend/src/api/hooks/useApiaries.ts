@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../client';
-import { CreateApiary, UpdateApiary, ApiaryResponse } from 'shared-schemas';
+import {
+  CreateApiary,
+  UpdateApiary,
+  ApiaryResponse,
+  ApiaryListResponse,
+} from 'shared-schemas';
 import { useAuth } from '@/context/auth-context';
 import type { UseQueryOptions } from '@tanstack/react-query';
 import { logApiError } from '../errorLogger';
@@ -16,13 +21,14 @@ const APIARIES_KEYS = {
 
 // Get all apiaries
 export const useApiaries = (
-  queryOptions?: UseQueryOptions<ApiaryResponse[]>,
+  queryOptions?: Omit<UseQueryOptions<ApiaryListResponse>, 'queryKey' | 'queryFn'>,
 ) => {
-  return useQuery<ApiaryResponse[]>({
+  const query = useQuery<ApiaryListResponse>({
     queryKey: APIARIES_KEYS.list(),
     queryFn: async () => {
       try {
-        const response = await apiClient.get<ApiaryResponse[]>('/api/apiaries');
+        const response =
+          await apiClient.get<ApiaryListResponse>('/api/apiaries');
         return response.data;
       } catch (error) {
         logApiError(error, '/api/apiaries', 'GET');
@@ -31,6 +37,12 @@ export const useApiaries = (
     },
     ...queryOptions,
   });
+
+  return {
+    ...query,
+    data: query.data?.apiaries,
+    pendingMemberships: query.data?.pendingMemberships ?? 0,
+  };
 };
 
 export const useApiaryOptions = () => {

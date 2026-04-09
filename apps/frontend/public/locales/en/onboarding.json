@@ -18,7 +18,8 @@
   },
   "hive": {
     "title": "Add Your First Hive",
-    "description": "Now let's add your first hive to your new apiary: {{apiaryName}}."
+    "description": "Now let's add your first hive to your new apiary: {{apiaryName}}.",
+    "skip": "Skip for now"
   },
   "complete": {
     "title": "Congratulations!",

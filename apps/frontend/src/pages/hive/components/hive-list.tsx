@@ -1,6 +1,6 @@
 import { HiveStatus } from './hive-status';
 import { Activity, TrendingUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardTitle } from '@/components/ui/card';
 import { ViewDetailsLink } from '@/components/ui/view-details-link';
 import { HiveResponse } from 'shared-schemas';
 import { AlertsPopover } from '@/components/alerts';
@@ -12,6 +12,8 @@ import {
 } from '@/utils/feeding-calculations';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { buildBoxGradient } from '@/utils/box-gradient';
+import { useImageDisplayStore } from '@/stores/image-display-store';
 
 type HiveListProps = {
   hives: HiveResponse[];
@@ -49,61 +51,79 @@ const HiveCard: React.FC<{ hive: HiveResponse }> = ({ hive }) => {
     return t('hive:card.lastInspected', { date: date.toLocaleDateString() });
   };
 
+  const featurePhotoUrl = hive.featurePhotoUrl || hiveDetails?.featurePhotoUrl;
+  const { mode: imageMode } = useImageDisplayStore();
+  const isSide = imageMode === 'side';
+
+  const imageElement = imageMode !== 'hidden' ? (
+    featurePhotoUrl ? (
+      <img
+        src={featurePhotoUrl}
+        alt={`${hive.name} feature photo`}
+        className={isSide
+          ? 'w-full sm:w-[140px] h-32 sm:h-auto min-h-[120px] object-cover flex-shrink-0'
+          : 'w-full h-32 object-cover'}
+      />
+    ) : (
+      <div
+        className={isSide
+          ? 'w-full sm:w-[140px] h-32 sm:h-auto min-h-[120px]  flex-shrink-0'
+          : 'w-full h-32 '}
+        style={{ background: buildBoxGradient(hiveDetails?.boxes) }}
+      />
+    )
+  ) : null;
+
   return (
-    <Card>
-      <CardHeader className={'flex justify-between items-start flex-row'}>
-        <div className="flex flex-col">
-          <CardTitle>{hive.name}</CardTitle>
-          <p className="text-xs text-gray-500 font-normal">
+    <Card className={`overflow-hidden gap-0 py-0 ${isSide ? 'flex flex-col sm:flex-row' : ''}`}>
+      {imageElement}
+
+      <div className="grid grid-cols-2 gap-x-4 gap-y-1 px-4 py-3 flex-1 min-w-0">
+        {/* Row 1: Name + Status/Score */}
+        <div className="min-w-0">
+          <CardTitle className="truncate">{hive.name}</CardTitle>
+          <p className="text-xs text-gray-500">
             {formatLastInspectionDate(hive.lastInspectionDate)}
           </p>
         </div>
-        <HiveStatus status={hive.status} />
-      </CardHeader>
-
-      <CardContent className="space-y-3">
-        <div className={'flex items-start flex-col'}>
-          <div className={'flex items-center text-gray-400'}>
-            <p className={'col-start-1 text-xs/6'}>
-              {hive.notes ?? t('hive:fields.noNotes')}
-            </p>
-          </div>
+        <div className="flex items-center justify-end gap-2">
+          {hiveDetails?.hiveScore?.overallScore !== undefined && (
+            <div className="flex items-center gap-1 text-sm">
+              <TrendingUp className="h-4 w-4 text-blue-500" />
+              <span className="font-medium">
+                {hiveDetails.hiveScore.overallScore}/100
+              </span>
+            </div>
+          )}
+          <HiveStatus status={hive.status} />
         </div>
 
-        {/* Hive Score */}
-        {hiveDetails?.hiveScore?.overallScore !== undefined && (
-          <div className="flex items-center gap-2 text-sm">
-            <TrendingUp className="h-4 w-4 text-blue-500" />
-            <span className="text-gray-600">{t('hive:card.score')}</span>
+        {/* Row 2: Notes + Feeding */}
+        <p className="text-xs/5 text-gray-400 truncate">
+          {hive.notes ?? t('hive:fields.noNotes')}
+        </p>
+        {feedingInfo ? (
+          <div className="flex items-center justify-end gap-1 text-sm">
+            <Activity className="h-4 w-4 text-green-500 flex-shrink-0" />
             <span className="font-medium">
-              {hiveDetails.hiveScore.overallScore}/100
-            </span>
-          </div>
-        )}
-
-        {/* Feeding Status (only during feeding window) */}
-        {feedingInfo && (
-          <div className="flex items-center gap-2 text-sm">
-            <Activity className="h-4 w-4 text-green-500" />
-            <span className="text-gray-600">{t('hive:card.feeding')}</span>
-            <span className="font-medium">
-              {feedingInfo.fed.toFixed(1)}kg / {feedingInfo.optimal}kg
+              {feedingInfo.fed.toFixed(1)}/{feedingInfo.optimal}kg
             </span>
             <span className="text-xs text-gray-500">
               ({feedingInfo.percentage}%)
             </span>
           </div>
+        ) : (
+          <div />
         )}
 
-        {/* Alerts (show below feeding or other metrics) */}
+        {/* Row 3: Alerts + Details link */}
         <AlertsPopover alerts={hive.alerts || []} />
-
-        <div className="pt-2">
+        <div className="flex justify-end items-center">
           <ViewDetailsLink to={`/hives/${hive.id}`}>
             {t('hive:card.showDetails', 'Show details')}
           </ViewDetailsLink>
         </div>
-      </CardContent>
+      </div>
     </Card>
   );
 };

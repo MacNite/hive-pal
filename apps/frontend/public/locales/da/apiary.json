@@ -52,7 +52,7 @@
         "details": "Detaljer",
         "refreshData": "Opdater data",
         "exportCSV": "Eksporter til CSV",
-        "print": "Udskiv liste af bigårde",
+        "print": "Udskriv liste af bigårde",
         "share": "Del liste af bigårde",
         "dataOptions": "Data muligheder"
     },
@@ -81,7 +81,9 @@
         "copied": "Oprettelse af URL til abonnement kopieret til clipboard",
         "copyFailed": "Kopiering til clipboard mislykkedes",
         "readOnlyNote": "Denne URL giver læseadgang til planen for inspektioner. Regenerering af URL vil gøre den tidligere ugyldig.",
-        "copyUrl": "Kopier URL"
+        "copyUrl": "Kopier URL",
+        "includeScheduledInspections": "Inkluder auto-genererede inspektioner",
+        "updateFailed": "Opdatering af kalender indstillinger mislykkedes"
     },
     "form": {
         "namePlaceholder": "Bigårds navn",

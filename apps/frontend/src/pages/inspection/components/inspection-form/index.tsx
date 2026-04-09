@@ -32,7 +32,6 @@ import { ObservationsSection } from '@/pages/inspection/components/inspection-fo
 import { NotesSection } from '@/pages/inspection/components/inspection-form/notes.tsx';
 import { Separator } from '@/components/ui/separator';
 import { ActionsSection } from '@/pages/inspection/components/inspection-form/actions.tsx';
-import { FeedType } from './actions/feeding';
 import {
   useHiveOptions,
   useInspection,
@@ -45,6 +44,7 @@ import { mapWeatherConditionToForm } from '@/utils/weather-mapping';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { AudioSection } from './audio-section';
+import { ScorePreviewSection } from './score-preview';
 
 interface PendingRecording {
   id: string;
@@ -98,7 +98,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
             return {
               type: ActionType.FEEDING,
               notes: action.notes,
-              feedType: details.feedType as FeedType,
+              feedType: details.feedType,
               quantity: details.amount,
               unit: details.unit,
               concentration: details.concentration,
@@ -292,6 +292,8 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
 
               <hr className={'border-t border-border'} />
               <ObservationsSection />
+              <hr className={'border-t border-border'} />
+              <ScorePreviewSection />
               <hr className={'border-t border-border'} />
               <ActionsSection />
               <hr className={'border-t border-border'} />

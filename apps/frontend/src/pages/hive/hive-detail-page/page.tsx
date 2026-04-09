@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { HiveStatus } from '@/pages/hive/components';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatisticCards } from './statistic-cards';
 import { BoxConfigurator } from './box-configurator';
@@ -12,11 +11,17 @@ import { HiveSettings } from './hive-settings';
 import { HiveCharts } from './charts';
 import { useHive } from '@/api/hooks';
 import { useBreadcrumbStore } from '@/stores/breadcrumb-store';
+import { QueenHistoryTab } from './queen-history-tab';
+import { HiveStatusButton } from './hive-status-button';
+import { buildBoxGradient } from '@/utils/box-gradient';
+import { useImageDisplayStore } from '@/stores/image-display-store';
 
 export const HiveDetailPage = () => {
   const { id: hiveId } = useParams<{ id: string }>();
   const { data: hive, error, refetch } = useHive(hiveId as string);
   const { setHiveContext, clearContext } = useBreadcrumbStore();
+  const { mode: imageMode } = useImageDisplayStore();
+  const isSide = imageMode === 'side';
 
   // Set breadcrumb context when hive data is loaded
   useEffect(() => {
@@ -45,14 +50,33 @@ export const HiveDetailPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
         <div className="lg:col-span-8 xl:col-span-9">
           {/* Hive header card */}
-          <div className="rounded-lg shadow p-3 sm:p-4 mb-4">
+          <div className={`rounded-lg overflow-hidden mb-4 ${isSide ? 'flex flex-col sm:flex-row' : ''}`}>
+            {imageMode !== 'hidden' && (
+              hive?.featurePhotoUrl ? (
+                <img
+                  src={hive.featurePhotoUrl}
+                  alt={`${hive.name} feature photo`}
+                  className={isSide
+                    ? 'w-full sm:w-[150px] h-40 sm:h-auto min-h-[140px] object-cover flex-shrink-0'
+                    : 'w-full h-40 object-cover'}
+                />
+              ) : (
+                <div
+                  className={isSide
+                    ? 'w-full sm:w-[150px] h-32 sm:h-auto min-h-[140px]  flex-shrink-0'
+                    : 'w-full h-32 '}
+                  style={{ background: buildBoxGradient(hive?.boxes) }}
+                />
+              )
+            )}
+            <div className={`pt-3 flex-1 min-w-0 ${isSide ? 'sm:pl-4' : ''}`}>
             <div className="flex justify-between items-center mb-2">
               <h1 className="text-xl sm:text-2xl font-semibold">
                 {hive?.name}
               </h1>
-              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                <HiveStatus status={hive?.status} />
-              </span>
+              {hiveId && (
+                <HiveStatusButton hiveId={hiveId} status={hive?.status} />
+              )}
             </div>
             {hive?.installationDate && (
               <p className="text-sm text-gray-500">
@@ -61,6 +85,23 @@ export const HiveDetailPage = () => {
               </p>
             )}
             {hive?.notes && <p className="mt-2 text-gray-700">{hive.notes}</p>}
+
+            {/* Compact stats section */}
+            <div className="border-t mt-3 pt-3">
+              {hive?.hiveScore && (
+                <StatisticCards score={hive.hiveScore} variant="inline" />
+              )}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-3">
+                <QueenInformation
+                  hiveId={hive?.id}
+                  activeQueen={hive?.activeQueen}
+                  onQueenUpdated={() => refetch()}
+                  variant="inline"
+                />
+                {hive && <FeedingSection hiveId={hive.id} variant="inline" />}
+              </div>
+            </div>
+            </div>
           </div>
 
           {/* Tabs for different sections */}
@@ -78,31 +119,13 @@ export const HiveDetailPage = () => {
               <TabsTrigger value="settings" className="text-xs sm:text-sm">
                 Settings
               </TabsTrigger>
+              <TabsTrigger value="queens" className="text-xs sm:text-sm">
+                Queen History
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
-              <div className="space-y-3 sm:space-y-4">
-                {/* Three main cards in responsive grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-                  {/* Scores Card */}
-                  {hive && hive.hiveScore && (
-                    <StatisticCards score={hive.hiveScore} />
-                  )}
-
-                  {/* Queen Information Card */}
-                  <QueenInformation
-                    hiveId={hive?.id}
-                    activeQueen={hive?.activeQueen}
-                    onQueenUpdated={() => refetch()}
-                  />
-
-                  {/* Feeding Card */}
-                  {hive && <FeedingSection hiveId={hive.id} />}
-                </div>
-
-                {/* Hive timeline */}
-                <HiveTimeline hiveId={hiveId} apiaryId={hive?.apiaryId} />
-              </div>
+              <HiveTimeline hiveId={hiveId} apiaryId={hive?.apiaryId} />
             </TabsContent>
 
             <TabsContent value="analytics">
@@ -115,6 +138,10 @@ export const HiveDetailPage = () => {
 
             <TabsContent value="settings">
               <HiveSettings hive={hive} onHiveUpdated={refetch} />
+            </TabsContent>
+
+            <TabsContent value="queens">
+              {hive && <QueenHistoryTab hiveId={hive.id} activeQueen={hive.activeQueen} />}
             </TabsContent>
           </Tabs>
         </div>

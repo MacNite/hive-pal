@@ -43,7 +43,7 @@ export const ReportsPage = () => {
     setIsExporting(true);
     try {
       const response = await apiClient.get(
-        `/api/reports/apiary/${activeApiaryId}/export/csv`,
+        `/api/reports/export/csv`,
         { params: { period }, responseType: 'blob' },
       );
 
@@ -72,7 +72,7 @@ export const ReportsPage = () => {
     setIsExporting(true);
     try {
       const response = await apiClient.get(
-        `/api/reports/apiary/${activeApiaryId}/export/pdf`,
+        `/api/reports/export/pdf`,
         { params: { period }, responseType: 'blob' },
       );
 

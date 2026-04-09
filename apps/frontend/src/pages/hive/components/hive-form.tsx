@@ -54,6 +54,10 @@ import {
   BoxBuilderRef,
 } from '../hive-detail-page/box-configurator/BoxBuilder';
 import { BoxTypeEnum, BoxVariantEnum } from 'shared-schemas';
+import {
+  FeaturePhotoPicker,
+  FeaturePhotoPickerRef,
+} from '@/components/feature-photo-picker';
 
 const hiveSchema = z.object({
   name: z.string(),
@@ -63,6 +67,7 @@ const hiveSchema = z.object({
   installationDate: z.date(),
   settings: hiveSettingsSchema,
   boxes: boxSchema.optional(),
+  featurePhotoId: z.string().uuid().nullish(),
 });
 
 export type HiveFormData = z.infer<typeof hiveSchema>;
@@ -93,6 +98,8 @@ export const HiveForm: React.FC<HiveFormProps> = ({
   const [isBoxConfigOpen, setIsBoxConfigOpen] = useState(false);
   const [configureBoxes, setConfigureBoxes] = useState(false);
   const boxBuilderRef = useRef<BoxBuilderRef>(null);
+  const featurePhotoRef = useRef<FeaturePhotoPickerRef>(null);
+  const [featurePhotoUrl, setFeaturePhotoUrl] = useState<string | null>(null);
   const { data: frameSizes = [] } = useFrameSizes();
   const apiaryOptions = apiaries?.map(apiary => ({
     value: apiary.id,
@@ -126,6 +133,7 @@ export const HiveForm: React.FC<HiveFormProps> = ({
         },
         inspection: {
           frequencyDays: 7,
+          calendarEnabled: true,
         },
       },
     },
@@ -144,7 +152,11 @@ export const HiveForm: React.FC<HiveFormProps> = ({
             : existingHive.installationDate
           : new Date(),
         settings: existingHive.settings,
+        featurePhotoId: existingHive.featurePhotoId ?? null,
       });
+      if (existingHive.featurePhotoUrl) {
+        setFeaturePhotoUrl(existingHive.featurePhotoUrl);
+      }
       if (existingHive.boxes && existingHive.boxes.length > 0) {
         setConfigureBoxes(true);
         setIsBoxConfigOpen(true);
@@ -258,6 +270,16 @@ export const HiveForm: React.FC<HiveFormProps> = ({
               <FormMessage />
             </FormItem>
           )}
+        />
+
+        <FeaturePhotoPicker
+          ref={featurePhotoRef}
+          apiaryId={form.watch('apiaryId')}
+          hiveId={hiveId}
+          currentPhotoUrl={featurePhotoUrl}
+          currentPhotoId={form.watch('featurePhotoId') ?? undefined}
+          onPhotoUploaded={(photoId) => form.setValue('featurePhotoId', photoId)}
+          onPhotoRemoved={() => form.setValue('featurePhotoId', null)}
         />
 
         <FormField

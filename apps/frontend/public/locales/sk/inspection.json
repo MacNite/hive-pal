@@ -1,376 +1,394 @@
 {
-  "title": "Prehliadky",
-  "singular": "Prehliadka",
-  "plural": "Prehliadky",
-  "tabs": {
-    "all": "Všetky",
-    "recent": "Nedávne",
-    "upcoming": "Nadchádzajúce"
-  },
-  "list": {
-    "title": "Zoznam prehliadok",
-    "allInspections": "Všetky prehliadky",
-    "recentInspections": "Nedávne prehliadky",
-    "upcomingInspections": "Nadchádzajúce prehliadky",
-    "searchPlaceholder": "Hľadať prehliadky...",
-    "filterByHive": "Filtrovať podľa úľa",
-    "allHives": "Všetky úle",
-    "noInspections": "Nenašli sa žiadne prehliadky",
-    "unknownHive": "Neznámy úľ"
-  },
-  "status": {
-    "scheduled": "Naplánované",
-    "completed": "Dokončené",
-    "overdue": "Po termíne",
-    "cancelled": "Zrušené"
-  },
-  "fields": {
-    "dateTime": "Dátum a čas",
-    "hive": "Úľ",
-    "weather": "Počasie",
-    "scoreStatus": "Skóre/Stav",
-    "status": "Stav",
-    "queenSeen": "Matka videná",
-    "temperature": "Teplota",
-    "weatherConditions": "Poveternostné podmienky",
-    "notRecorded": "Nezaznamenané",
-    "yes": "Áno",
-    "no": "Nie"
-  },
-  "scores": {
-    "title": "Skóre prehliadky",
-    "population": "Populácia",
-    "stores": "Zásoby",
-    "queen": "Matka",
-    "overall": "Celkové",
-    "warnings": "Upozornenia"
-  },
-  "observations": {
-    "title": "Pozorovania",
-    "queenSeen": "Matka videná",
-    "strength": "Sila",
-    "cappedBrood": "Zavíčkovaný plod",
-    "uncappedBrood": "Nezavíčkovaný plod",
-    "honeyStores": "Zásoby medu",
-    "pollenStores": "Zásoby peľu",
-    "queenCells": "Matečníky",
-    "swarmCells": "Rojové matečníky",
-    "supersedureCells": "Tichá výmena matky",
-    "clearRating": "Vymazať hodnotenie",
-    "rateAs": "Ohodnotiť ako {{value}}",
-    "broodPattern": "Vzor plodu",
-    "selectBroodPattern": "Vybrať vzor plodu",
-    "broodPatternOptions": {
-      "solid": "Súvislý",
-      "spotty": "Bodkovaný",
-      "scattered": "Roztrúsený",
-      "patchy": "Nerovnomerný",
-      "excellent": "Výborný",
-      "poor": "Slabý"
+    "title": "Prehliadky",
+    "singular": "Prehliadka",
+    "plural": "Prehliadky",
+    "tabs": {
+        "all": "Všetky",
+        "recent": "Nedávne",
+        "upcoming": "Nadchádzajúce"
     },
-    "additionalObservations": "Dodatočné pozorovania",
-    "additional": {
-      "calm": "Pokojné",
-      "defensive": "Obrané",
-      "aggressive": "Agresívne",
-      "nervous": "Nervózne",
-      "varroa_present": "Prítomnosť roztoča Varroa",
-      "small_hive_beetle": "Malý úľový chrobák",
-      "wax_moths": "Vosková moľa",
-      "ants_present": "Prítomnosť mravcov",
-      "healthy": "Zdravé",
-      "active": "Aktívne",
-      "sluggish": "Pomalé",
-      "thriving": "Prosperujúce"
+    "list": {
+        "title": "Zoznam prehliadok",
+        "allInspections": "Všetky prehliadky",
+        "recentInspections": "Nedávne prehliadky",
+        "upcomingInspections": "Nadchádzajúce prehliadky",
+        "searchPlaceholder": "Hľadať prehliadky...",
+        "filterByHive": "Filtrovať podľa úľa",
+        "allHives": "Všetky úle",
+        "noInspections": "Nenašli sa žiadne prehliadky",
+        "unknownHive": "Neznámy úľ"
     },
-    "reminderObservations": "Pripomienky",
-    "reminder": {
-      "honey_bound": "Medovo viazané",
-      "overcrowded": "Preplnené",
-      "needs_super": "Potrebuje nadstavbu",
-      "queen_issues": "Problémy s matkou",
-      "requires_treatment": "Vyžaduje ošetrenie",
-      "low_stores": "Nízke zásoby",
-      "prepare_for_winter": "Príprava na zimu"
-    }
-  },
-  "actions": {
-    "details": "Podrobnosti",
-    "createInspection": "Vytvoriť prehliadku",
-    "scheduleInspection": "Naplánovať prehliadku",
-    "refreshData": "Obnoviť údaje",
-    "exportCSV": "Exportovať do CSV",
-    "printList": "Tlačiť zoznam",
-    "shareList": "Zdieľať zoznam",
-    "dataOptions": "Možnosti údajov",
-    "doInspection": "Vykonať prehliadku",
-    "reschedule": "Preplánovať",
-    "cancel": "Zrušiť",
-    "completeInspection": "Dokončiť prehliadku"
-  },
-  "sidebar": {
-    "actions": "Akcie",
-    "views": "Zobrazenia",
-    "allInspections": "Všetky prehliadky",
-    "recentInspections": "Nedávne prehliadky",
-    "upcomingInspections": "Nadchádzajúce prehliadky",
-    "printInspectionList": "Tlačiť zoznam prehliadok",
-    "shareInspectionList": "Zdieľať zoznam prehliadok"
-  },
-  "messages": {
-    "exportComingSoon": "Funkcia exportu bude čoskoro k dispozícii",
-    "shareComingSoon": "Funkcia zdieľania bude čoskoro k dispozícii"
-  },
-  "scheduled": {
-    "title": "Naplánované prehliadky",
-    "overdueInspections": "Prehliadky po termíne",
-    "todaysInspections": "Dnešné prehliadky",
-    "upcomingInspections": "Nadchádzajúce prehliadky",
-    "otherUpcomingInspections": "Ostatné nadchádzajúce prehliadky",
-    "doInspection": "Vykonať prehliadku",
-    "reschedule": "Preplánovať",
-    "cancel": "Zrušiť",
-    "today": "Dnes",
-    "overdue": "Po termíne"
-  },
-  "dialogs": {
-    "cancelInspection": {
-      "title": "Zrušiť prehliadku",
-      "description": "Naozaj chcete zrušiť prehliadku pre {{hiveName}} naplánovanú na {{date}}? Túto akciu nie je možné vrátiť.",
-      "keepInspection": "Ponechať prehliadku",
-      "cancelInspection": "Zrušiť prehliadku"
+    "status": {
+        "scheduled": "Naplánované",
+        "completed": "Dokončené",
+        "overdue": "Po termíne",
+        "cancelled": "Zrušené"
     },
-    "reschedule": {
-      "title": "Preplánovať prehliadku",
-      "description": "Vyberte nový dátum pre prehliadku {{hiveName}}. Predpoveď počasia je zobrazená na najbližších 7 dní.",
-      "newDate": "Nový dátum prehliadky: {{date}}",
-      "cancel": "Zrušiť",
-      "reschedule": "Preplánovať prehliadku",
-      "showFewerDays": "Zobraziť menej dní",
-      "showMoreDays": "Zobraziť viac dní (+7)",
-      "noForecast": "Predpoveď nie je k dispozícii",
-      "noWeatherData": "Žiadne údaje o počasí"
+    "fields": {
+        "dateTime": "Dátum a čas",
+        "hive": "Úľ",
+        "weather": "Počasie",
+        "scoreStatus": "Skóre/Stav",
+        "status": "Stav",
+        "queenSeen": "Matka videná",
+        "temperature": "Teplota",
+        "weatherConditions": "Poveternostné podmienky",
+        "notRecorded": "Nezaznamenané",
+        "yes": "Áno",
+        "no": "Nie"
     },
-    "completingScheduled": {
-      "title": "Dokončenie naplánovanej prehliadky z {{date}}",
-      "description": "Táto prehliadka bude označená ako dokončená po uložení zmien."
-    }
-  },
-  "weather": {
-    "sunny": "Slnečno",
-    "clear": "Jasno",
-    "partlyCloudy": "Polojasno",
-    "cloudy": "Oblačno",
-    "overcast": "Zamračené",
-    "rain": "Dážď"
-  },
-  "detail": {
-    "loading": "Načítava sa prehliadka...",
-    "error": "Chyba",
-    "errorDescription": "Nepodarilo sa načítať podrobnosti prehliadky.",
-    "goBack": "Vrátiť sa späť",
-    "notFound": "Prehliadka sa nenašla",
-    "back": "Späť",
-    "share": "Zdieľať",
-    "shareFailed": "Nepodarilo sa vytvoriť odkaz na zdieľanie",
-    "viewHive": "Zobraziť úľ"
-  },
-  "statusCard": {
-    "title": "Stav",
-    "currentStatus": "Aktuálny stav",
-    "actions": "Akcie",
-    "markCompleted": "Označiť ako dokončené",
-    "cancelInspection": "Zrušiť prehliadku"
-  },
-  "weatherCard": {
-    "title": "Počasie",
-    "temperature": "Teplota",
-    "conditions": "Podmienky"
-  },
-  "notesCard": {
-    "title": "Poznámky"
-  },
-  "observationsCard": {
-    "title": "Pozorovania",
-    "strength": "Sila",
-    "uncappedBrood": "Nezavíčkovaný plod",
-    "cappedBrood": "Zavíčkovaný plod",
-    "honeyStores": "Zásoby medu",
-    "pollenStores": "Zásoby peľu",
-    "queenCells": "Matečníky",
-    "broodPattern": "Vzor plodu",
-    "additionalObservations": "Dodatočné pozorovania",
-    "reminders": "Pripomienky"
-  },
-  "form": {
-    "newInspection": "Nová prehliadka",
-    "editInspection": "Upraviť prehliadku",
-    "hive": "Úľ",
-    "selectHive": "Vybrať úľ",
-    "inspectionDate": "Dátum prehliadky",
-    "pickDate": "Vybrať dátum",
-    "futureScheduled": "Táto prehliadka je naplánovaná na budúci dátum",
-    "futureScheduledDescription": "Plánujete prehliadku na budúci dátum.",
-    "cancel": "Zrušiť",
-    "saveAndNext": "Uložiť a ďalej",
-    "saving": "Ukladá sa...",
-    "save": "Uložiť",
-    "completeInspection": "Dokončiť prehliadku",
-    "saveAndComplete": "Uložiť a dokončiť",
-    "weather": {
-      "title": "Informácie o počasí",
-      "description": "Pridať poveternostné podmienky",
-      "temperature": "Teplota",
-      "condition": "Podmienky",
-      "sunny": "Slnečno",
-      "partlyCloudy": "Polojasno",
-      "cloudy": "Oblačno",
-      "rainy": "Daždivo"
+    "scores": {
+        "title": "Skóre prehliadky",
+        "population": "Populácia",
+        "stores": "Zásoby",
+        "queen": "Matka",
+        "overall": "Celkové",
+        "warnings": "Upozornenia"
     },
-    "notes": {
-      "title": "Poznámky",
-      "description": "Pridajte akékoľvek dodatočné poznámky k tejto prehliadke",
-      "label": "Poznámky",
-      "placeholder": "Zadajte akékoľvek pozorovania, zistenia alebo vykonané kroky počas prehliadky..."
+    "observations": {
+        "title": "Pozorovania",
+        "queenSeen": "Matka videná",
+        "strength": "Sila",
+        "cappedBrood": "Zavíčkovaný plod",
+        "uncappedBrood": "Nezavíčkovaný plod",
+        "honeyStores": "Zásoby medu",
+        "pollenStores": "Zásoby peľu",
+        "queenCells": "Matečníky",
+        "swarmCells": "Rojové matečníky",
+        "supersedureCells": "Tichá výmena matky",
+        "clearRating": "Vymazať hodnotenie",
+        "rateAs": "Ohodnotiť ako {{value}}",
+        "broodPattern": "Vzor plodu",
+        "selectBroodPattern": "Vybrať vzor plodu",
+        "broodPatternOptions": {
+            "solid": "Súvislý",
+            "spotty": "Bodkovaný",
+            "scattered": "Roztrúsený",
+            "patchy": "Nerovnomerný",
+            "excellent": "Výborný",
+            "poor": "Slabý"
+        },
+        "additionalObservations": "Dodatočné pozorovania",
+        "additional": {
+            "calm": "Pokojné",
+            "defensive": "Obrané",
+            "aggressive": "Agresívne",
+            "nervous": "Nervózne",
+            "varroa_present": "Prítomnosť roztoča Varroa",
+            "small_hive_beetle": "Malý úľový chrobák",
+            "wax_moths": "Vosková moľa",
+            "ants_present": "Prítomnosť mravcov",
+            "healthy": "Zdravé",
+            "active": "Aktívne",
+            "sluggish": "Pomalé",
+            "thriving": "Prosperujúce"
+        },
+        "reminderObservations": "Pripomienky",
+        "reminder": {
+            "honey_bound": "Medovo viazané",
+            "overcrowded": "Preplnené",
+            "needs_super": "Potrebuje nadstavbu",
+            "queen_issues": "Problémy s matkou",
+            "requires_treatment": "Vyžaduje ošetrenie",
+            "low_stores": "Nízke zásoby",
+            "prepare_for_winter": "Príprava na zimu"
+        }
     },
     "actions": {
-      "title": "Akcie",
-      "titleSingular": "Akcia",
-      "feeding": "Kŕmenie",
-      "treatment": "Ošetrenie",
-      "frames": "Rámiky",
-      "note": "Poznámka",
-      "save": "Uložiť",
-      "feeding_section": {
-        "title": "Kŕmenie",
-        "feedType": "Typ krmiva",
-        "syrup": "Sirup",
-        "honey": "Med",
-        "candy": "Cukríky",
-        "quantity": "Množstvo",
-        "concentration": "Koncentrácia",
-        "selectConcentration": "Vybrať koncentráciu",
-        "notesOptional": "Poznámky (voliteľné)",
-        "notesPlaceholder": "Pridajte akékoľvek dodatočné poznámky k tomuto kŕmeniu"
-      },
-      "treatment_section": {
-        "title": "Ošetrenie",
-        "treatmentType": "Typ ošetrenia",
-        "selectTreatmentType": "Vybrať typ ošetrenia",
-        "productName": "Názov produktu",
-        "productNamePlaceholder": "Zadajte názov liečebného produktu",
-        "unit": "Jednotka",
-        "selectUnit": "Vybrať jednotku",
-        "amount": "Množstvo",
-        "notesOptional": "Poznámky (voliteľné)",
-        "notesPlaceholder": "Pridajte akékoľvek dodatočné poznámky k tomuto ošetreniu"
-      },
-      "frames_section": {
-        "title": "Rámiky",
-        "framesLabel": "Počet pridaných/odobratých rámikov",
-        "framesHint": "Použite kladné čísla pre pridané rámiky, záporné pre odobraté",
-        "notesOptional": "Poznámky (voliteľné)",
-        "notesPlaceholder": "Pridajte akékoľvek dodatočné poznámky k zmenám rámikov"
-      },
-      "note_section": {
-        "title": "Poznámka",
-        "description": "Pridať poznámku alebo pozorovanie k tomuto úľu",
-        "noteContent": "Obsah poznámky",
-        "placeholder": "Zadajte vašu poznámku alebo pozorovanie...",
-        "characters": "{{count}}/500 znakov",
-        "remove": "Odstrániť",
-        "saveNote": "Uložiť poznámku",
-        "edit": "Upraviť"
-      }
+        "details": "Podrobnosti",
+        "createInspection": "Vytvoriť prehliadku",
+        "scheduleInspection": "Naplánovať prehliadku",
+        "refreshData": "Obnoviť údaje",
+        "exportCSV": "Exportovať do CSV",
+        "printList": "Tlačiť zoznam",
+        "shareList": "Zdieľať zoznam",
+        "dataOptions": "Možnosti údajov",
+        "doInspection": "Vykonať prehliadku",
+        "reschedule": "Preplánovať",
+        "cancel": "Zrušiť",
+        "completeInspection": "Dokončiť prehliadku"
     },
-    "audio": {
-      "title": "Zvukové poznámky",
-      "pendingUpload": "{{count}} čaká na nahratie",
-      "uploadWarning": "Zvukové nahrávky budú nahrané po uložení prehliadky."
+    "sidebar": {
+        "actions": "Akcie",
+        "views": "Zobrazenia",
+        "allInspections": "Všetky prehliadky",
+        "recentInspections": "Nedávne prehliadky",
+        "upcomingInspections": "Nadchádzajúce prehliadky",
+        "printInspectionList": "Tlačiť zoznam prehliadok",
+        "shareInspectionList": "Zdieľať zoznam prehliadok"
+    },
+    "messages": {
+        "exportComingSoon": "Funkcia exportu bude čoskoro k dispozícii",
+        "shareComingSoon": "Funkcia zdieľania bude čoskoro k dispozícii"
+    },
+    "scheduled": {
+        "title": "Naplánované prehliadky",
+        "overdueInspections": "Prehliadky po termíne",
+        "todaysInspections": "Dnešné prehliadky",
+        "upcomingInspections": "Nadchádzajúce prehliadky",
+        "otherUpcomingInspections": "Ostatné nadchádzajúce prehliadky",
+        "doInspection": "Vykonať prehliadku",
+        "reschedule": "Preplánovať",
+        "cancel": "Zrušiť",
+        "today": "Dnes",
+        "overdue": "Po termíne"
+    },
+    "dialogs": {
+        "cancelInspection": {
+            "title": "Zrušiť prehliadku",
+            "description": "Naozaj chcete zrušiť prehliadku pre {{hiveName}} naplánovanú na {{date}}? Túto akciu nie je možné vrátiť.",
+            "keepInspection": "Ponechať prehliadku",
+            "cancelInspection": "Zrušiť prehliadku"
+        },
+        "reschedule": {
+            "title": "Preplánovať prehliadku",
+            "description": "Vyberte nový dátum pre prehliadku {{hiveName}}. Predpoveď počasia je zobrazená na najbližších 7 dní.",
+            "newDate": "Nový dátum prehliadky: {{date}}",
+            "cancel": "Zrušiť",
+            "reschedule": "Preplánovať prehliadku",
+            "showFewerDays": "Zobraziť menej dní",
+            "showMoreDays": "Zobraziť viac dní (+7)",
+            "noForecast": "Predpoveď nie je k dispozícii",
+            "noWeatherData": "Žiadne údaje o počasí"
+        },
+        "completingScheduled": {
+            "title": "Dokončenie naplánovanej prehliadky z {{date}}",
+            "description": "Táto prehliadka bude označená ako dokončená po uložení zmien."
+        }
+    },
+    "weather": {
+        "sunny": "Slnečno",
+        "clear": "Jasno",
+        "partlyCloudy": "Polojasno",
+        "cloudy": "Oblačno",
+        "overcast": "Zamračené",
+        "rain": "Dážď"
+    },
+    "detail": {
+        "loading": "Načítava sa prehliadka...",
+        "error": "Chyba",
+        "errorDescription": "Nepodarilo sa načítať podrobnosti prehliadky.",
+        "goBack": "Vrátiť sa späť",
+        "notFound": "Prehliadka sa nenašla",
+        "back": "Späť",
+        "share": "Zdieľať",
+        "shareFailed": "Nepodarilo sa vytvoriť odkaz na zdieľanie",
+        "viewHive": "Zobraziť úľ"
+    },
+    "statusCard": {
+        "title": "Stav",
+        "currentStatus": "Aktuálny stav",
+        "actions": "Akcie",
+        "markCompleted": "Označiť ako dokončené",
+        "cancelInspection": "Zrušiť prehliadku"
+    },
+    "weatherCard": {
+        "title": "Počasie",
+        "temperature": "Teplota",
+        "conditions": "Podmienky"
+    },
+    "notesCard": {
+        "title": "Poznámky"
+    },
+    "observationsCard": {
+        "title": "Pozorovania",
+        "strength": "Sila",
+        "uncappedBrood": "Nezavíčkovaný plod",
+        "cappedBrood": "Zavíčkovaný plod",
+        "honeyStores": "Zásoby medu",
+        "pollenStores": "Zásoby peľu",
+        "queenCells": "Matečníky",
+        "broodPattern": "Vzor plodu",
+        "additionalObservations": "Dodatočné pozorovania",
+        "reminders": "Pripomienky"
+    },
+    "form": {
+        "newInspection": "Nová prehliadka",
+        "editInspection": "Upraviť prehliadku",
+        "hive": "Úľ",
+        "selectHive": "Vybrať úľ",
+        "inspectionDate": "Dátum prehliadky",
+        "pickDate": "Vybrať dátum",
+        "futureScheduled": "Táto prehliadka je naplánovaná na budúci dátum",
+        "futureScheduledDescription": "Plánujete prehliadku na budúci dátum.",
+        "cancel": "Zrušiť",
+        "saveAndNext": "Uložiť a ďalej",
+        "saving": "Ukladá sa...",
+        "save": "Uložiť",
+        "completeInspection": "Dokončiť prehliadku",
+        "saveAndComplete": "Uložiť a dokončiť",
+        "weather": {
+            "title": "Informácie o počasí",
+            "description": "Pridať poveternostné podmienky",
+            "temperature": "Teplota",
+            "condition": "Podmienky",
+            "sunny": "Slnečno",
+            "partlyCloudy": "Polojasno",
+            "cloudy": "Oblačno",
+            "rainy": "Daždivo"
+        },
+        "notes": {
+            "title": "Poznámky",
+            "description": "Pridajte akékoľvek dodatočné poznámky k tejto prehliadke",
+            "label": "Poznámky",
+            "placeholder": "Zadajte akékoľvek pozorovania, zistenia alebo vykonané kroky počas prehliadky..."
+        },
+        "actions": {
+            "title": "Akcie",
+            "titleSingular": "Akcia",
+            "feeding": "Kŕmenie",
+            "treatment": "Ošetrenie",
+            "frames": "Rámiky",
+            "note": "Poznámka",
+            "save": "Uložiť",
+            "feeding_section": {
+                "title": "Kŕmenie",
+                "feedType": "Typ krmiva",
+                "syrup": "Sirup",
+                "honey": "Med",
+                "candy": "Cukrovomedové cesto",
+                "proteinCandy": "Cukrovomedové cesto s peľom",
+                "pollenPatty": "Peľová placka",
+                "other": "Iné",
+                "customFeedName": "Názov krmiva",
+                "customFeedNamePlaceholder": "Zadajte vlastný typ krmiva",
+                "quantity": "Množstvo",
+                "concentration": "Koncentrácia",
+                "selectConcentration": "Vybrať koncentráciu",
+                "notesOptional": "Poznámky (voliteľné)",
+                "notesPlaceholder": "Pridajte akékoľvek dodatočné poznámky k tomuto kŕmeniu"
+            },
+            "treatment_section": {
+                "title": "Ošetrenie",
+                "treatmentType": "Typ ošetrenia",
+                "selectTreatmentType": "Vybrať typ ošetrenia",
+                "productName": "Názov produktu",
+                "productNamePlaceholder": "Zadajte názov liečebného produktu",
+                "unit": "Jednotka",
+                "selectUnit": "Vybrať jednotku",
+                "amount": "Množstvo",
+                "notesOptional": "Poznámky (voliteľné)",
+                "notesPlaceholder": "Pridajte akékoľvek dodatočné poznámky k tomuto ošetreniu"
+            },
+            "frames_section": {
+                "title": "Rámiky",
+                "framesLabel": "Počet pridaných/odobratých rámikov",
+                "framesHint": "Použite kladné čísla pre pridané rámiky, záporné pre odobraté",
+                "notesOptional": "Poznámky (voliteľné)",
+                "notesPlaceholder": "Pridajte akékoľvek dodatočné poznámky k zmenám rámikov"
+            },
+            "note_section": {
+                "title": "Poznámka",
+                "description": "Pridať poznámku alebo pozorovanie k tomuto úľu",
+                "noteContent": "Obsah poznámky",
+                "placeholder": "Zadajte vašu poznámku alebo pozorovanie...",
+                "characters": "{{count}}/500 znakov",
+                "remove": "Odstrániť",
+                "saveNote": "Uložiť poznámku",
+                "edit": "Upraviť"
+            },
+            "maintenance": "Údržba",
+            "maintenance_section": {
+                "title": "Údržba",
+                "component": "Komponent",
+                "box": "Nástavok",
+                "bottomBoard": "Dno",
+                "cover": "Veko",
+                "status": "Stav",
+                "cleaned": "Vyčistené",
+                "replaced": "Vymenené",
+                "notesOptional": "Poznámky (voliteľné)",
+                "notesPlaceholder": "Doplňujúce poznámky k údržbe..."
+            }
+        },
+        "audio": {
+            "title": "Zvukové poznámky",
+            "pendingUpload": "{{count}} čaká na nahratie",
+            "uploadWarning": "Zvukové nahrávky budú nahrané po uložení prehliadky."
+        }
+    },
+    "detailSidebar": {
+        "inspectionActions": "Akcie prehliadky",
+        "editInspection": "Upraviť prehliadku",
+        "printDetails": "Tlačiť podrobnosti",
+        "deleteInspection": "Vymazať prehliadku",
+        "relatedActions": "Súvisiace akcie",
+        "viewHive": "Zobraziť úľ",
+        "newInspection": "Nová prehliadka",
+        "navigation": "Navigácia",
+        "allInspections": "Všetky prehliadky",
+        "recentInspections": "Nedávne prehliadky",
+        "goBack": "Vrátiť sa späť"
+    },
+    "timeline": {
+        "scheduledInspections": "Naplánované prehliadky",
+        "completedInspections": "Dokončené prehliadky",
+        "noInspections": "Zatiaľ neboli zaznamenané žiadne prehliadky.",
+        "cancelled": "Zrušené",
+        "viewDetails": "Zobraziť podrobnosti",
+        "edit": "Upraviť",
+        "strength": "Sila:",
+        "honey": "Med:",
+        "brood": "Plod:",
+        "weather": "Počasie:",
+        "queen": "Matka:",
+        "queenSeen": "Videná",
+        "queenNotSeen": "Nevidená",
+        "notesAvailable": "Poznámky k dispozícii",
+        "showFewer": "Zobraziť menej",
+        "showAllCount": "Zobraziť všetkých {{count}} prehliadok"
+    },
+    "schedule": {
+        "title": "Naplánovať prehliadku",
+        "description": "Naplánujte si prehliadky na najbližších 7 dní s predpoveďou počasia",
+        "selectHives": "Vybrať úle",
+        "selectHivesDescription": "Vyberte, pre ktoré úle chcete naplánovať prehliadky",
+        "hivesSelected": "{{count}} úľ vybraný",
+        "hivesSelectedPlural": "{{count}} úľov vybraných",
+        "clear": "Vymazať",
+        "scheduleCalendar": "Kalendár prehliadok",
+        "calendarDescription": "Vyberte deň pre naplánovanie prehliadky s predpoveďou počasia (najbližších {{days}} dní)",
+        "selectHiveFirst": "Vyberte aspoň jeden úľ na zobrazenie predpovede počasia",
+        "noApiaryWeather": "Vybrané úle nemajú priradenú včelnicu pre údaje o počasí",
+        "today": "Dnes",
+        "noForecast": "Predpoveď nie je k dispozícii",
+        "noWeatherData": "Žiadne údaje o počasí",
+        "showFewerDays": "Zobraziť menej dní",
+        "showMoreDays": "Zobraziť viac dní (+7)",
+        "inspectionDetails": "Podrobnosti prehliadky",
+        "schedulingCount": "Plánovanie {{count}} prehliadky na {{date}}",
+        "schedulingCountPlural": "Plánovanie {{count}} prehliadok na {{date}}",
+        "selectedHives": "Vybrané úle:",
+        "createAsBatch": "Vytvoriť ako hromadnú prehliadku",
+        "batchDescription": "Vykonávajte prehliadky postupne s riadeným pracovným postupom",
+        "batchName": "Názov skupiny",
+        "batchNamePlaceholder": "napr. Jarná prehliadka 2025",
+        "notesOptional": "Poznámky (voliteľné)",
+        "notesPlaceholder": "Pridajte akékoľvek poznámky k tejto naplánovanej prehliadke...",
+        "batchInfo": "Táto skupina bude vytvorená a pripravená na spustenie",
+        "scheduledInfo": "Táto prehliadka bude naplánovaná na budúci dátum",
+        "batchStartInfo": "Hromadnú prehliadku môžete začať ihneď alebo neskôr.",
+        "scheduledStartInfo": "Podrobnosti môžete pridať a prehliadku dokončiť v naplánovaný dátum.",
+        "createBatchInspection": "Vytvoriť hromadnú prehliadku",
+        "scheduleCount": "Naplánovať {{count}} prehliadku",
+        "scheduleCountPlural": "Naplánovať {{count}} prehliadok",
+        "batchCreated": "Hromadná prehliadka bola úspešne vytvorená: {{name}}",
+        "batchCreateFailed": "Nepodarilo sa vytvoriť hromadnú prehliadku",
+        "scheduledSuccess": "Úspešne naplánovaná {{count}} prehliadka",
+        "scheduledSuccessPlural": "Úspešne naplánovaných {{count}} prehliadok",
+        "scheduledFailed": "Nepodarilo sa naplánovať {{count}} prehliadku",
+        "scheduledFailedPlural": "Nepodarilo sa naplánovať {{count}} prehliadok",
+        "noApiary": "Nie je možné určiť včelnicu pre vybrané úle"
+    },
+    "edit": {
+        "completingFrom": "Dokončenie naplánovanej prehliadky z {{date}}",
+        "markedCompleted": "Táto prehliadka bude označená ako dokončená po uložení zmien."
+    },
+    "dashboard": {
+        "title": "Stav prehliadok",
+        "overdue": "Po termíne",
+        "dueToday": "Dnes na rade",
+        "overdueCount": "{{count}} prehliadka po termíne",
+        "dueTodayCount": "{{count}} prehliadka dnes na rade"
     }
-  },
-  "detailSidebar": {
-    "inspectionActions": "Akcie prehliadky",
-    "editInspection": "Upraviť prehliadku",
-    "printDetails": "Tlačiť podrobnosti",
-    "deleteInspection": "Vymazať prehliadku",
-    "relatedActions": "Súvisiace akcie",
-    "viewHive": "Zobraziť úľ",
-    "newInspection": "Nová prehliadka",
-    "navigation": "Navigácia",
-    "allInspections": "Všetky prehliadky",
-    "recentInspections": "Nedávne prehliadky",
-    "goBack": "Vrátiť sa späť"
-  },
-  "timeline": {
-    "scheduledInspections": "Naplánované prehliadky",
-    "completedInspections": "Dokončené prehliadky",
-    "noInspections": "Zatiaľ neboli zaznamenané žiadne prehliadky.",
-    "cancelled": "Zrušené",
-    "viewDetails": "Zobraziť podrobnosti",
-    "edit": "Upraviť",
-    "strength": "Sila:",
-    "honey": "Med:",
-    "brood": "Plod:",
-    "weather": "Počasie:",
-    "queen": "Matka:",
-    "queenSeen": "Videná",
-    "queenNotSeen": "Nevidená",
-    "notesAvailable": "Poznámky k dispozícii",
-    "showFewer": "Zobraziť menej",
-    "showAllCount": "Zobraziť všetkých {{count}} prehliadok"
-  },
-  "schedule": {
-    "title": "Naplánovať prehliadku",
-    "description": "Naplánujte si prehliadky na najbližších 7 dní s predpoveďou počasia",
-    "selectHives": "Vybrať úle",
-    "selectHivesDescription": "Vyberte, pre ktoré úle chcete naplánovať prehliadky",
-    "hivesSelected": "{{count}} úľ vybraný",
-    "hivesSelectedPlural": "{{count}} úľov vybraných",
-    "clear": "Vymazať",
-    "scheduleCalendar": "Kalendár prehliadok",
-    "calendarDescription": "Vyberte deň pre naplánovanie prehliadky s predpoveďou počasia (najbližších {{days}} dní)",
-    "selectHiveFirst": "Vyberte aspoň jeden úľ na zobrazenie predpovede počasia",
-    "noApiaryWeather": "Vybrané úle nemajú priradenú včelnicu pre údaje o počasí",
-    "today": "Dnes",
-    "noForecast": "Predpoveď nie je k dispozícii",
-    "noWeatherData": "Žiadne údaje o počasí",
-    "showFewerDays": "Zobraziť menej dní",
-    "showMoreDays": "Zobraziť viac dní (+7)",
-    "inspectionDetails": "Podrobnosti prehliadky",
-    "schedulingCount": "Plánovanie {{count}} prehliadky na {{date}}",
-    "schedulingCountPlural": "Plánovanie {{count}} prehliadok na {{date}}",
-    "selectedHives": "Vybrané úle:",
-    "createAsBatch": "Vytvoriť ako hromadnú prehliadku",
-    "batchDescription": "Vykonávajte prehliadky postupne s riadeným pracovným postupom",
-    "batchName": "Názov skupiny",
-    "batchNamePlaceholder": "napr. Jarná prehliadka 2025",
-    "notesOptional": "Poznámky (voliteľné)",
-    "notesPlaceholder": "Pridajte akékoľvek poznámky k tejto naplánovanej prehliadke...",
-    "batchInfo": "Táto skupina bude vytvorená a pripravená na spustenie",
-    "scheduledInfo": "Táto prehliadka bude naplánovaná na budúci dátum",
-    "batchStartInfo": "Hromadnú prehliadku môžete začať ihneď alebo neskôr.",
-    "scheduledStartInfo": "Podrobnosti môžete pridať a prehliadku dokončiť v naplánovaný dátum.",
-    "createBatchInspection": "Vytvoriť hromadnú prehliadku",
-    "scheduleCount": "Naplánovať {{count}} prehliadku",
-    "scheduleCountPlural": "Naplánovať {{count}} prehliadok",
-    "batchCreated": "Hromadná prehliadka bola úspešne vytvorená: {{name}}",
-    "batchCreateFailed": "Nepodarilo sa vytvoriť hromadnú prehliadku",
-    "scheduledSuccess": "Úspešne naplánovaná {{count}} prehliadka",
-    "scheduledSuccessPlural": "Úspešne naplánovaných {{count}} prehliadok",
-    "scheduledFailed": "Nepodarilo sa naplánovať {{count}} prehliadku",
-    "scheduledFailedPlural": "Nepodarilo sa naplánovať {{count}} prehliadok",
-    "noApiary": "Nie je možné určiť včelnicu pre vybrané úle"
-  },
-  "edit": {
-    "completingFrom": "Dokončenie naplánovanej prehliadky z {{date}}",
-    "markedCompleted": "Táto prehliadka bude označená ako dokončená po uložení zmien."
-  },
-  "dashboard": {
-    "title": "Stav prehliadok",
-    "overdue": "Po termíne",
-    "dueToday": "Dnes na rade",
-    "overdueCount": "{{count}} prehliadka po termíne",
-    "dueTodayCount": "{{count}} prehliadka dnes na rade"
-  }
 }

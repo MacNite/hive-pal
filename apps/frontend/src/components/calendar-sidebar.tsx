@@ -15,9 +15,10 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { getDateLocale } from '@/utils/locale-utils.ts';
 
 export const CalendarSidebar = () => {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   // Fetch events for the entire month for calendar marking
@@ -36,6 +37,10 @@ export const CalendarSidebar = () => {
     startDate: monthStart,
     endDate: monthEnd,
   });
+
+  const formatDayHeader = (date: Date) => format(date, 'MMM d', { locale: dateLocale });
+
+  const dateLocale = getDateLocale(i18n.language);
 
   // Fetch overdue inspections
   const { data: overdueInspections } = useOverdueInspections();
@@ -134,7 +139,9 @@ export const CalendarSidebar = () => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm">
           <CalendarIcon className="h-4 w-4" />
-          Calendar
+          {t('common:calendar.title', {
+            defaultValue: 'Calendar',
+          })}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -143,6 +150,7 @@ export const CalendarSidebar = () => {
             <Calendar
               mode="single"
               selected={selectedDate}
+              locale={dateLocale}
               onSelect={(date: Date | undefined) => {
                 if (date) {
                   setSelectedDate(date);
@@ -189,10 +197,15 @@ export const CalendarSidebar = () => {
           <div className="border-t pt-4">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-medium">
-                {format(selectedDate, 'MMM d')}
+                {t('common:calendar.dayHeader', {
+                  date: formatDayHeader(selectedDate),
+                  defaultValue: '{{date}}',
+                })}
                 {isSameDay(selectedDate, new Date()) && (
                   <Badge variant="outline" className="ml-2 text-xs">
-                    Today
+                    {t('common:calendar.today', {
+                      defaultValue: 'Today',
+                    })}
                   </Badge>
                 )}
               </h4>
@@ -213,7 +226,11 @@ export const CalendarSidebar = () => {
             </div>
 
             {totalEvents === 0 ? (
-              <p className="text-xs text-muted-foreground">No events</p>
+              <p className="text-xs text-muted-foreground">
+                {t('common:calendar.noEvents', {
+                  defaultValue: 'No events',
+                })}
+              </p>
             ) : (
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {/* Render Inspections */}
@@ -285,7 +302,11 @@ export const CalendarSidebar = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <AlertTriangle className="h-4 w-4 text-red-600" />
                   <h4 className="text-sm font-medium text-red-600">
-                    Overdue Inspections ({overdueInspections.length})
+                    {t('common:calendar.overdueInspections', {
+                      overdueInspectionsSize: overdueInspections.length,
+                      defaultValue:
+                        'Overdue Inspections ({{overdueInspectionsSize}})',
+                    })}
                   </h4>
                 </div>
 
@@ -307,7 +328,12 @@ export const CalendarSidebar = () => {
                               <ExternalLink className="h-2 w-2" />
                             </Link>
                             <Badge variant="outline" className="text-xs">
-                              {format(new Date(inspection.date), 'MMM d')}
+                              {t('common:calendar.dayHeader', {
+                                date: formatDayHeader(
+                                  new Date(inspection.date),
+                                ),
+                                defaultValue: '{{date}}',
+                              })}
                             </Badge>
                           </div>
                           {inspection.notes && (
@@ -320,7 +346,9 @@ export const CalendarSidebar = () => {
                               to={`/inspections/${inspection.id}`}
                               className="text-xs text-red-700 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:underline flex items-center gap-1"
                             >
-                              View Inspection
+                              {t('common:calendar.viewInspection', {
+                                defaultValue: 'View Inspection',
+                              })}
                               <ExternalLink className="h-2 w-2" />
                             </Link>
                           </div>

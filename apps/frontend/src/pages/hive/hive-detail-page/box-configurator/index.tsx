@@ -15,7 +15,8 @@ import {
 import { BoxStack } from './BoxStack';
 import { BoxConfigPanel } from './BoxConfigPanel';
 import { useUpdateHiveBoxes } from '@/api/hooks/useHives';
-import { useFrameSizes } from '@/api/hooks';
+import { useFrameSizes, useActions } from '@/api/hooks';
+import { ActionType } from 'shared-schemas';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +30,10 @@ export const BoxConfigurator = ({ hive }: BoxConfiguratorProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const updateBoxesMutation = useUpdateHiveBoxes();
   const { data: frameSizes = [] } = useFrameSizes();
+  const { data: maintenanceActions = [] } = useActions(
+    hive?.id ? { hiveId: hive.id, type: ActionType.MAINTENANCE } : undefined,
+    { enabled: !!hive?.id },
+  );
 
   // Get main box variant (position 0)
   const mainBox = useMemo(() => boxes.find(b => b.position === 0), [boxes]);
@@ -224,6 +229,9 @@ export const BoxConfigurator = ({ hive }: BoxConfiguratorProps) => {
                 onReorder={handleReorder}
                 onRemoveBox={handleRemoveBox}
                 isEditing={isEditing}
+                frameSizes={frameSizes}
+                hiveId={hive?.id}
+                maintenanceActions={maintenanceActions}
               />
 
               {isEditing && (
@@ -251,6 +259,10 @@ export const BoxConfigurator = ({ hive }: BoxConfiguratorProps) => {
             mainBoxFrameSizeId={mainBox?.frameSizeId ?? undefined}
             isMainBox={selectedBox.position === 0}
             frameSizes={frameSizes}
+            hiveId={hive?.id}
+            lastBoxMaintenance={maintenanceActions.find(
+              a => a.details?.type === 'MAINTENANCE' && a.details.component === 'BOX',
+            )}
           />
         </div>
       )}

@@ -1,4 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { apiClient } from '../client';
 import {
   ActionType,
@@ -11,7 +13,6 @@ import {
   UpdateInspection,
   UpdateInspectionResponse,
 } from 'shared-schemas';
-import { useAuth } from '@/context/auth-context';
 import { useApiaryStore } from '@/hooks/use-apiary';
 import { InspectionFormData } from '@/pages/inspection/components/inspection-form/schema.ts';
 import { useNavigate } from 'react-router-dom';
@@ -177,27 +178,18 @@ export const useUpdateInspection = () => {
 // Delete an inspection
 export const useDeleteInspection = () => {
   const queryClient = useQueryClient();
-  const { token } = useAuth();
+  const { t } = useTranslation('inspection');
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`/api/inspections/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete inspection with id ${id}`);
-      }
-
+      await apiClient.delete(`/api/inspections/${id}`);
       return id;
     },
     onSuccess: async () => {
-      // Remove from cache and invalidate lists
       queryClient.invalidateQueries({ queryKey: INSPECTIONS_KEYS.lists() });
+    },
+    onError: () => {
+      toast.error(t('detailSidebar.deleteFailed'));
     },
   });
 };
@@ -244,17 +236,38 @@ export const useUpsertInspection = (inspectionId?: string) => {
                 quantity: action.frames,
               },
             };
+          case 'MAINTENANCE':
+            return {
+              type: ActionType.MAINTENANCE,
+              notes: action.notes,
+              details: {
+                type: ActionType.MAINTENANCE,
+                component: action.component,
+                status: action.status,
+              },
+            };
           default:
             return null;
         }
       })
       .filter((a): a is CreateAction => Boolean(a));
 
+    // Build score override if custom scores were set
+    const scoreOverride = data.score
+      ? {
+          overallScore: data.score.overallScore ?? null,
+          populationScore: data.score.populationScore ?? null,
+          storesScore: data.score.storesScore ?? null,
+          queenScore: data.score.queenScore ?? null,
+        }
+      : undefined;
+
     const formattedData = {
       ...data,
       date: data.date.toISOString(),
       status: status || data.status,
       actions: transformedActions,
+      score: scoreOverride,
     };
 
     if (!inspectionId) {

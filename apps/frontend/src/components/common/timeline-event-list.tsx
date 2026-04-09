@@ -27,6 +27,7 @@ import {
   Trash2,
   ClipboardCheck,
   Camera,
+  Wrench,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -45,6 +46,8 @@ import {
   PhotoResponse,
   DocumentResponse,
 } from 'shared-schemas';
+import { getFeedTypeLabel } from '@/pages/inspection/components/inspection-form/actions/feeding';
+import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { PhotoGallery } from './photo-gallery';
 import { StandalonePhotoPreview } from './standalone-photo-preview';
@@ -122,6 +125,8 @@ const getActionIcon = (action: ActionResponse) => {
       return <Package className="h-4 w-4" />;
     case 'NOTE':
       return <StickyNote className="h-4 w-4" />;
+    case 'MAINTENANCE':
+      return <Wrench className="h-4 w-4" />;
     default:
       return <ActivityIcon className="h-4 w-4" />;
   }
@@ -131,7 +136,8 @@ const getActionLabel = (action: ActionResponse, t: (key: string) => string) => {
   switch (action.type) {
     case 'FEEDING':
       if (action.details?.type === 'FEEDING') {
-        return `Fed ${action.details.amount} ${action.details.unit} of ${action.details.feedType}${
+        const feedName = getFeedTypeLabel(action.details.feedType);
+        return `Fed ${action.details.amount} ${action.details.unit} of ${feedName}${
           action.details.concentration
             ? ` (${action.details.concentration})`
             : ''
@@ -157,6 +163,13 @@ const getActionLabel = (action: ActionResponse, t: (key: string) => string) => {
       return 'Note';
     case 'BOX_CONFIGURATION':
       return t('common:timeline.boxConfiguration');
+    case 'MAINTENANCE':
+      if (action.details?.type === 'MAINTENANCE') {
+        const comp = action.details.component.replace('_', ' ').toLowerCase();
+        const stat = action.details.status.toLowerCase();
+        return `${stat === 'cleaned' ? 'Cleaned' : 'Replaced'} ${comp}`;
+      }
+      return t('common:timeline.maintenance');
     default:
       return action.type;
   }
@@ -231,7 +244,6 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
 
     if (actions) {
       actions
-        .filter(action => !action.inspectionId)
         .forEach(action => {
           const eventDate = new Date(action.date);
           if (!startDate || eventDate >= startDate) {
@@ -259,7 +271,8 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
               eventTypeFilter === 'other' &&
               (action.type === 'FRAME' ||
                 action.type === 'OTHER' ||
-                action.type === 'BOX_CONFIGURATION')
+                action.type === 'BOX_CONFIGURATION' ||
+                action.type === 'MAINTENANCE')
             ) {
               includeAction = true;
             }
@@ -386,6 +399,8 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
     const action =
       !isInspection && !isQuickCheck && !isPhoto && !isDocument ? (event.data as ActionResponse) : null;
 
+    const createdByUserName =
+      inspection?.createdByUserName ?? action?.createdByUserName ?? quickCheck?.createdByUserName;
     const isScheduled = inspection?.status === InspectionStatus.SCHEDULED;
     const isCancelled = inspection?.status === InspectionStatus.CANCELLED;
     const isOverdue = isScheduled && isPast(parseISO(event.date));
@@ -423,6 +438,7 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
           {/* Date */}
           <div className="text-xs text-muted-foreground mb-1">
             {formatDate(event.date)} • {formatTime(event.date)}
+            {createdByUserName && <> • {createdByUserName}</>}
           </div>
 
           {/* Inspection content */}
@@ -654,6 +670,13 @@ export const TimelineEventList: React.FC<TimelineEventListProps> = ({
                 <div className="text-sm">
                   {getActionLabel(action, t)}
                   {renderHiveName(event)}
+                  {action.inspectionId && (
+                    <Link to={`/inspections/${action.inspectionId}`} onClick={e => e.stopPropagation()}>
+                      <Badge variant="outline" className="text-xs py-0 ml-1 text-blue-600 border-blue-300 hover:bg-blue-50 cursor-pointer">
+                        {t('common:timeline.fromInspection')}
+                      </Badge>
+                    </Link>
+                  )}
                 </div>
                 {action.notes && (
                   <div className="text-xs text-muted-foreground mt-0.5">

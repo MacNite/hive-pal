@@ -18,15 +18,21 @@ import {
   InspectionListPage,
   ScheduleInspectionPage,
 } from '@/pages/inspection';
-import { CreateQueenPage, EditQueenPage } from '@/pages/queen';
+import { CreateQueenPage, EditQueenPage, QueenDetailPage, QueenListPage } from '@/pages/queen';
 import { ChangePasswordPage } from '@/pages/account';
 import GenericErrorPage from '@/pages/error-page.tsx';
-import { CreateApiaryPage, ApiaryListPage } from '@/pages/apiaries';
+import {
+  CreateApiaryPage,
+  EditApiaryPage,
+  ApiaryListPage,
+} from '@/pages/apiaries';
 import { ReleasesPage } from '@/pages/releases';
 import { UserSettingsPage } from '@/pages/settings';
 import { FeedbackPage } from '@/pages/feedback';
 import { PrivacyPolicyPage } from '@/pages/privacy-policy-page';
 import { SharedPage } from '@/pages/shared/shared-page';
+import { JoinApiaryPage } from '@/pages/join/join-apiary-page';
+import { EditableRoute } from './editable-route';
 import { lazyWithRetry } from '@/lib/lazy-with-retry';
 
 // Lazy loaded components - heavy pages that benefit from code splitting
@@ -126,6 +132,16 @@ const FilesPage = lazyWithRetry(() =>
     default: m.FilesPage,
   })),
 );
+const SyrupCalculatorPage = lazyWithRetry(() =>
+  import('@/pages/tools/syrup-calculator-page').then(m => ({
+    default: m.SyrupCalculatorPage,
+  })),
+);
+const BroodTimelinePage = lazyWithRetry(() =>
+  import('@/pages/tools/brood-timeline-page').then(m => ({
+    default: m.BroodTimelinePage,
+  })),
+);
 
 // Loading fallback component
 function PageLoader() {
@@ -169,7 +185,11 @@ const router = createBrowserRouter([
       },
       {
         path: '/apiaries/create',
-        element: <CreateApiaryPage />,
+        element: <EditableRoute redirectTo="/apiaries"><CreateApiaryPage /></EditableRoute>,
+      },
+      {
+        path: '/apiaries/:id/edit',
+        element: <EditableRoute redirectTo="/apiaries"><EditApiaryPage /></EditableRoute>,
       },
       {
         path: '/hives',
@@ -177,7 +197,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/hives/create',
-        element: <CreateHivePage />,
+        element: <EditableRoute redirectTo="/hives"><CreateHivePage /></EditableRoute>,
       },
       {
         path: '/hives/:id',
@@ -185,7 +205,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/hives/:id/edit',
-        element: <EditHivePage />,
+        element: <EditableRoute redirectTo="/hives"><EditHivePage /></EditableRoute>,
       },
       {
         path: '/hives/qr-codes/print',
@@ -197,15 +217,15 @@ const router = createBrowserRouter([
       },
       {
         path: '/hives/:hiveId/inspections/create',
-        element: <CreateInspectionPage />,
+        element: <EditableRoute redirectTo="/inspections"><CreateInspectionPage /></EditableRoute>,
       },
       {
         path: '/inspections/create',
-        element: <CreateInspectionPage />,
+        element: <EditableRoute redirectTo="/inspections"><CreateInspectionPage /></EditableRoute>,
       },
       {
         path: '/inspections/schedule',
-        element: <ScheduleInspectionPage />,
+        element: <EditableRoute redirectTo="/inspections"><ScheduleInspectionPage /></EditableRoute>,
       },
       {
         path: '/inspections',
@@ -217,7 +237,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/inspections/:id/edit',
-        element: <EditInspectionPage />,
+        element: <EditableRoute redirectTo="/inspections"><EditInspectionPage /></EditableRoute>,
       },
       {
         path: '/inspections/:id',
@@ -249,15 +269,23 @@ const router = createBrowserRouter([
       },
       {
         path: '/queens/create',
-        element: <CreateQueenPage />,
+        element: <EditableRoute redirectTo="/queens"><CreateQueenPage /></EditableRoute>,
       },
       {
         path: '/hives/:hiveId/queens/create',
-        element: <CreateQueenPage />,
+        element: <EditableRoute redirectTo="/queens"><CreateQueenPage /></EditableRoute>,
       },
       {
         path: '/queens/:queenId/edit',
-        element: <EditQueenPage />,
+        element: <EditableRoute redirectTo="/queens"><EditQueenPage /></EditableRoute>,
+      },
+      {
+        path: '/queens',
+        element: <QueenListPage />,
+      },
+      {
+        path: '/queens/:queenId',
+        element: <QueenDetailPage />,
       },
       {
         path: '/harvests',
@@ -320,6 +348,22 @@ const router = createBrowserRouter([
         element: (
           <LazyPage>
             <FilesPage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: '/tools/syrup-calculator',
+        element: (
+          <LazyPage>
+            <SyrupCalculatorPage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: '/tools/brood-timeline',
+        element: (
+          <LazyPage>
+            <BroodTimelinePage />
           </LazyPage>
         ),
       },
@@ -420,6 +464,10 @@ const router = createBrowserRouter([
   {
     path: '/shared/:token',
     element: <SharedPage />,
+  },
+  {
+    path: '/join/:token',
+    element: <JoinApiaryPage />,
   },
   {
     path: '/privacy-policy',

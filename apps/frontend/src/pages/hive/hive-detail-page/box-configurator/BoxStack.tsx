@@ -1,6 +1,9 @@
-import { Box, FrameSize } from 'shared-schemas';
+import { useMemo } from 'react';
+import { Box, FrameSize, ActionResponse } from 'shared-schemas';
 import { BoxItem } from './BoxItem';
 import { QueenExcluder } from './QueenExcluder';
+import { MaintenancePopover } from './MaintenancePopover';
+import { useTranslation } from 'react-i18next';
 
 interface BoxStackProps {
   boxes: Box[];
@@ -10,6 +13,8 @@ interface BoxStackProps {
   onRemoveBox: (boxId: string) => void;
   isEditing: boolean;
   frameSizes?: FrameSize[];
+  hiveId?: string;
+  maintenanceActions?: ActionResponse[];
 }
 
 export const BoxStack = ({
@@ -20,12 +25,30 @@ export const BoxStack = ({
   onRemoveBox,
   isEditing,
   frameSizes = [],
+  hiveId,
+  maintenanceActions = [],
 }: BoxStackProps) => {
+  const { t } = useTranslation('inspection');
+
   // Sort boxes by position (bottom to top)
   const sortedBoxes = [...boxes].sort((a, b) => b.position - a.position);
 
+  // Find the most recent maintenance action per component
+  const lastMaintenanceByComponent = useMemo(() => {
+    const map: Record<string, ActionResponse> = {};
+    // Actions are already sorted by date desc from the API
+    for (const action of maintenanceActions) {
+      if (action.details?.type === 'MAINTENANCE') {
+        const comp = action.details.component;
+        if (!map[comp]) {
+          map[comp] = action;
+        }
+      }
+    }
+    return map;
+  }, [maintenanceActions]);
+
   const handleMoveUp = (boxId: string) => {
-    // Moving up in the stack means increasing position (going higher physically)
     const boxToMove = boxes.find(b => b.id === boxId);
     if (!boxToMove || boxToMove.position >= boxes.length - 1) return;
 
@@ -42,7 +65,6 @@ export const BoxStack = ({
   };
 
   const handleMoveDown = (boxId: string) => {
-    // Moving down in the stack means decreasing position (going lower physically)
     const boxToMove = boxes.find(b => b.id === boxId);
     if (!boxToMove || boxToMove.position <= 0) return;
 
@@ -72,9 +94,23 @@ export const BoxStack = ({
 
   return (
     <div className="flex flex-col items-center space-y-1 py-4">
+      {/* Cover */}
+      <div className="w-64 h-6 rounded-t-lg border-2 bg-muted flex items-center justify-between px-3"
+        style={{ borderColor: 'rgba(0, 0, 0, 0.2)' }}>
+        <span className="text-xs font-medium text-muted-foreground">
+          {t('inspection:form.actions.maintenance_section.cover')}
+        </span>
+        {hiveId && (
+          <MaintenancePopover
+            hiveId={hiveId}
+            component="COVER"
+            lastMaintenance={lastMaintenanceByComponent['COVER']}
+          />
+        )}
+      </div>
+
       {sortedBoxes.map(box => (
         <div key={box.id} className="flex flex-col items-center">
-          {/* Show queen excluder above this box if hasExcluder is true */}
           {box.hasExcluder && <QueenExcluder />}
           <BoxItem
             box={box}
@@ -94,6 +130,21 @@ export const BoxStack = ({
           />
         </div>
       ))}
+
+      {/* Bottom Board */}
+      <div className="w-64 h-6 rounded-b-lg border-2 bg-muted flex items-center justify-between px-3"
+        style={{ borderColor: 'rgba(0, 0, 0, 0.2)' }}>
+        <span className="text-xs font-medium text-muted-foreground">
+          {t('inspection:form.actions.maintenance_section.bottomBoard')}
+        </span>
+        {hiveId && (
+          <MaintenancePopover
+            hiveId={hiveId}
+            component="BOTTOM_BOARD"
+            lastMaintenance={lastMaintenanceByComponent['BOTTOM_BOARD']}
+          />
+        )}
+      </div>
     </div>
   );
 };

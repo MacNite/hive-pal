@@ -26,6 +26,7 @@ export const actionResponseSchema = createActionSchema.extend({
   inspectionId: z.string().uuid().nullable(),
   harvestId: z.string().uuid().nullable(),
   date: z.string().datetime(),
+  createdByUserName: z.string().nullish(),
 });
 
 // Filter schema for actions

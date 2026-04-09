@@ -51,7 +51,9 @@
     "markAsDead": "Označiť ako mŕtvu",
     "markAsLostMissing": "Označiť ako stratenú/chýbajúcu",
     "addQueen": "Pridať matku",
-    "editQueen": "Upraviť matku"
+    "editQueen": "Upraviť matku",
+    "viewDetails": "Zobraziť podrobnosti",
+    "manageQueen": "Spravovať matku"
   },
   "form": {
     "selectHive": "Vybrať úľ",

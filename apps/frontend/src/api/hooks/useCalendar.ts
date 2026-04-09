@@ -52,6 +52,24 @@ export const useCalendarSubscription = (apiaryId: string) => {
   });
 };
 
+// Toggle calendar inspections for all hives in an apiary
+export const useToggleCalendarInspections = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ updated: number }, Error, { apiaryId: string; enabled: boolean }>({
+    mutationFn: async ({ apiaryId, enabled }) => {
+      const response = await apiClient.patch<{ updated: number }>(
+        `/api/calendar/apiary/${apiaryId}/calendar-inspections`,
+        { enabled },
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['hives'] });
+    },
+  });
+};
+
 // Regenerate calendar subscription URL
 export const useRegenerateCalendarSubscription = () => {
   const queryClient = useQueryClient();

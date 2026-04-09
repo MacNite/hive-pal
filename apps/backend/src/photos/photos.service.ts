@@ -27,10 +27,15 @@ export class PhotosService {
   async create(
     dto: CreatePhoto,
     file: Express.Multer.File,
-    filter: ApiaryUserFilter,
+    _filter: ApiaryUserFilter,
   ): Promise<PhotoResponse> {
     this.fileUpload.validateFile(file, CONFIG);
-    await this.fileUpload.validateOwnership(dto.apiaryId, filter.userId, dto.hiveId);
+    if (dto.hiveId) {
+      await this.fileUpload.validateHiveBelongsToApiary(
+        dto.hiveId,
+        dto.apiaryId,
+      );
+    }
 
     const { id, storageKey } = await this.fileUpload.uploadFile(
       file,
@@ -51,12 +56,15 @@ export class PhotosService {
       },
     });
 
-    this.logger.log({ message: 'Photo created', photoId: id, apiaryId: dto.apiaryId });
+    this.logger.log({
+      message: 'Photo created',
+      photoId: id,
+      apiaryId: dto.apiaryId,
+    });
     return this.mapToResponse(photo);
   }
 
   async findAll(filter: FileFilterInternal): Promise<PhotoResponse[]> {
-    await this.fileUpload.validateOwnership(filter.apiaryId, filter.userId);
     const where = this.fileUpload.buildWhereClause(filter);
 
     const photos = await this.prisma.photo.findMany({

@@ -26,6 +26,7 @@ import type {
   FeedingActionData,
   TreatmentActionData,
   FramesActionData,
+  MaintenanceActionData,
   NoteActionData,
 } from '@/pages/inspection/components/inspection-form/schema';
 
@@ -103,6 +104,13 @@ export const AddActionDialog = ({
           details = {
             type: 'FRAME',
             quantity: frameAction.frames,
+          };
+        } else if (action.type === 'MAINTENANCE') {
+          const maintenanceAction = action as MaintenanceActionData;
+          details = {
+            type: 'MAINTENANCE',
+            component: maintenanceAction.component,
+            status: maintenanceAction.status,
           };
         } else if (action.type === 'NOTE') {
           // Note: store content in notes field

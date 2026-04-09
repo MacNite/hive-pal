@@ -1,17 +1,19 @@
 import { useTranslation } from 'react-i18next';
-import { BarChart, Droplet, TrendingUp, PieChart, ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  BarChart,
+  Droplet,
+  TrendingUp,
+  PieChart,
+  MapPin,
+  FileBarChart,
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Card, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ViewDetailsLink } from '@/components/ui/view-details-link';
 import { useApiaryStore } from '@/hooks/use-apiary';
 import { useApiaryStatistics } from '@/api/hooks/useReports';
+import { useApiary } from '@/api/hooks';
 
 export const ReportsSummaryWidget = () => {
   const { t } = useTranslation(['common']);
@@ -20,39 +22,37 @@ export const ReportsSummaryWidget = () => {
     activeApiaryId ?? undefined,
     'ytd',
   );
+  const { data: apiary } = useApiary(activeApiaryId ?? '', {
+    enabled: !!activeApiaryId,
+  });
 
   if (isLoading) {
     return (
-      <Card className="h-full">
-        <CardHeader className="pb-3">
+      <Card className="h-full gap-0 py-0">
+        <div className="px-4 pt-3 pb-1">
           <Skeleton className="h-5 w-40" />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-          </div>
-          <Skeleton className="h-9 w-32" />
-        </CardContent>
+        </div>
+        <div className="grid grid-cols-3 gap-2 px-4 pb-3">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+        </div>
       </Card>
     );
   }
 
   if (!activeApiaryId) {
     return (
-      <Card className="h-full">
-        <CardHeader className="pb-3">
+      <Card className="h-full gap-0 py-0">
+        <div className="px-4 py-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <PieChart className="h-5 w-5" />
             {t('reports.widget.title')}
           </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground mt-1">
             {t('reports.widget.noApiary')}
-          </div>
-        </CardContent>
+          </p>
+        </div>
       </Card>
     );
   }
@@ -76,83 +76,82 @@ export const ReportsSummaryWidget = () => {
   };
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <PieChart className="h-5 w-5" />
-            {t('reports.widget.title')}
-          </CardTitle>
-          <Link
-            to={`/apiaries/${activeApiaryId}`}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+    <Card className="h-full flex flex-col overflow-hidden gap-0 py-0 border-none shadow-none">
+      {apiary?.featurePhotoUrl && (
+        <img
+          src={apiary.featurePhotoUrl}
+          alt={`${apiary.name} feature photo`}
+          className="w-full h-32 object-cover"
+        />
+      )}
+      <div className="flex items-center justify-between px-4 pt-3 pb-1">
+        <CardTitle className="text-lg flex items-center gap-2">
+          <PieChart className="h-5 w-5" />
+          {t('reports.widget.title')}
+        </CardTitle>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to={`/apiaries/${activeApiaryId}`}>
+              <MapPin className="h-4 w-4" />
+              {t('reports.widget.apiaryDetails')}
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/reports">
+              <FileBarChart className="h-4 w-4" />
+              {t('reports.widget.viewReports')}
+            </Link>
+          </Button>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2 px-4 pb-3">
+        <div>
+          <div className="flex items-center gap-1">
+            <Droplet className="h-3.5 w-3.5 text-amber-500" />
+            <span className="text-xs text-muted-foreground">
+              {t('reports.honeyProduction')}
+            </span>
+          </div>
+          <div className="text-xl font-bold">
+            {formatNumber(statistics.honeyProduction.totalAmount)}
+            <span className="text-sm font-normal text-muted-foreground ml-1">
+              {statistics.honeyProduction.unit}
+            </span>
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center gap-1">
+            <BarChart className="h-3.5 w-3.5 text-blue-500" />
+            <span className="text-xs text-muted-foreground">
+              {t('reports.healthScores')}
+            </span>
+          </div>
+          <div
+            className={`text-xl font-bold ${getScoreColor(statistics.healthScores.averageOverall)}`}
           >
-            {t('reports.widget.apiaryDetails')}
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Statistics Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {/* Honey Production */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Droplet className="h-4 w-4 text-amber-500" />
-              <span className="text-xs text-muted-foreground">
-                {t('reports.honeyProduction')}
-              </span>
-            </div>
-            <div className="text-2xl font-bold">
-              {formatNumber(statistics.honeyProduction.totalAmount)}
-              <span className="text-sm font-normal text-muted-foreground ml-1">
-                {statistics.honeyProduction.unit}
-              </span>
-            </div>
-          </div>
-
-          {/* Average Health Score */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <BarChart className="h-4 w-4 text-blue-500" />
-              <span className="text-xs text-muted-foreground">
-                {t('reports.healthScores')}
-              </span>
-            </div>
-            <div
-              className={`text-2xl font-bold ${getScoreColor(statistics.healthScores.averageOverall)}`}
-            >
-              {statistics.healthScores.averageOverall
-                ? formatNumber(statistics.healthScores.averageOverall)
-                : '—'}
-              <span className="text-sm font-normal text-muted-foreground ml-1">
-                / 10
-              </span>
-            </div>
-          </div>
-
-          {/* Feeding Totals */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-purple-500" />
-              <span className="text-xs text-muted-foreground">
-                {t('reports.feedingTotals')}
-              </span>
-            </div>
-            <div className="text-2xl font-bold">
-              {formatNumber(statistics.feedingTotals.totalSugarKg)}
-              <span className="text-sm font-normal text-muted-foreground ml-1">
-                kg
-              </span>
-            </div>
+            {statistics.healthScores.averageOverall
+              ? formatNumber(statistics.healthScores.averageOverall)
+              : '—'}
+            <span className="text-sm font-normal text-muted-foreground ml-1">
+              / 10
+            </span>
           </div>
         </div>
-      </CardContent>
-      <CardFooter className="mt-auto">
-        <ViewDetailsLink to="/reports">
-          {t('reports.widget.viewReports')}
-        </ViewDetailsLink>
-      </CardFooter>
+        <div>
+          <div className="flex items-center gap-1">
+            <TrendingUp className="h-3.5 w-3.5 text-purple-500" />
+            <span className="text-xs text-muted-foreground">
+              {t('reports.feedingTotals')}
+            </span>
+          </div>
+          <div className="text-xl font-bold">
+            {formatNumber(statistics.feedingTotals.totalSugarKg)}
+            <span className="text-sm font-normal text-muted-foreground ml-1">
+              kg
+            </span>
+          </div>
+        </div>
+      </div>
     </Card>
   );
 };

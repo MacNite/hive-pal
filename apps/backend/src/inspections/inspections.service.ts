@@ -26,11 +26,19 @@ type InspectionWithIncludes = Prisma.InspectionGetPayload<{
         frameAction: true;
         harvestAction: true;
         boxConfigurationAction: true;
+        maintenanceAction: true;
+        createdByUser: { select: { name: true; email: true } };
       };
     };
     hive: {
       select: {
         name: true;
+      };
+    };
+    createdByUser: {
+      select: {
+        name: true;
+        email: true;
       };
     };
   };
@@ -47,6 +55,8 @@ import {
   BroodPatternType,
   AdditionalObservationType,
   ReminderObservationType,
+  ScoreResult,
+  calculateScores,
 } from 'shared-schemas';
 
 @Injectable()
@@ -72,7 +82,6 @@ export class InspectionsService {
         id: createInspectionDto.hiveId,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
     });
@@ -82,8 +91,13 @@ export class InspectionsService {
         `Hive with ID ${createInspectionDto.hiveId} not found or doesn't belong to this apiary`,
       );
     }
-    const { observations, notes, actions, ...inspectionData } =
-      createInspectionDto;
+    const {
+      observations,
+      notes,
+      actions,
+      score: scoreOverride,
+      ...inspectionData
+    } = createInspectionDto;
 
     return this.prisma.$transaction(
       async (tx): Promise<CreateInspectionResponse> => {
@@ -95,10 +109,38 @@ export class InspectionsService {
             ? 'SCHEDULED'
             : 'COMPLETED');
 
+        // Calculate scores from observations, or use overrides if provided
+        const calculatedScore = observations
+          ? calculateScores(observations)
+          : null;
+        const finalScore = scoreOverride
+          ? {
+              overallScore: scoreOverride.overallScore,
+              populationScore: scoreOverride.populationScore,
+              storesScore: scoreOverride.storesScore,
+              queenScore: scoreOverride.queenScore,
+              warnings: calculatedScore?.warnings ?? [],
+              confidence: calculatedScore?.confidence ?? 0,
+            }
+          : calculatedScore;
+
+        const scoreData = finalScore
+          ? {
+              overallScore: finalScore.overallScore,
+              populationScore: finalScore.populationScore,
+              storesScore: finalScore.storesScore,
+              queenScore: finalScore.queenScore,
+              scoreWarnings: JSON.stringify(finalScore.warnings),
+              scoreConfidence: finalScore.confidence,
+            }
+          : {};
+
         const inspection = await tx.inspection.create({
           data: {
             ...inspectionData,
             status: status,
+            createdByUserId: filter.userId,
+            ...scoreData,
             observations: {
               create: [
                 { type: 'strength', numericValue: observations?.strength },
@@ -160,7 +202,12 @@ export class InspectionsService {
 
         // Add actions using ActionsService
         if (actions && actions.length > 0) {
-          await this.actionsService.createActions(inspection.id, actions, tx);
+          await this.actionsService.createActions(
+            inspection.id,
+            actions,
+            tx,
+            filter.userId,
+          );
         }
 
         // Emit event for new inspection
@@ -209,7 +256,6 @@ export class InspectionsService {
       whereClause.hive = {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       };
     }
@@ -229,14 +275,17 @@ export class InspectionsService {
             frameAction: true,
             harvestAction: true,
             boxConfigurationAction: true,
+            maintenanceAction: true,
+            createdByUser: { select: { name: true, email: true } },
           },
         },
+        createdByUser: { select: { name: true, email: true } },
       },
     });
 
     return inspections.map((inspection): InspectionResponse => {
       const metrics = this.mapObservationsToDto(inspection.observations);
-      const score = this.metricService.calculateOveralScore(metrics);
+      const score = this.getStoredOrCalculatedScore(inspection, metrics);
 
       // Transform actions to DTOs - with explicit casting of the type
       const actions = inspection.actions.map((action) =>
@@ -254,6 +303,8 @@ export class InspectionsService {
         status: inspection.status as InspectionStatus,
         score,
         actions,
+        createdByUserName:
+          inspection.createdByUser?.name || inspection.createdByUser?.email,
       };
     });
   }
@@ -268,7 +319,6 @@ export class InspectionsService {
         hive: {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         },
       },
@@ -282,8 +332,11 @@ export class InspectionsService {
             frameAction: true,
             harvestAction: true,
             boxConfigurationAction: true,
+            maintenanceAction: true,
+            createdByUser: { select: { name: true, email: true } },
           },
         },
+        createdByUser: { select: { name: true, email: true } },
       },
     });
     if (!inspection) {
@@ -291,7 +344,7 @@ export class InspectionsService {
     }
 
     const metrics = this.mapObservationsToDto(inspection.observations);
-    const score = this.metricService.calculateOveralScore(metrics);
+    const score = this.getStoredOrCalculatedScore(inspection, metrics);
 
     // Transform actions to DTOs - with explicit casting of the type
 
@@ -309,6 +362,8 @@ export class InspectionsService {
       status: inspection.status as InspectionStatus,
       score,
       actions,
+      createdByUserName:
+        inspection.createdByUser?.name || inspection.createdByUser?.email,
     };
   }
 
@@ -324,7 +379,7 @@ export class InspectionsService {
         id,
         hive: {
           apiary: {
-            userId: filter.userId,
+            id: filter.apiaryId,
           },
         },
       },
@@ -335,8 +390,13 @@ export class InspectionsService {
         `Inspection with ID ${id} not found or doesn't belong to this apiary`,
       );
     }
-    const { observations, notes, actions, ...inspectionData } =
-      updateInspectionDto;
+    const {
+      observations,
+      notes,
+      actions,
+      score: scoreOverride,
+      ...inspectionData
+    } = updateInspectionDto;
 
     return this.prisma.$transaction(
       async (tx): Promise<UpdateInspectionResponse> => {
@@ -371,16 +431,48 @@ export class InspectionsService {
 
         // Handle actions update if provided - use ActionsService
         if (actions !== undefined) {
-          await this.actionsService.updateActions(id, actions, tx);
+          await this.actionsService.updateActions(
+            id,
+            actions,
+            tx,
+            filter.userId,
+          );
         }
 
         // Determine status based on explicit input or date-based default
         const status = updateInspectionDto.status;
 
+        // Calculate scores from observations, or use overrides if provided
+        const calculatedScore = observations
+          ? calculateScores(observations)
+          : null;
+        const finalScore = scoreOverride
+          ? {
+              overallScore: scoreOverride.overallScore,
+              populationScore: scoreOverride.populationScore,
+              storesScore: scoreOverride.storesScore,
+              queenScore: scoreOverride.queenScore,
+              warnings: calculatedScore?.warnings ?? [],
+              confidence: calculatedScore?.confidence ?? 0,
+            }
+          : calculatedScore;
+
+        const scoreUpdateData = finalScore
+          ? {
+              overallScore: finalScore.overallScore,
+              populationScore: finalScore.populationScore,
+              storesScore: finalScore.storesScore,
+              queenScore: finalScore.queenScore,
+              scoreWarnings: JSON.stringify(finalScore.warnings),
+              scoreConfidence: finalScore.confidence,
+            }
+          : {};
+
         // Prepare update data - only include observations if they were provided
         const updateData: Prisma.InspectionUpdateInput = {
           ...inspectionData,
           status: status ?? inspection.status,
+          ...scoreUpdateData,
         };
 
         // Only add observations to update if they were provided
@@ -452,7 +544,6 @@ export class InspectionsService {
         hive: {
           apiary: {
             id: filter.apiaryId,
-            userId: filter.userId,
           },
         },
       },
@@ -506,7 +597,6 @@ export class InspectionsService {
       whereClause.hive = {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       };
     }
@@ -526,6 +616,8 @@ export class InspectionsService {
             frameAction: true,
             harvestAction: true,
             boxConfigurationAction: true,
+            maintenanceAction: true,
+            createdByUser: { select: { name: true, email: true } },
           },
         },
         hive: {
@@ -533,6 +625,7 @@ export class InspectionsService {
             name: true,
           },
         },
+        createdByUser: { select: { name: true, email: true } },
       },
     });
 
@@ -563,7 +656,6 @@ export class InspectionsService {
       whereClause.hive = {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       };
     }
@@ -583,6 +675,8 @@ export class InspectionsService {
             frameAction: true,
             harvestAction: true,
             boxConfigurationAction: true,
+            maintenanceAction: true,
+            createdByUser: { select: { name: true, email: true } },
           },
         },
         hive: {
@@ -590,6 +684,7 @@ export class InspectionsService {
             name: true,
           },
         },
+        createdByUser: { select: { name: true, email: true } },
       },
     });
 
@@ -601,7 +696,7 @@ export class InspectionsService {
   ): InspectionResponse[] {
     return inspections.map((inspection): InspectionResponse => {
       const metrics = this.mapObservationsToDto(inspection.observations);
-      const score = this.metricService.calculateOveralScore(metrics);
+      const score = this.getStoredOrCalculatedScore(inspection, metrics);
 
       // Transform actions to DTOs - with explicit casting of the type
       const actions = inspection.actions.map((action) =>
@@ -619,8 +714,57 @@ export class InspectionsService {
         status: inspection.status as InspectionStatus,
         score,
         actions,
+        createdByUserName:
+          inspection.createdByUser?.name || inspection.createdByUser?.email,
       };
     });
+  }
+
+  private getStoredOrCalculatedScore(
+    inspection: Record<string, unknown>,
+    metrics: ObservationSchemaType,
+  ): ScoreResult {
+    const calculated = calculateScores(metrics);
+
+    // If scores are stored in DB, use stored values where present,
+    // falling back to calculated values for any that are null
+    const overallScore = inspection['overallScore'] as
+      | number
+      | null
+      | undefined;
+    const populationScore = inspection['populationScore'] as
+      | number
+      | null
+      | undefined;
+    const storesScore = inspection['storesScore'] as number | null | undefined;
+    const queenScore = inspection['queenScore'] as number | null | undefined;
+    const scoreWarnings = inspection['scoreWarnings'] as
+      | string
+      | null
+      | undefined;
+    const scoreConfidence = inspection['scoreConfidence'] as
+      | number
+      | null
+      | undefined;
+
+    if (
+      overallScore != null ||
+      populationScore != null ||
+      storesScore != null ||
+      queenScore != null
+    ) {
+      return {
+        overallScore: overallScore ?? calculated.overallScore,
+        populationScore: populationScore ?? calculated.populationScore,
+        storesScore: storesScore ?? calculated.storesScore,
+        queenScore: queenScore ?? calculated.queenScore,
+        warnings: scoreWarnings
+          ? (JSON.parse(scoreWarnings) as string[])
+          : calculated.warnings,
+        confidence: scoreConfidence ?? calculated.confidence,
+      };
+    }
+    return calculated;
   }
 
   mapObservationsToDto(observations: Observation[]): ObservationSchemaType {

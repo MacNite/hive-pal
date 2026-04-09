@@ -60,6 +60,15 @@ export const boxConfigurationActionDetailsSchema = z.object({
   totalFrames: z.number().min(0),
 });
 
+export const maintenanceComponentSchema = z.enum(['BOX', 'BOTTOM_BOARD', 'COVER']);
+export const maintenanceStatusSchema = z.enum(['CLEANED', 'REPLACED']);
+
+export const maintenanceActionDetailsSchema = z.object({
+  type: z.literal(ActionType.MAINTENANCE),
+  component: maintenanceComponentSchema,
+  status: maintenanceStatusSchema,
+});
+
 export const noteActionDetailsSchema = z.object({
   type: z.literal(ActionType.NOTE),
   content: z.string().min(1),
@@ -76,6 +85,7 @@ export const actionDetailsSchema = z.discriminatedUnion('type', [
   frameActionDetailsSchema,
   harvestActionDetailsSchema,
   boxConfigurationActionDetailsSchema,
+  maintenanceActionDetailsSchema,
   noteActionDetailsSchema,
   otherActionDetailsSchema,
 ]);
@@ -85,6 +95,9 @@ export type TreatmentActionDetails = z.infer<typeof treatmentActionDetailsSchema
 export type FrameActionDetails = z.infer<typeof frameActionDetailsSchema>;
 export type HarvestActionDetails = z.infer<typeof harvestActionDetailsSchema>;
 export type BoxConfigurationActionDetails = z.infer<typeof boxConfigurationActionDetailsSchema>;
+export type MaintenanceActionDetails = z.infer<typeof maintenanceActionDetailsSchema>;
+export type MaintenanceComponent = z.infer<typeof maintenanceComponentSchema>;
+export type MaintenanceStatus = z.infer<typeof maintenanceStatusSchema>;
 export type NoteActionDetails = z.infer<typeof noteActionDetailsSchema>;
 export type OtherActionDetails = z.infer<typeof otherActionDetailsSchema>;
 export type ActionDetails = z.infer<typeof actionDetailsSchema>;

@@ -1,0 +1,68 @@
+{
+  "title": "Gestion des utilisateurs",
+  "description": "Gérer les utilisateurs et réinitialiser les mots de passe",
+  "table": {
+    "email": "Email",
+    "name": "Nom",
+    "role": "Rôle",
+    "passwordChangeRequired": "Changement de mot de passe requis",
+    "createdAt": "Date de création",
+    "actions": "Actions",
+    "apiaries": "Ruchers",
+    "hives": "Ruches",
+    "inspections": "Inspections",
+    "lastActivity": "Dernière activité"
+  },
+  "actions": {
+    "resetPassword": "Réinitialiser le mot de passe"
+  },
+  "resetPasswordDialog": {
+    "title": "Réinitialiser le mot de passe utilisateur",
+    "description": "Définir un mot de passe temporaire pour {email}. L'utilisateur devra le modifier lors de sa prochaine connexion.",
+    "tempPasswordLabel": "Mot de passe temporaire",
+    "tempPasswordPlaceholder": "Saisir un mot de passe temporaire",
+    "minCharacters": "Minimum 6 caractères",
+    "submit": "Réinitialiser le mot de passe"
+  },
+  "messages": {
+    "loading": "Chargement...",
+    "loadingUsers": "Chargement des utilisateurs...",
+    "noUsers": "Aucun utilisateur trouvé",
+    "resetSuccess": "Mot de passe réinitialisé avec succès ! L'utilisateur devra le modifier lors de sa prochaine connexion.",
+    "failedToFetch": "Échec du chargement des données",
+    "failedToReset": "Échec de la réinitialisation du mot de passe",
+    "unexpectedError": "Une erreur inattendue est survenue"
+  },
+  "status": {
+    "yes": "Oui",
+    "no": "Non",
+    "dash": "-"
+  },
+  "userDetail": {
+    "backToList": "Retour aux utilisateurs",
+    "summary": {
+      "totalApiaries": "Nombre total de ruchers",
+      "totalHives": "Nombre total de ruches",
+      "totalInspections": "Nombre total d'inspections",
+      "lastActivity": "Dernière activité",
+      "lastInspection": "Dernière inspection"
+    },
+    "recentActivity": {
+      "title": "Activité récente",
+      "period": "30 derniers jours",
+      "inspections": "Inspections",
+      "actions": "Actions",
+      "byType": "Actions par type"
+    },
+    "apiaryBreakdown": {
+      "title": "Répartition par rucher",
+      "name": "Nom du rucher",
+      "location": "Localisation",
+      "coordinates": "Coordonnées",
+      "hives": "Ruches",
+      "inspections": "Inspections",
+      "lastInspection": "Dernière inspection",
+      "noApiaries": "Aucun rucher trouvé pour cet utilisateur"
+    }
+  }
+}

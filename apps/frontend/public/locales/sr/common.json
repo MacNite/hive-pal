@@ -226,7 +226,8 @@
         "queenSeen": "Матица виђена",
         "queenNotSeen": "Матица није виђена",
         "photos": "Фотографије",
-        "documents": "Документи"
+        "documents": "Документи",
+        "fromInspection": "Из прегледа"
     },
     "reports": {
         "title": "Извештаји",

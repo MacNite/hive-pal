@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import satori from 'satori';
+import type { ReactNode } from 'react';
 import sharp from 'sharp';
 import { loadFont, loadBoldFont } from './font';
 import { LOGO_BASE64 } from './logo-base64';
@@ -174,7 +175,7 @@ export class ShareImageService {
             },
           ],
         },
-      } as any,
+      } as ReactNode,
       {
         width: 1200,
         height: 630,
@@ -429,7 +430,7 @@ export class ShareImageService {
             },
           ],
         },
-      } as any,
+      } as ReactNode,
       {
         width: 1200,
         height: 630,

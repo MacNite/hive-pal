@@ -7,6 +7,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../prisma/prisma.service';
 import { InspectionsService } from '../inspections/inspections.service';
 import { MetricsService } from '../metrics/metrics.service';
+import { FileUploadService } from '../storage/file-upload.service';
 import { ApiaryUserFilter } from '../interface/request-with.apiary';
 import { CustomLoggerService } from '../logger/logger.service';
 import { Box as PrismaBox } from '@/prisma/client';
@@ -27,6 +28,7 @@ import {
   AlertSeverity,
   AlertStatus,
   isVariantCompatible,
+  calculateScores,
 } from 'shared-schemas';
 
 @Injectable()
@@ -35,10 +37,36 @@ export class HiveService {
     private prisma: PrismaService,
     private inspectionService: InspectionsService,
     private metricsService: MetricsService,
+    private fileUpload: FileUploadService,
     private logger: CustomLoggerService,
     private eventEmitter: EventEmitter2,
   ) {
     this.logger.setContext('HiveService');
+  }
+
+  private resolveStatusFilter(filter: HiveFilter): HiveStatus | undefined {
+    if (filter.status) return filter.status;
+    if (filter.includeInactive) return undefined;
+    return HiveStatus.ACTIVE;
+  }
+
+  private async mapFeaturePhotoUrl(
+    featurePhoto: { id: string; storageKey: string } | null,
+  ): Promise<{
+    featurePhotoId: string | null;
+    featurePhotoUrl: string | null;
+  }> {
+    if (!featurePhoto) {
+      return { featurePhotoId: null, featurePhotoUrl: null };
+    }
+    try {
+      const { downloadUrl } = await this.fileUpload.getDownloadUrl(
+        featurePhoto.storageKey,
+      );
+      return { featurePhotoId: featurePhoto.id, featurePhotoUrl: downloadUrl };
+    } catch {
+      return { featurePhotoId: featurePhoto.id, featurePhotoUrl: null };
+    }
   }
 
   async create(createHiveDto: CreateHive): Promise<CreateHiveResponse> {
@@ -53,6 +81,7 @@ export class HiveService {
       },
       inspection: {
         frequencyDays: 7,
+        calendarEnabled: true,
       },
     };
 
@@ -158,79 +187,97 @@ export class HiveService {
           },
         },
       }),
+      featurePhoto: { select: { id: true, storageKey: true } },
     };
 
     const hives = await this.prisma.hive.findMany({
       where: {
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
+          ...(filter.apiaryId
+            ? {}
+            : {
+                OR: [
+                  { userId: filter.userId },
+                  {
+                    members: {
+                      some: { userId: filter.userId, status: 'ACTIVE' },
+                    },
+                  },
+                ],
+              }),
         },
-        status: filter.includeInactive ? undefined : 'ACTIVE',
+        status: this.resolveStatusFilter(filter),
       },
       include: includeConfig,
     });
 
-    return hives.map((hive): HiveResponse => {
-      const baseHive = {
-        id: hive.id,
-        name: hive.name,
-        apiaryId: hive.apiaryId || undefined,
-        status: hive.status as HiveStatus,
-        notes: hive.notes || undefined,
-        installationDate: hive.installationDate?.toISOString(),
-        lastInspectionDate: hive.inspections[0]?.date?.toISOString(),
-        positionRow: hive.positionRow ?? undefined,
-        positionCol: hive.positionCol ?? undefined,
-        settings: (hive.settings as HiveSettings) || undefined,
-        activeQueen:
-          hive.queens.length > 0
-            ? {
-                id: hive.queens[0].id,
-                hiveId: hive.queens[0].hiveId || undefined,
-                year: hive.queens[0].year || undefined,
-                source: hive.queens[0].source || undefined,
-                marking: hive.queens[0].marking || null,
-                color: hive.queens[0].color,
-                status: hive.queens[0].status,
-                installedAt: hive.queens[0].installedAt?.toISOString(),
-              }
-            : null,
-        alerts:
-          hive.alerts?.map((alert) => ({
-            id: alert.id,
-            hiveId: alert.hiveId || undefined,
-            type: alert.type,
-            message: alert.message,
-            severity: alert.severity as AlertSeverity,
-            status: alert.status as AlertStatus,
-            metadata: alert.metadata as Record<string, string> | undefined,
-            createdAt: alert.createdAt.toISOString(),
-            updatedAt: alert.updatedAt.toISOString(),
-          })) || [],
-      };
-
-      // Add boxes if requested
-      if (filter.includeBoxes && 'boxes' in hive) {
-        return {
-          ...baseHive,
-          boxes: hive.boxes.map((box: PrismaBox) => ({
-            id: box.id,
-            position: box.position,
-            frameCount: box.frameCount,
-            maxFrameCount: box.maxFrameCount,
-            hasExcluder: box.hasExcluder,
-            type: box.type as BoxTypeEnum,
-            variant: box.variant as BoxVariantEnum,
-            frameSizeId: box.frameSizeId ?? undefined,
-            color: box.color ?? undefined,
-            winterized: box.winterized,
-          })),
+    return Promise.all(
+      hives.map(async (hive): Promise<HiveResponse> => {
+        const featurePhotoFields = await this.mapFeaturePhotoUrl(
+          hive.featurePhoto,
+        );
+        const baseHive = {
+          id: hive.id,
+          name: hive.name,
+          apiaryId: hive.apiaryId || undefined,
+          status: hive.status as HiveStatus,
+          notes: hive.notes || undefined,
+          installationDate: hive.installationDate?.toISOString(),
+          lastInspectionDate: hive.inspections[0]?.date?.toISOString(),
+          positionRow: hive.positionRow ?? undefined,
+          positionCol: hive.positionCol ?? undefined,
+          settings: (hive.settings as HiveSettings) || undefined,
+          activeQueen:
+            hive.queens.length > 0
+              ? {
+                  id: hive.queens[0].id,
+                  hiveId: hive.queens[0].hiveId || undefined,
+                  year: hive.queens[0].year || undefined,
+                  source: hive.queens[0].source || undefined,
+                  marking: hive.queens[0].marking || null,
+                  color: hive.queens[0].color,
+                  status: hive.queens[0].status,
+                  installedAt: hive.queens[0].installedAt?.toISOString(),
+                }
+              : null,
+          alerts:
+            hive.alerts?.map((alert) => ({
+              id: alert.id,
+              hiveId: alert.hiveId || undefined,
+              type: alert.type,
+              message: alert.message,
+              severity: alert.severity as AlertSeverity,
+              status: alert.status as AlertStatus,
+              metadata: alert.metadata as Record<string, string> | undefined,
+              createdAt: alert.createdAt.toISOString(),
+              updatedAt: alert.updatedAt.toISOString(),
+            })) || [],
+          ...featurePhotoFields,
         };
-      }
 
-      return baseHive;
-    });
+        // Add boxes if requested
+        if (filter.includeBoxes && 'boxes' in hive) {
+          return {
+            ...baseHive,
+            boxes: hive.boxes.map((box: PrismaBox) => ({
+              id: box.id,
+              position: box.position,
+              frameCount: box.frameCount,
+              maxFrameCount: box.maxFrameCount,
+              hasExcluder: box.hasExcluder,
+              type: box.type as BoxTypeEnum,
+              variant: box.variant as BoxVariantEnum,
+              frameSizeId: box.frameSizeId ?? undefined,
+              color: box.color ?? undefined,
+              winterized: box.winterized,
+            })),
+          };
+        }
+
+        return baseHive;
+      }),
+    );
   }
 
   async findOne(
@@ -245,7 +292,6 @@ export class HiveService {
         id,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
       include: {
@@ -288,6 +334,7 @@ export class HiveService {
             createdAt: 'desc',
           },
         },
+        featurePhoto: { select: { id: true, storageKey: true } },
       },
     });
 
@@ -307,7 +354,39 @@ export class HiveService {
     const metrics = this.inspectionService.mapObservationsToDto(
       latestCompletedInspection?.observations ?? [],
     );
-    const score = this.metricsService.calculateOveralScore(metrics);
+    // Always calculate from observations, then overlay any stored overrides
+    const calculated = calculateScores(metrics);
+    const insp = latestCompletedInspection as Record<string, unknown> | null;
+    const storedOverall = insp?.['overallScore'] as number | null | undefined;
+    const storedPopulation = insp?.['populationScore'] as
+      | number
+      | null
+      | undefined;
+    const storedStores = insp?.['storesScore'] as number | null | undefined;
+    const storedQueen = insp?.['queenScore'] as number | null | undefined;
+    const storedWarnings = insp?.['scoreWarnings'] as string | null | undefined;
+    const storedConfidence = insp?.['scoreConfidence'] as
+      | number
+      | null
+      | undefined;
+
+    const score =
+      storedOverall != null ||
+      storedPopulation != null ||
+      storedStores != null ||
+      storedQueen != null
+        ? {
+            overallScore: storedOverall ?? calculated.overallScore,
+            populationScore: storedPopulation ?? calculated.populationScore,
+            storesScore: storedStores ?? calculated.storesScore,
+            queenScore: storedQueen ?? calculated.queenScore,
+            warnings: storedWarnings
+              ? (JSON.parse(storedWarnings) as string[])
+              : calculated.warnings,
+            confidence: storedConfidence ?? calculated.confidence,
+          }
+        : calculated;
+    const featurePhotoFields = await this.mapFeaturePhotoUrl(hive.featurePhoto);
 
     return {
       id: hive.id,
@@ -321,6 +400,7 @@ export class HiveService {
           : hive.installationDate?.toISOString(),
       lastInspectionDate: latestCompletedInspection?.date?.toISOString(),
       settings: (hive.settings as HiveSettings) || undefined,
+      ...featurePhotoFields,
       boxes: hive.boxes.map((box) => ({
         id: box.id,
         position: box.position,
@@ -378,7 +458,6 @@ export class HiveService {
         id,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
     });
@@ -392,8 +471,8 @@ export class HiveService {
       );
     }
 
-    // Extract boxes from updateHiveDto to avoid Prisma type errors
-    const { boxes: _, ...hiveUpdateData } = updateHiveDto;
+    // Extract boxes and featurePhotoId from updateHiveDto to handle separately
+    const { boxes: _, featurePhotoId, ...hiveUpdateData } = updateHiveDto;
 
     const updatedHive = await this.prisma.hive.update({
       where: { id },
@@ -402,6 +481,9 @@ export class HiveService {
         installationDate: updateHiveDto.installationDate
           ? new Date(updateHiveDto.installationDate)
           : null,
+        ...(featurePhotoId !== undefined && {
+          featurePhotoId: featurePhotoId ?? null,
+        }),
       },
       include: {
         queens: {
@@ -422,6 +504,7 @@ export class HiveService {
           },
           take: 1,
         },
+        featurePhoto: { select: { id: true, storageKey: true } },
       },
     });
     this.logger.log(`Hive with ID: ${id} updated successfully`);
@@ -440,6 +523,10 @@ export class HiveService {
       new HiveUpdatedEvent(id, filter.apiaryId, filter.userId, updateType),
     );
 
+    const featurePhotoFields = await this.mapFeaturePhotoUrl(
+      updatedHive.featurePhoto,
+    );
+
     return {
       id: updatedHive.id,
       name: updatedHive.name,
@@ -450,6 +537,7 @@ export class HiveService {
       positionRow: updatedHive.positionRow ?? undefined,
       positionCol: updatedHive.positionCol ?? undefined,
       settings: (updatedHive.settings as HiveSettings) || undefined,
+      ...featurePhotoFields,
     };
   }
 
@@ -461,7 +549,6 @@ export class HiveService {
         id,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
     });
@@ -496,7 +583,6 @@ export class HiveService {
         id,
         apiary: {
           id: filter.apiaryId,
-          userId: filter.userId,
         },
       },
       include: {

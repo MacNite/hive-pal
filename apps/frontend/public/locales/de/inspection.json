@@ -97,6 +97,7 @@
     "actions": {
         "details": "Details",
         "createInspection": "Inspektion erstellen",
+        "addInspection": "Inspektion hinzufügen",
         "scheduleInspection": "Inspektion planen",
         "refreshData": "Daten aktualisieren",
         "exportCSV": "Als CSV exportieren",
@@ -247,6 +248,11 @@
                 "syrup": "Sirup",
                 "honey": "Honig",
                 "candy": "Futterteig",
+                "proteinCandy": "Protein Candy",
+                "pollenPatty": "Pollen Patty",
+                "other": "Sonstige",
+                "customFeedName": "Futtername",
+                "customFeedNamePlaceholder": "Eigenen Futtertyp eingeben",
                 "quantity": "Menge",
                 "concentration": "Konzentration",
                 "selectConcentration": "Konzentration auswählen",
@@ -316,7 +322,7 @@
         "queen": "Königin:",
         "queenSeen": "Gesehen",
         "queenNotSeen": "Nicht gesehen",
-        "notesAvailable": "Notizen verfügbar",
+        "notesAvailable": "Notizen vorhanden",
         "showFewer": "Weniger anzeigen",
         "showAllCount": "Alle {{count}} Inspektionen anzeigen"
     },

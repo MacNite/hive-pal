@@ -28,7 +28,11 @@ model User {
   frameSizes             FrameSize[]
   passwordResetTokens    PasswordResetToken[]
   shareLinks             ShareLink[]
-  
+  apiaryMemberships      ApiaryMember[]
+  createdInspections     Inspection[]           @relation("InspectionCreator")
+  createdActions         Action[]               @relation("ActionCreator")
+  createdQuickChecks     QuickCheck[]           @relation("QuickCheckCreator")
+
   // GDPR consent fields
   privacyPolicyConsent   Boolean                @default(false)
   privacyConsentTimestamp DateTime?
@@ -39,6 +43,18 @@ model User {
 enum Role {
   USER
   ADMIN
+}
+
+enum ApiaryRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  REJECTED
 }
 
 model Apiary {
@@ -59,6 +75,10 @@ model Apiary {
   quickChecks           QuickCheck[]
   photos                Photo[]
   documents             Document[]
+  featurePhotoId        String?             @unique
+  featurePhoto          Photo?              @relation("ApiaryFeaturePhoto", fields: [featurePhotoId], references: [id], onDelete: SetNull)
+  members               ApiaryMember[]
+  invites               ApiaryInvite[]
 
   // Create index for quick lookup by userId - used in authorization checks
   @@index([userId])
@@ -83,8 +103,12 @@ model Hive {
   alerts           Alert[]
   batchInspectionHives BatchInspectionHive[]
   quickChecks          QuickCheck[]
+  queenMovementsFrom   QueenMovement[] @relation("MovementFromHive")
+  queenMovementsTo     QueenMovement[] @relation("MovementToHive")
   photos               Photo[]
   documents            Document[]
+  featurePhotoId       String?      @unique
+  featurePhoto         Photo?       @relation("HiveFeaturePhoto", fields: [featurePhotoId], references: [id], onDelete: SetNull)
 
   // Create index for quick lookup by apiaryId - used in authorization checks
   @@index([apiaryId])
@@ -116,6 +140,7 @@ model Queen {
   id          String      @id @default(uuid())
   hiveId      String?
   hive        Hive?       @relation(fields: [hiveId], references: [id])
+  name        String?
   marking     String?
   color       String?
   year        Int?
@@ -123,9 +148,28 @@ model Queen {
   status      QueenStatus @default(ACTIVE)
   installedAt DateTime?
   replacedAt  DateTime?
+  movements   QueenMovement[]
 
   // Create index for quick lookup by hiveId - used in authorization checks
   @@index([hiveId])
+}
+
+model QueenMovement {
+  id         String    @id @default(uuid())
+  queenId    String
+  queen      Queen     @relation(fields: [queenId], references: [id], onDelete: Cascade)
+  fromHiveId String?
+  fromHive   Hive?     @relation("MovementFromHive", fields: [fromHiveId], references: [id])
+  toHiveId   String?
+  toHive     Hive?     @relation("MovementToHive", fields: [toHiveId], references: [id])
+  movedAt    DateTime  @default(now())
+  reason     String?
+  notes      String?
+  createdAt  DateTime  @default(now())
+
+  @@index([queenId])
+  @@index([fromHiveId])
+  @@index([toHiveId])
 }
 
 model Inspection {
@@ -141,6 +185,16 @@ model Inspection {
   status            InspectionStatus @default(COMPLETED)
   batchInspectionHive BatchInspectionHive?
   audioRecordings   InspectionAudio[]
+  createdByUserId   String?
+  createdByUser     User?            @relation("InspectionCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+
+  // Persisted scores (calculated from observations, or user-overridden)
+  overallScore      Float?
+  populationScore   Float?
+  storesScore       Float?
+  queenScore        Float?
+  scoreWarnings     String?
+  scoreConfidence   Float?
 
   // Create index for quick lookup by hiveId - used in authorization checks
   @@index([hiveId])
@@ -229,6 +283,9 @@ model Action {
   frameAction     FrameAction?
   harvestAction   HarvestAction?
   boxConfigurationAction BoxConfigurationAction?
+  maintenanceAction MaintenanceAction?
+  createdByUserId String?
+  createdByUser   User?      @relation("ActionCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
   @@index([hiveId])
   @@index([inspectionId])
@@ -286,6 +343,14 @@ model BoxConfigurationAction {
   framesRemoved Int    @default(0) // Total number of frames removed
   totalBoxes    Int    // Total boxes after the change
   totalFrames   Int    // Total frames after the change
+}
+
+model MaintenanceAction {
+  id        String @id @default(uuid())
+  actionId  String @unique
+  action    Action @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  component String // BOX, BOTTOM_BOARD, COVER
+  status    String // CLEANED, REPLACED
 }
 
 // Harvest tracking
@@ -365,6 +430,7 @@ enum ActionType {
   FRAME
   HARVEST
   BOX_CONFIGURATION
+  MAINTENANCE
   NOTE
   OTHER
 }
@@ -658,9 +724,11 @@ model QuickCheck {
   date      DateTime         @default(now())
   note      String?          @db.Text
   tags      String[]         // reuses additionalObservation + reminderObservation values
-  photos    QuickCheckPhoto[]
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  photos          QuickCheckPhoto[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  createdByUserId String?
+  createdByUser   User?            @relation("QuickCheckCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
   @@index([hiveId])
   @@index([apiaryId])
@@ -713,6 +781,9 @@ model Photo {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  featureOfApiary Apiary? @relation("ApiaryFeaturePhoto")
+  featureOfHive   Hive?   @relation("HiveFeaturePhoto")
+
   @@index([hiveId])
   @@index([apiaryId])
   @@index([hiveId, date])
@@ -738,6 +809,38 @@ model Document {
   @@index([hiveId])
   @@index([apiaryId])
   @@index([hiveId, date])
+}
+
+// Apiary sharing - membership for collaborative access
+model ApiaryMember {
+  id        String           @id @default(uuid())
+  apiaryId  String
+  apiary    Apiary           @relation(fields: [apiaryId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ApiaryRole
+  status    MembershipStatus @default(PENDING)
+  joinedAt  DateTime         @default(now())
+
+  @@unique([apiaryId, userId])
+  @@index([userId])
+  @@index([apiaryId])
+}
+
+// Apiary sharing - invite links for joining an apiary
+model ApiaryInvite {
+  id        String     @id @default(uuid())
+  token     String     @unique @default(uuid())
+  apiaryId  String
+  apiary    Apiary     @relation(fields: [apiaryId], references: [id], onDelete: Cascade)
+  role      ApiaryRole // EDITOR or VIEWER
+  createdBy String     // userId of the owner who created this invite
+  expiresAt DateTime?
+  active    Boolean    @default(true)
+  createdAt DateTime   @default(now())
+
+  @@index([token])
+  @@index([apiaryId])
 }
 
 // Platform metrics snapshot for admin observability

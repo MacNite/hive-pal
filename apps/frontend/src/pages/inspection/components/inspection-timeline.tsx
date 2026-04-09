@@ -32,6 +32,7 @@ import {
 import { InspectionResponse, InspectionStatus } from 'shared-schemas';
 import { ScheduledInspectionCard } from './scheduled-inspection-card';
 import { useHives } from '@/api/hooks';
+import { useApiaryPermission } from '@/hooks/useApiaryPermission';
 import { useQueryClient } from '@tanstack/react-query';
 
 type InspectionTimelineProps = {
@@ -43,6 +44,7 @@ export const InspectionTimeline: React.FC<InspectionTimelineProps> = ({
 }) => {
   const navigate = useNavigate();
   const { t } = useTranslation('inspection');
+  const { canEdit } = useApiaryPermission();
   const [showAll, setShowAll] = useState(false);
   const MAX_DISPLAYED = 5;
   const { data: hives } = useHives();
@@ -225,7 +227,7 @@ export const InspectionTimeline: React.FC<InspectionTimelineProps> = ({
                                 <Eye className="h-4 w-4 mr-2" />
                                 {t('inspection:timeline.viewDetails')}
                               </DropdownMenuItem>
-                              {inspection.status !==
+                              {canEdit && inspection.status !==
                                 InspectionStatus.CANCELLED && (
                                 <DropdownMenuItem
                                   onClick={() =>

@@ -11,6 +11,7 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -39,6 +40,7 @@ const hiveSettingsSchema = z.object({
     }),
     inspection: z.object({
       frequencyDays: z.number().int().positive(),
+      calendarEnabled: z.boolean().default(true),
     }),
   }),
 });
@@ -80,6 +82,7 @@ export const HiveSettings: React.FC<HiveSettingsProps> = ({
     },
     inspection: {
       frequencyDays: 7,
+      calendarEnabled: true,
     },
   };
 
@@ -274,6 +277,27 @@ export const HiveSettings: React.FC<HiveSettingsProps> = ({
                           How often to inspect this hive (in days)
                         </FormDescription>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="settings.inspection.calendarEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel>Show in calendar</FormLabel>
+                          <FormDescription>
+                            Include scheduled inspections in the calendar feed
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />

@@ -40,6 +40,7 @@ import { PhotosModule } from './photos/photos.module';
 import { DocumentsModule } from './documents/documents.module';
 import { InspectionAudioModule } from './inspection-audio/inspection-audio.module';
 import { AiModule } from './ai/ai.module';
+import { ApiarySharingModule } from './apiary-sharing/apiary-sharing.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { AiModule } from './ai/ai.module';
     DocumentsModule,
     AiModule,
     InspectionAudioModule,
+    ApiarySharingModule,
   ],
   controllers: [AppController, EnvController],
   providers: [

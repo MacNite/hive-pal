@@ -35,7 +35,7 @@ RUN cp -r /app/apps/frontend/dist /app/apps/backend/dist/static
 RUN mkdir -p /data/uploads
 
 COPY apps/backend/docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
 
 EXPOSE 3000
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

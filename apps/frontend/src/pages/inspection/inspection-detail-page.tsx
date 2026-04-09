@@ -143,7 +143,7 @@ export const InspectionDetailPage = () => {
           <div className="mt-6 space-y-4">
             {/* Top row: Score, Weather, and Status cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-              {hive && <StatisticCards score={hive.hiveScore} />}
+              {inspection.score && <StatisticCards score={inspection.score} />}
               <WeatherCard
                 temperature={inspection.temperature}
                 weatherConditions={inspection.weatherConditions}
