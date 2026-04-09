@@ -298,19 +298,19 @@ function RecordingRow({
                   </Button>
                 </div>
 
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    onClick={handlePrefillInspection}
-                    disabled={!aiResult?.inspectionDraft}
-                  >
-                    Prefill inspection from AI
-                  </Button>
-                </div>
-
                 <pre className="overflow-x-auto rounded bg-muted p-3 text-xs">
                   {JSON.stringify(aiResult.inspectionDraft ?? aiResult, null, 2)}
                 </pre>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  onClick={handlePrefillInspection}
+                  disabled={!aiResult?.inspectionDraft}
+                >
+                  Prefill inspection from AI
+                </Button>
               </div>
 
               <details className="rounded-md border p-3 text-xs">
