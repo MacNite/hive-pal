@@ -4,7 +4,7 @@ on:
   release:
     types: [created, released, published]
   push:
-    branches: [main, develop]
+    branches: [main, develop, sync/upstream-main-into-ai]
   workflow_dispatch:
     inputs:
       tag:

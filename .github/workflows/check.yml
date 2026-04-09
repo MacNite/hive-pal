@@ -2,9 +2,9 @@ name: Comprehensive Check Workflow
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, sync/upstream-main-into-ai]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, sync/upstream-main-into-ai]
   workflow_dispatch:
 
 jobs:
