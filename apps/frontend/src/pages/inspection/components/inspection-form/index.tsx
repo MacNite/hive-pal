@@ -166,7 +166,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
     }
   }, [weatherData, form, isDateInFuture, selectedHive?.apiaryId]);
 
-   useEffect(() => {
+  useEffect(() => {
     if (!aiDraft || appliedAiDraftRef.current) return;
 
     Object.entries(aiDraft).forEach(([key, value]) => {
