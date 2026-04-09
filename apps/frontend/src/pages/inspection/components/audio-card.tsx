@@ -13,6 +13,8 @@ import {
   useInspectionAudioAiStatus,
   useInspectionAudioAiResult,
 } from '@/api/hooks/useInspectionAudioAi';
+import { useNavigate } from 'react-router-dom';
+import { mapAiDraftToInspectionForm } from '@/pages/inspection/lib/map-ai-draft-to-inspection-form';
 
 interface AudioCardProps {
   inspectionId: string;
@@ -78,6 +80,19 @@ function RecordingRow({
     recording.id,
     effectiveStatus === 'COMPLETED',
   );
+  const navigate = useNavigate();
+
+  const handlePrefillInspection = () => {
+    const mapped = mapAiDraftToInspectionForm(aiResult?.inspectionDraft);
+
+    navigate(`/inspections/${inspectionId}/edit?from=ai`, {
+      state: {
+        aiDraft: mapped.values,
+        aiSuggestedFields: mapped.suggestedFields,
+        aiSourceAudioId: recording.id,
+      },
+    });
+  };
 
   const aiResult = resultQuery.data;
   const transcriptText = aiResult?.transcript?.text ?? '';
@@ -280,6 +295,16 @@ function RecordingRow({
                       : copyJsonState === 'error'
                         ? 'Copy failed'
                         : 'Copy JSON'}
+                  </Button>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    onClick={handlePrefillInspection}
+                    disabled={!aiResult?.inspectionDraft}
+                  >
+                    Prefill inspection from AI
                   </Button>
                 </div>
 

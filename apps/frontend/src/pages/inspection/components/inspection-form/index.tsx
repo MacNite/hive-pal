@@ -41,7 +41,7 @@ import {
 } from '@/api/hooks';
 import { ActionType, InspectionStatus } from 'shared-schemas';
 import { mapWeatherConditionToForm } from '@/utils/weather-mapping';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { AudioSection } from './audio-section';
 import { ScorePreviewSection } from './score-preview';
@@ -61,6 +61,8 @@ type InspectionFormProps = {
   onCancel?: () => void;
   submitButtonText?: React.ReactNode;
   showCancelButton?: boolean;
+  aiDraft?: Partial<InspectionFormData>;
+  aiSuggestedFields?: string[];
 };
 
 export const InspectionForm: React.FC<InspectionFormProps> = ({
@@ -71,6 +73,8 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
   onCancel,
   submitButtonText,
   showCancelButton = false,
+  aiDraft,
+  aiSuggestedFields = [],
 }) => {
   const { t } = useTranslation('inspection');
   const [searchParams] = useSearchParams();
@@ -84,6 +88,8 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
   const { data: inspection } = useInspection(inspectionId as string, {
     enabled: !!inspectionId,
   });
+
+  const appliedAiDraftRef = useRef(false);
 
   const form = useForm<InspectionFormData>({
     resolver: zodResolver(inspectionSchema),
@@ -161,6 +167,22 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
       form.setValue('weatherConditions', mappedCondition);
     }
   }, [weatherData, form, isDateInFuture, selectedHive?.apiaryId]);
+
+  useEffect(() => {
+    if (!aiDraft || appliedAiDraftRef.current) return;
+
+    Object.entries(aiDraft).forEach(([key, value]) => {
+      if (value === undefined) return;
+
+      form.setValue(key as keyof InspectionFormData, value as never, {
+        shouldDirty: true,
+        shouldTouch: false,
+        shouldValidate: false,
+      });
+    });
+
+  appliedAiDraftRef.current = true;
+}, [aiDraft, form]);
 
   const onSubmit = useUpsertInspection(inspectionId);
 
