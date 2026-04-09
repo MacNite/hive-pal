@@ -14,7 +14,6 @@ export const EditInspectionPage = () => {
 
   const fromScheduled = searchParams.get('from') === 'scheduled';
   const aiDraft = location.state?.aiDraft;
-  const aiSuggestedFields = location.state?.aiSuggestedFields;
 
   const { data: inspection } = useInspection(id || '', {
     enabled: !!id && fromScheduled,
@@ -37,10 +36,7 @@ export const EditInspectionPage = () => {
         </Alert>
       )}
 
-      <InspectionForm
-        inspectionId={id}
-        aiDraft={aiDraft}
-      />
+      <InspectionForm inspectionId={id} aiDraft={aiDraft} />
     </>
   );
 };
