@@ -211,16 +211,31 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
     key: keyof NonNullable<InspectionFormData['observations']>,
   ) => aiObservationValue?.[key] !== undefined;
 
-  const shouldPrefillField = (
-    key: keyof NonNullable<InspectionFormData['observations']>,
-    currentValue: unknown,
-  ) =>
-    hasAiField(key) &&
-    shouldUseAiPrefill(
-      currentValue,
-      Boolean(dirtyObservationFields[key]),
-      observationSuggestion,
-    );
+const shouldPrefillField = (
+  key: keyof NonNullable<InspectionFormData['observations']>,
+  currentValue: unknown,
+) =>
+  hasAiField(key) &&
+  shouldUseAiPrefill(
+    currentValue,
+    Boolean(dirtyObservationFields[key]),
+    observationSuggestion,
+  );
+
+const shouldPrefillNumericField = (
+  key: keyof NonNullable<InspectionFormData['observations']>,
+  currentValue: unknown,
+) => {
+  if (!hasAiField(key)) return false;
+  if (observationSuggestion?.status !== 'pending') return false;
+  if (Boolean(dirtyObservationFields[key])) return false;
+
+  return (
+    typeof currentValue === 'number' ||
+    currentValue === null ||
+    currentValue === undefined
+  );
+};
 
   return (
     <div
@@ -297,7 +312,7 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 ? aiObservationValue.strength
                 : undefined
             }
-            useAiPrefill={shouldPrefillField(
+            useAiPrefill={shouldPrefillNumericField(
               'strength',
               currentObservations?.strength,
             )}
@@ -311,7 +326,7 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 ? aiObservationValue.cappedBrood
                 : undefined
             }
-            useAiPrefill={shouldPrefillField(
+            useAiPrefill={shouldPrefillNumericField(
               'cappedBrood',
               currentObservations?.cappedBrood,
             )}
@@ -325,7 +340,7 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 ? aiObservationValue.uncappedBrood
                 : undefined
             }
-            useAiPrefill={shouldPrefillField(
+            useAiPrefill={shouldPrefillNumericField(
               'uncappedBrood',
               currentObservations?.uncappedBrood,
             )}
@@ -414,7 +429,7 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 ? aiObservationValue.honeyStores
                 : undefined
             }
-            useAiPrefill={shouldPrefillField(
+            useAiPrefill={shouldPrefillNumericField(
               'honeyStores',
               currentObservations?.honeyStores,
             )}
@@ -428,10 +443,10 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 ? aiObservationValue.pollenStores
                 : undefined
             }
-            useAiPrefill={shouldPrefillField(
-              'pollenStores',
-              currentObservations?.pollenStores,
-            )}
+          useAiPrefill={shouldPrefillNumericField(
+            'pollenStores',
+            currentObservations?.pollenStores,
+          )}
           />
           <ObservationItem
             name="observations.queenCells"
@@ -442,10 +457,10 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 ? aiObservationValue.queenCells
                 : undefined
             }
-            useAiPrefill={shouldPrefillField(
-              'queenCells',
-              currentObservations?.queenCells,
-            )}
+          useAiPrefill={shouldPrefillNumericField(
+            'queenCells',
+            currentObservations?.queenCells,
+          )}
           />
 
           {(queenCells ?? 0) > 0 && (
