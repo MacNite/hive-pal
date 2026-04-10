@@ -165,7 +165,9 @@ type ObservationsSectionProps = {
 
 function formatObservationPreview(value: unknown, t: (key: string) => string) {
   if (!value || typeof value !== 'object') {
-    return <span className="italic text-muted-foreground">{t('common.empty')}</span>;
+    return (
+      <span className="italic text-muted-foreground">{t('common.empty')}</span>
+    );
   }
 
   try {
@@ -200,42 +202,46 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
   const aiObservationValue =
     observationSuggestion?.aiValue &&
     typeof observationSuggestion.aiValue === 'object'
-      ? (observationSuggestion.aiValue as Partial<InspectionFormData['observations']>)
+      ? (observationSuggestion.aiValue as Partial<
+          InspectionFormData['observations']
+        >)
       : undefined;
   const isPending = observationSuggestion?.status === 'pending';
 
   const dirtyObservationFields = (formState.dirtyFields.observations ??
-    {}) as Partial<Record<keyof NonNullable<InspectionFormData['observations']>, unknown>>;
+    {}) as Partial<
+    Record<keyof NonNullable<InspectionFormData['observations']>, unknown>
+  >;
 
   const hasAiField = (
     key: keyof NonNullable<InspectionFormData['observations']>,
   ) => aiObservationValue?.[key] !== undefined;
 
-const shouldPrefillField = (
-  key: keyof NonNullable<InspectionFormData['observations']>,
-  currentValue: unknown,
-) =>
-  hasAiField(key) &&
-  shouldUseAiPrefill(
-    currentValue,
-    Boolean(dirtyObservationFields[key]),
-    observationSuggestion,
-  );
+  const shouldPrefillField = (
+    key: keyof NonNullable<InspectionFormData['observations']>,
+    currentValue: unknown,
+  ) =>
+    hasAiField(key) &&
+    shouldUseAiPrefill(
+      currentValue,
+      !!dirtyObservationFields[key],
+      observationSuggestion,
+    );
 
-const shouldPrefillNumericField = (
-  key: keyof NonNullable<InspectionFormData['observations']>,
-  currentValue: unknown,
-) => {
-  if (!hasAiField(key)) return false;
-  if (observationSuggestion?.status !== 'pending') return false;
-  if (Boolean(dirtyObservationFields[key])) return false;
+  const shouldPrefillNumericField = (
+    key: keyof NonNullable<InspectionFormData['observations']>,
+    currentValue: unknown,
+  ) => {
+    if (!hasAiField(key)) return false;
+    if (observationSuggestion?.status !== 'pending') return false;
+    if (dirtyObservationFields[key]) return false;
 
-  return (
-    typeof currentValue === 'number' ||
-    currentValue === null ||
-    currentValue === undefined
-  );
-};
+    return (
+      typeof currentValue === 'number' ||
+      currentValue === null ||
+      currentValue === undefined
+    );
+  };
 
   return (
     <div
@@ -317,6 +323,7 @@ const shouldPrefillNumericField = (
               currentObservations?.strength,
             )}
           />
+
           <ObservationItem
             name="observations.cappedBrood"
             label={t('observations.cappedBrood')}
@@ -331,6 +338,7 @@ const shouldPrefillNumericField = (
               currentObservations?.cappedBrood,
             )}
           />
+
           <ObservationItem
             name="observations.uncappedBrood"
             label={t('observations.uncappedBrood')}
@@ -405,7 +413,9 @@ const shouldPrefillNumericField = (
                           >
                             <div className="flex items-center justify-center gap-2">
                               <span>
-                                {t(`observations.broodPatternOptions.${option}`)}
+                                {t(
+                                  `observations.broodPatternOptions.${option}`,
+                                )}
                               </span>
                               {isAiRecommended && <AiBadge />}
                             </div>
@@ -434,6 +444,7 @@ const shouldPrefillNumericField = (
               currentObservations?.honeyStores,
             )}
           />
+
           <ObservationItem
             name="observations.pollenStores"
             label={t('observations.pollenStores')}
@@ -443,11 +454,12 @@ const shouldPrefillNumericField = (
                 ? aiObservationValue.pollenStores
                 : undefined
             }
-          useAiPrefill={shouldPrefillNumericField(
-            'pollenStores',
-            currentObservations?.pollenStores,
-          )}
+            useAiPrefill={shouldPrefillNumericField(
+              'pollenStores',
+              currentObservations?.pollenStores,
+            )}
           />
+
           <ObservationItem
             name="observations.queenCells"
             label={t('observations.queenCells')}
@@ -457,10 +469,10 @@ const shouldPrefillNumericField = (
                 ? aiObservationValue.queenCells
                 : undefined
             }
-          useAiPrefill={shouldPrefillNumericField(
-            'queenCells',
-            currentObservations?.queenCells,
-          )}
+            useAiPrefill={shouldPrefillNumericField(
+              'queenCells',
+              currentObservations?.queenCells,
+            )}
           />
 
           {(queenCells ?? 0) > 0 && (
@@ -499,6 +511,7 @@ const shouldPrefillNumericField = (
                   );
                 }}
               />
+
               <FormField
                 control={control}
                 name="observations.supersedureCells"
@@ -547,6 +560,7 @@ const shouldPrefillNumericField = (
               <span>{t('observations.additionalObservations')}</span>
               {hasAiField('additionalObservations') && <AiBadge />}
             </h4>
+
             <FormField
               control={control}
               name="observations.additionalObservations"
@@ -606,7 +620,9 @@ const shouldPrefillNumericField = (
                             onClick={() => toggleObservation(option)}
                           >
                             <div className="flex items-center justify-center gap-2">
-                              <span>{t(`observations.additional.${option}`)}</span>
+                              <span>
+                                {t(`observations.additional.${option}`)}
+                              </span>
                               {isAiRecommended && <AiBadge />}
                             </div>
                           </div>
@@ -631,6 +647,7 @@ const shouldPrefillNumericField = (
               <span>{t('observations.reminderObservations')}</span>
               {hasAiField('reminderObservations') && <AiBadge />}
             </h4>
+
             <FormField
               control={control}
               name="observations.reminderObservations"
