@@ -33,6 +33,7 @@ import { ActionData, InspectionFormData } from './schema.ts';
 import { AiBadge } from './ai-badge';
 import { AiSectionPreview } from './ai-section-preview';
 import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
+import { cn } from '@/lib/utils';
 
 const actionTypes = [
   { id: 'FEEDING', label: 'Feeding', Icon: Droplet },
@@ -152,6 +153,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
 
   const formActions = watch('actions') || [];
   const actionsSuggestion = aiMergeState?.suggestions.actions;
+  const isPending = actionsSuggestion?.status === 'pending';
 
   const handleSave = useCallback(
     (action: ActionType) => {
@@ -266,11 +268,20 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
   const suggestedCount = Array.isArray(actionsSummary) ? actionsSummary.length : 0;
 
   return (
-    <div data-ai-field="actions">
-      <h3 className="my-4 text-lg font-medium">
-        {editMode
-          ? t('inspection:form.actions.titleSingular')
-          : t('inspection:form.actions.title')}
+    <div
+      data-ai-field="actions"
+      className={cn(
+        'rounded-md p-3 transition-colors',
+        isPending &&
+          'border border-blue-200 bg-blue-50/40 dark:border-blue-900 dark:bg-blue-950/20',
+      )}
+    >
+      <h3 className="my-4 flex items-center gap-2 text-lg font-medium">
+        <span>
+          {editMode
+            ? t('inspection:form.actions.titleSingular')
+            : t('inspection:form.actions.title')}
+        </span>
         {isAiSuggested?.('actions') && <AiBadge />}
       </h3>
 

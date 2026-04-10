@@ -13,6 +13,7 @@ import { TemperatureField } from '@/components/common';
 import { AiBadge } from './ai-badge';
 import { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 import { AiSuggestionPreview } from './ai-suggestion-preview';
+import { cn } from '@/lib/utils';
 
 const weatherConditions = [
   {
@@ -76,6 +77,12 @@ export const WeatherSection = ({
     rainy: t('inspection:form.weather.rainy'),
   };
 
+  const temperatureSuggestion = aiMergeState?.suggestions.temperature;
+  const weatherConditionSuggestion = aiMergeState?.suggestions.weatherConditions;
+
+  const isTemperaturePending = temperatureSuggestion?.status === 'pending';
+  const isWeatherPending = weatherConditionSuggestion?.status === 'pending';
+
   return (
     <div>
       <h3 className="text-lg font-medium">{t('inspection:form.weather.title')}</h3>
@@ -84,14 +91,21 @@ export const WeatherSection = ({
       </p>
 
       <div className="grid grid-cols-1 space-y-4 py-4">
-        <div data-ai-field="temperature">
+        <div
+          data-ai-field="temperature"
+          className={cn(
+            'rounded-md p-3 transition-colors',
+            isTemperaturePending &&
+              'border border-blue-200 bg-blue-50/40 dark:border-blue-900 dark:bg-blue-950/20',
+          )}
+        >
           <FormField
             control={form.control}
             name="temperature"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  {t('inspection:form.weather.temperature')}
+                <FormLabel className="flex items-center gap-2">
+                  <span>{t('inspection:form.weather.temperature')}</span>
                   {isAiSuggested?.('temperature') && <AiBadge />}
                 </FormLabel>
 
@@ -112,13 +126,13 @@ export const WeatherSection = ({
                       : null
                   }
                   suggestedValue={
-                    aiMergeState?.suggestions.temperature?.aiValue !== null &&
-                    aiMergeState?.suggestions.temperature?.aiValue !== undefined
-                      ? `${aiMergeState.suggestions.temperature.aiValue}°C`
+                    temperatureSuggestion?.aiValue !== null &&
+                    temperatureSuggestion?.aiValue !== undefined
+                      ? `${temperatureSuggestion.aiValue}°C`
                       : null
                   }
-                  hasConflict={aiMergeState?.suggestions.temperature?.hasConflict}
-                  status={aiMergeState?.suggestions.temperature?.status}
+                  hasConflict={temperatureSuggestion?.hasConflict}
+                  status={temperatureSuggestion?.status}
                   onAccept={() => onAcceptSuggestion?.('temperature')}
                   onDismiss={() => onDismissSuggestion?.('temperature')}
                 />
@@ -129,15 +143,22 @@ export const WeatherSection = ({
           />
         </div>
 
-        <div data-ai-field="weatherConditions">
+        <div
+          data-ai-field="weatherConditions"
+          className={cn(
+            'rounded-md p-3 transition-colors',
+            isWeatherPending &&
+              'border border-blue-200 bg-blue-50/40 dark:border-blue-900 dark:bg-blue-950/20',
+          )}
+        >
           <FormField
             control={form.control}
             name="weatherConditions"
             rules={{ required: 'Please select a weather condition' }}
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel>
-                  {t('inspection:form.weather.condition')}
+                <FormLabel className="flex items-center gap-2">
+                  <span>{t('inspection:form.weather.condition')}</span>
                   {isAiSuggested?.('weatherConditions') && <AiBadge />}
                 </FormLabel>
 
@@ -146,6 +167,9 @@ export const WeatherSection = ({
                     {weatherConditions.map(condition => {
                       const Icon = condition.icon;
                       const isSelected = field.value === condition.id;
+                      const isAiRecommended =
+                        isWeatherPending &&
+                        weatherConditionSuggestion?.aiValue === condition.id;
 
                       return (
                         <button
@@ -153,10 +177,12 @@ export const WeatherSection = ({
                           key={condition.id}
                           onClick={() => field.onChange(condition.id)}
                           onKeyDown={() => {}}
-                          className={`
-                            flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 transition-all
-                            ${isSelected ? condition.styleActive : condition.style}
-                          `}
+                          className={cn(
+                            'flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 transition-all',
+                            isSelected ? condition.styleActive : condition.style,
+                            isAiRecommended &&
+                              'ring-2 ring-blue-300 dark:ring-blue-700',
+                          )}
                         >
                           <Icon
                             className={`h-5 w-5 ${
@@ -168,6 +194,7 @@ export const WeatherSection = ({
                           <span className="text-sm font-medium">
                             {weatherLabels[condition.id] || condition.label}
                           </span>
+                          {isAiRecommended && <AiBadge />}
                         </button>
                       );
                     })}
@@ -182,19 +209,13 @@ export const WeatherSection = ({
                       : null
                   }
                   suggestedValue={
-                    aiMergeState?.suggestions.weatherConditions?.aiValue
-                      ? weatherLabels[
-                          aiMergeState.suggestions.weatherConditions
-                            .aiValue as string
-                        ] ||
-                        (aiMergeState.suggestions.weatherConditions
-                          .aiValue as string)
+                    weatherConditionSuggestion?.aiValue
+                      ? weatherLabels[weatherConditionSuggestion.aiValue as string] ||
+                        (weatherConditionSuggestion.aiValue as string)
                       : null
                   }
-                  hasConflict={
-                    aiMergeState?.suggestions.weatherConditions?.hasConflict
-                  }
-                  status={aiMergeState?.suggestions.weatherConditions?.status}
+                  hasConflict={weatherConditionSuggestion?.hasConflict}
+                  status={weatherConditionSuggestion?.status}
                   onAccept={() => onAcceptSuggestion?.('weatherConditions')}
                   onDismiss={() => onDismissSuggestion?.('weatherConditions')}
                 />

@@ -11,6 +11,7 @@ import { InspectionFormData } from './schema';
 import { AiBadge } from './ai-badge';
 import { AiSectionPreview } from './ai-section-preview';
 import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
+import { cn } from '@/lib/utils';
 
 type ScoreKey =
   | 'overallScore'
@@ -256,6 +257,7 @@ export const ScorePreviewSection: React.FC<ScorePreviewSectionProps> = ({
     scoreForm?.queenScore != null;
 
   const scoreSuggestion = aiMergeState?.suggestions.score;
+  const isPending = scoreSuggestion?.status === 'pending';
 
   if (!hasAnyScore && !scoreSuggestion) return null;
 
@@ -306,10 +308,17 @@ export const ScorePreviewSection: React.FC<ScorePreviewSectionProps> = ({
   ];
 
   return (
-    <div className="space-y-3" data-ai-field="score">
+    <div
+      className={cn(
+        'space-y-3 rounded-md p-3 transition-colors',
+        isPending &&
+          'border border-blue-200 bg-blue-50/40 dark:border-blue-900 dark:bg-blue-950/20',
+      )}
+      data-ai-field="score"
+    >
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">
-          {t('scores.title')}
+        <h3 className="flex items-center gap-2 text-lg font-medium">
+          <span>{t('scores.title')}</span>
           {isAiSuggested?.('score') && <AiBadge />}
         </h3>
 
