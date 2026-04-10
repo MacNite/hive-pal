@@ -10,7 +10,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import type { InspectionFormData } from './schema';
 import { AiBadge } from './ai-badge';
-import { AiFieldControls } from './ai-field-controls';
+import { AiSectionPreview } from './ai-section-preview';
 import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 
 type NotesSectionProps = {
@@ -32,7 +32,7 @@ export function NotesSection({
   const notesSuggestion = aiMergeState?.suggestions.notes;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-ai-field="notes">
       <h2 className="text-lg font-medium">
         {t('inspection:form.notes.title')}
       </h2>
@@ -45,10 +45,11 @@ export function NotesSection({
         name="notes"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>
-              Notes
+            <FormLabel className="flex items-center gap-2">
+              <span>Notes</span>
               {isAiSuggested?.('notes') && <AiBadge />}
             </FormLabel>
+
             <FormControl>
               <Textarea
                 placeholder={t('inspection:form.notes.placeholder')}
@@ -58,8 +59,11 @@ export function NotesSection({
               />
             </FormControl>
 
-            <AiFieldControls
-              isVisible={Boolean(notesSuggestion)}
+            <AiSectionPreview
+              title="Notes"
+              summary="Review AI-generated notes before applying them."
+              currentValue={field.value}
+              suggestedValue={notesSuggestion?.aiValue as string | undefined}
               hasConflict={notesSuggestion?.hasConflict}
               status={notesSuggestion?.status}
               onAccept={() => onAcceptSuggestion?.('notes')}

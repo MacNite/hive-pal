@@ -31,7 +31,7 @@ import { TEST_SELECTORS } from '@/utils/test-selectors.ts';
 import { useFormContext } from 'react-hook-form';
 import { ActionData, InspectionFormData } from './schema.ts';
 import { AiBadge } from './ai-badge';
-import { AiFieldControls } from './ai-field-controls';
+import { AiSectionPreview } from './ai-section-preview';
 import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 
 const actionTypes = [
@@ -62,6 +62,72 @@ interface ActionsSectionProps {
   onAcceptSuggestion?: (field: keyof InspectionFormData) => void;
   onDismissSuggestion?: (field: keyof InspectionFormData) => void;
 }
+
+const formatActionTypeLabel = (
+  type: string,
+  t: ReturnType<typeof useTranslation>['t'],
+) => {
+  switch (type) {
+    case 'FEEDING':
+      return t('inspection:form.actions.feeding');
+    case 'TREATMENT':
+      return t('inspection:form.actions.treatment');
+    case 'FRAME':
+      return t('inspection:form.actions.frames');
+    case 'MAINTENANCE':
+      return t('inspection:form.actions.maintenance');
+    case 'NOTE':
+      return t('inspection:form.actions.note');
+    case 'OTHER':
+      return t('inspection:form.actions.other', 'Other');
+    default:
+      return type;
+  }
+};
+
+const formatActionsPreview = (
+  value: unknown,
+  t: ReturnType<typeof useTranslation>['t'],
+): ReactNode => {
+  if (!Array.isArray(value) || value.length === 0) {
+    return <span className="italic text-muted-foreground">No actions</span>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {value.map((action, index) => {
+        if (!action || typeof action !== 'object') {
+          return (
+            <div
+              key={index}
+              className="rounded border bg-muted/20 p-2 text-xs text-muted-foreground"
+            >
+              Invalid action
+            </div>
+          );
+        }
+
+        const typedAction = action as Record<string, unknown>;
+        const actionType =
+          typeof typedAction.type === 'string' ? typedAction.type : 'UNKNOWN';
+
+        return (
+          <div
+            key={`${actionType}-${index}`}
+            className="rounded border bg-muted/20 p-2 text-sm"
+          >
+            <div className="font-medium">
+              {formatActionTypeLabel(actionType, t)}
+            </div>
+            <pre className="mt-1 whitespace-pre-wrap break-words text-xs text-muted-foreground">
+              {JSON.stringify(action, null, 2)}
+            </pre>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 export const ActionsSection: React.FC<ActionsSectionProps> = ({
   editMode = false,
@@ -196,8 +262,11 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
     }
   };
 
+  const actionsSummary = actionsSuggestion?.aiValue;
+  const suggestedCount = Array.isArray(actionsSummary) ? actionsSummary.length : 0;
+
   return (
-    <div>
+    <div data-ai-field="actions">
       <h3 className="my-4 text-lg font-medium">
         {editMode
           ? t('inspection:form.actions.titleSingular')
@@ -205,8 +274,15 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
         {isAiSuggested?.('actions') && <AiBadge />}
       </h3>
 
-      <AiFieldControls
-        isVisible={Boolean(actionsSuggestion)}
+      <AiSectionPreview
+        title={t('inspection:form.actions.title')}
+        summary={
+          suggestedCount > 0
+            ? `${suggestedCount} AI-suggested action${suggestedCount === 1 ? '' : 's'}`
+            : 'Review AI-suggested actions before applying them.'
+        }
+        currentValue={formatActionsPreview(formActions, t)}
+        suggestedValue={formatActionsPreview(actionsSuggestion?.aiValue, t)}
         hasConflict={actionsSuggestion?.hasConflict}
         status={actionsSuggestion?.status}
         onAccept={() => onAcceptSuggestion?.('actions')}

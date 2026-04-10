@@ -93,7 +93,10 @@ Or just run the code below inside the container
 ```
 
 Use the command below to see if  everything is running correctly:
+
+```js
 curl http://serverip:8008/health
+```
 
 After that you can put audio-files into the folder "incoming". You can start analyzing with
 

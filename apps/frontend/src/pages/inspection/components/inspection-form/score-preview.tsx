@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InspectionFormData } from './schema';
 import { AiBadge } from './ai-badge';
+import { AiSectionPreview } from './ai-section-preview';
+import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 
 type ScoreKey =
   | 'overallScore'
@@ -18,6 +20,9 @@ type ScoreKey =
 
 type ScorePreviewSectionProps = {
   isAiSuggested?: (field: keyof InspectionFormData) => boolean;
+  aiMergeState?: AiMergeState | null;
+  onAcceptSuggestion?: (field: keyof InspectionFormData) => void;
+  onDismissSuggestion?: (field: keyof InspectionFormData) => void;
 };
 
 const getScoreColor = (value: number | null | undefined) => {
@@ -25,6 +30,40 @@ const getScoreColor = (value: number | null | undefined) => {
   if (value >= 6) return 'text-green-600';
   if (value >= 3) return 'text-amber-500';
   return 'text-red-500';
+};
+
+const formatScorePreview = (value: unknown) => {
+  if (!value || typeof value !== 'object') {
+    return <span className="italic text-muted-foreground">Empty</span>;
+  }
+
+  const score = value as Partial<Record<ScoreKey, number | null | undefined>>;
+
+  const rows: { key: ScoreKey; label: string }[] = [
+    { key: 'overallScore', label: 'Overall' },
+    { key: 'populationScore', label: 'Population' },
+    { key: 'storesScore', label: 'Stores' },
+    { key: 'queenScore', label: 'Queen' },
+  ];
+
+  const hasAnyValue = rows.some(row => score[row.key] != null);
+
+  if (!hasAnyValue) {
+    return <span className="italic text-muted-foreground">Empty</span>;
+  }
+
+  return (
+    <div className="space-y-1">
+      {rows.map(({ key, label }) => (
+        <div key={key} className="flex items-center justify-between gap-4">
+          <span className="text-sm text-muted-foreground">{label}</span>
+          <span className="text-sm font-medium">
+            {score[key] != null ? `${score[key]?.toFixed?.(1) ?? score[key]}/10` : '—'}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
 };
 
 const ScoreItem: React.FC<{
@@ -181,6 +220,9 @@ const ScoreItem: React.FC<{
 
 export const ScorePreviewSection: React.FC<ScorePreviewSectionProps> = ({
   isAiSuggested,
+  aiMergeState,
+  onAcceptSuggestion,
+  onDismissSuggestion,
 }) => {
   const { t } = useTranslation('inspection');
   const { setValue, control } = useFormContext<InspectionFormData>();
@@ -213,7 +255,9 @@ export const ScorePreviewSection: React.FC<ScorePreviewSectionProps> = ({
     scoreForm?.storesScore != null ||
     scoreForm?.queenScore != null;
 
-  if (!hasAnyScore) return null;
+  const scoreSuggestion = aiMergeState?.suggestions.score;
+
+  if (!hasAnyScore && !scoreSuggestion) return null;
 
   const hasOverrides =
     !!scoreForm &&
@@ -262,7 +306,7 @@ export const ScorePreviewSection: React.FC<ScorePreviewSectionProps> = ({
   ];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" data-ai-field="score">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">
           {t('scores.title')}
@@ -286,19 +330,32 @@ export const ScorePreviewSection: React.FC<ScorePreviewSectionProps> = ({
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-        {scores.map(({ key, label, icon }) => (
-          <ScoreItem
-            key={key}
-            label={label}
-            icon={icon}
-            calculatedValue={calculated[key]}
-            overrideValue={scoreForm?.[key]}
-            onOverride={val => setScoreField(key, val)}
-            onClear={() => clearOverride(key)}
-          />
-        ))}
-      </div>
+      {hasAnyScore && (
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+          {scores.map(({ key, label, icon }) => (
+            <ScoreItem
+              key={key}
+              label={label}
+              icon={icon}
+              calculatedValue={calculated[key]}
+              overrideValue={scoreForm?.[key]}
+              onOverride={val => setScoreField(key, val)}
+              onClear={() => clearOverride(key)}
+            />
+          ))}
+        </div>
+      )}
+
+      <AiSectionPreview
+        title="Score"
+        summary="Review AI-suggested score values before applying them."
+        currentValue={formatScorePreview(scoreForm ?? calculated)}
+        suggestedValue={formatScorePreview(scoreSuggestion?.aiValue)}
+        hasConflict={scoreSuggestion?.hasConflict}
+        status={scoreSuggestion?.status}
+        onAccept={() => onAcceptSuggestion?.('score')}
+        onDismiss={() => onDismissSuggestion?.('score')}
+      />
     </div>
   );
 };

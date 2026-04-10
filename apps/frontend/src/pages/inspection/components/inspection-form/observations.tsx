@@ -13,7 +13,7 @@ import { X } from 'lucide-react';
 import { InspectionFormData } from './schema';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { AiBadge } from './ai-badge';
-import { AiFieldControls } from './ai-field-controls';
+import { AiSectionPreview } from './ai-section-preview';
 import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 
 type ObservationItemProps<T> = {
@@ -142,6 +142,26 @@ type ObservationsSectionProps = {
   onDismissSuggestion?: (field: keyof InspectionFormData) => void;
 };
 
+function formatObservationPreview(value: unknown, t: (key: string) => string) {
+  if (!value || typeof value !== 'object') {
+    return <span className="italic text-muted-foreground">{t('common.empty')}</span>;
+  }
+
+  try {
+    return (
+      <pre className="whitespace-pre-wrap break-words text-xs">
+        {JSON.stringify(value, null, 2)}
+      </pre>
+    );
+  } catch {
+    return (
+      <span className="italic text-muted-foreground">
+        Unable to preview observation data
+      </span>
+    );
+  }
+}
+
 export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
   isAiSuggested,
   aiMergeState,
@@ -150,12 +170,14 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
 }) => {
   const { t } = useTranslation('inspection');
   const { control } = useFormContext<InspectionFormData>();
+
   const queenCells = useWatch({ name: 'observations.queenCells', control });
+  const currentObservations = useWatch({ name: 'observations', control });
 
   const observationSuggestion = aiMergeState?.suggestions.observations;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-ai-field="observations">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-medium">
           {t('observations.title')}
@@ -163,8 +185,14 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
         </h3>
       </div>
 
-      <AiFieldControls
-        isVisible={Boolean(observationSuggestion)}
+      <AiSectionPreview
+        title={t('observations.title')}
+        summary="Review AI-suggested observation fields before applying them."
+        currentValue={formatObservationPreview(currentObservations, t)}
+        suggestedValue={formatObservationPreview(
+          observationSuggestion?.aiValue,
+          t,
+        )}
         hasConflict={observationSuggestion?.hasConflict}
         status={observationSuggestion?.status}
         onAccept={() => onAcceptSuggestion?.('observations')}
