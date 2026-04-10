@@ -11,6 +11,8 @@ import { InspectionFormData } from '@/pages/inspection/components/inspection-for
 import { useFormContext } from 'react-hook-form';
 import { TemperatureField } from '@/components/common';
 import { AiBadge } from './ai-badge';
+import { AiFieldControls } from './ai-field-controls';
+import { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 
 const weatherConditions = [
   {
@@ -53,9 +55,17 @@ const weatherConditions = [
 
 type WeatherSectionProps = {
   isAiSuggested?: (field: keyof InspectionFormData) => boolean;
+  aiMergeState?: AiMergeState | null;
+  onAcceptSuggestion?: (field: keyof InspectionFormData) => void;
+  onDismissSuggestion?: (field: keyof InspectionFormData) => void;
 };
 
-export const WeatherSection = ({ isAiSuggested }: WeatherSectionProps) => {
+export const WeatherSection = ({
+  isAiSuggested,
+  aiMergeState,
+  onAcceptSuggestion,
+  onDismissSuggestion,
+}: WeatherSectionProps) => {
   const { t } = useTranslation('inspection');
   const form = useFormContext<InspectionFormData>();
 
@@ -83,6 +93,7 @@ export const WeatherSection = ({ isAiSuggested }: WeatherSectionProps) => {
                 {t('inspection:form.weather.temperature')}
                 {isAiSuggested?.('temperature') && <AiBadge />}
               </FormLabel>
+
               <TemperatureField
                 onChange={field.onChange}
                 min={0}
@@ -91,6 +102,15 @@ export const WeatherSection = ({ isAiSuggested }: WeatherSectionProps) => {
                 max={55}
                 onBlur={field.onBlur}
               />
+
+              <AiFieldControls
+                isVisible={Boolean(aiMergeState?.suggestions.temperature)}
+                hasConflict={aiMergeState?.suggestions.temperature?.hasConflict}
+                status={aiMergeState?.suggestions.temperature?.status}
+                onAccept={() => onAcceptSuggestion?.('temperature')}
+                onDismiss={() => onDismissSuggestion?.('temperature')}
+              />
+
               <FormMessage />
             </FormItem>
           )}
@@ -106,6 +126,7 @@ export const WeatherSection = ({ isAiSuggested }: WeatherSectionProps) => {
                 {t('inspection:form.weather.condition')}
                 {isAiSuggested?.('weatherConditions') && <AiBadge />}
               </FormLabel>
+
               <FormControl>
                 <div className="flex flex-wrap justify-start gap-3">
                   {weatherConditions.map(condition => {
@@ -138,6 +159,15 @@ export const WeatherSection = ({ isAiSuggested }: WeatherSectionProps) => {
                   })}
                 </div>
               </FormControl>
+
+              <AiFieldControls
+                isVisible={Boolean(aiMergeState?.suggestions.weatherConditions)}
+                hasConflict={aiMergeState?.suggestions.weatherConditions?.hasConflict}
+                status={aiMergeState?.suggestions.weatherConditions?.status}
+                onAccept={() => onAcceptSuggestion?.('weatherConditions')}
+                onDismiss={() => onDismissSuggestion?.('weatherConditions')}
+              />
+
               <FormMessage />
             </FormItem>
           )}

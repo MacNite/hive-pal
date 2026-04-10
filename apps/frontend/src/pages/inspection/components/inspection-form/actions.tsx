@@ -31,6 +31,8 @@ import { TEST_SELECTORS } from '@/utils/test-selectors.ts';
 import { useFormContext } from 'react-hook-form';
 import { ActionData, InspectionFormData } from './schema.ts';
 import { AiBadge } from './ai-badge';
+import { AiFieldControls } from './ai-field-controls';
+import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 
 const actionTypes = [
   { id: 'FEEDING', label: 'Feeding', Icon: Droplet },
@@ -56,11 +58,17 @@ export type ActionType =
 interface ActionsSectionProps {
   editMode?: boolean;
   isAiSuggested?: (field: keyof InspectionFormData) => boolean;
+  aiMergeState?: AiMergeState | null;
+  onAcceptSuggestion?: (field: keyof InspectionFormData) => void;
+  onDismissSuggestion?: (field: keyof InspectionFormData) => void;
 }
 
 export const ActionsSection: React.FC<ActionsSectionProps> = ({
   editMode = false,
   isAiSuggested,
+  aiMergeState,
+  onAcceptSuggestion,
+  onDismissSuggestion,
 }) => {
   const { t } = useTranslation('inspection');
   const { setValue, getValues, watch, formState } =
@@ -77,6 +85,7 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const formActions = watch('actions') || [];
+  const actionsSuggestion = aiMergeState?.suggestions.actions;
 
   const handleSave = useCallback(
     (action: ActionType) => {
@@ -195,6 +204,14 @@ export const ActionsSection: React.FC<ActionsSectionProps> = ({
           : t('inspection:form.actions.title')}
         {isAiSuggested?.('actions') && <AiBadge />}
       </h3>
+
+      <AiFieldControls
+        isVisible={Boolean(actionsSuggestion)}
+        hasConflict={actionsSuggestion?.hasConflict}
+        status={actionsSuggestion?.status}
+        onAccept={() => onAcceptSuggestion?.('actions')}
+        onDismiss={() => onDismissSuggestion?.('actions')}
+      />
 
       {!editMode && (
         <div

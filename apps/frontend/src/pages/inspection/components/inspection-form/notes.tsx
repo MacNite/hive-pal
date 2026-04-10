@@ -8,16 +8,28 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { InspectionFormData } from './schema';
+import type { InspectionFormData } from './schema';
 import { AiBadge } from './ai-badge';
+import { AiFieldControls } from './ai-field-controls';
+import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 
 type NotesSectionProps = {
   isAiSuggested?: (field: keyof InspectionFormData) => boolean;
+  aiMergeState?: AiMergeState | null;
+  onAcceptSuggestion?: (field: keyof InspectionFormData) => void;
+  onDismissSuggestion?: (field: keyof InspectionFormData) => void;
 };
 
-export function NotesSection({ isAiSuggested }: NotesSectionProps) {
+export function NotesSection({
+  isAiSuggested,
+  aiMergeState,
+  onAcceptSuggestion,
+  onDismissSuggestion,
+}: NotesSectionProps) {
   const { t } = useTranslation('inspection');
   const form = useFormContext<InspectionFormData>();
+
+  const notesSuggestion = aiMergeState?.suggestions.notes;
 
   return (
     <div className="space-y-4">
@@ -45,6 +57,15 @@ export function NotesSection({ isAiSuggested }: NotesSectionProps) {
                 value={field.value ?? ''}
               />
             </FormControl>
+
+            <AiFieldControls
+              isVisible={Boolean(notesSuggestion)}
+              hasConflict={notesSuggestion?.hasConflict}
+              status={notesSuggestion?.status}
+              onAccept={() => onAcceptSuggestion?.('notes')}
+              onDismiss={() => onDismissSuggestion?.('notes')}
+            />
+
             <FormMessage />
           </FormItem>
         )}

@@ -20,7 +20,7 @@ Currently the folder-setup below is expected:
                     ollama/
 ```
 
-Below is the docker file I use for the AI Container. I just added it to the docker stack for hivepal so everything runs together. As i do not have a GPU in my server installed i use the OLLAMA_MODEL qwen3:8b. With this setup processing time of a 45 second audio file is about 5-10 Minutes (running on dual E5-2683 v3 and consuming about 8 GIB ram).
+Below is the docker file I use for the AI Container. I just added it to the docker stack for hivepal so everything runs together. I recently switched the model from qwen3:8b to qwen2.5:3b as I currently only use CPU-computing. The code in general is model-agnostic - you can set your desired model using the OLLAMA_MODEL enviroment variable.
 
 Whisper is currently set to auto-detect the language.
 
@@ -51,7 +51,7 @@ services:
       - "8008:8008"
     environment:
   - OLLAMA_URL=http://ollama:11434/api/chat
-  - OLLAMA_MODEL=qwen3:8b
+  - OLLAMA_MODEL=qwen2.5:3b
   - WHISPER_MODEL=small
   - WHISPER_COMPUTE_TYPE=int8
   - AUDIO_INPUT_DIR=/data/incoming
@@ -81,9 +81,15 @@ After running the container for the first time you have to download the model. T
 
 ```js
 curl http://serverip:11434/api/pull -d '{
-  "model": "qwen3:8b",
+  "model": "qwen2.5:3b",
   "stream": false
 }'
+```
+
+Or just run the code below inside the container
+
+```js
+  ollama pull <Model-Name>
 ```
 
 Use the command below to see if  everything is running correctly:

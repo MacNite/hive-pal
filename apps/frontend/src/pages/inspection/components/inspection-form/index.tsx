@@ -45,6 +45,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { AudioSection } from './audio-section';
 import { ScorePreviewSection } from './score-preview';
+import {
+  buildAiMergeState,
+  type AiMergeState,
+} from '@/pages/inspection/lib/inspection-ai-merge';
+import { AiMergeBanner } from '@/pages/inspection/components/inspection-form/ai-merge-banner';
 
 interface PendingRecording {
   id: string;
@@ -87,8 +92,6 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
   const { data: inspection } = useInspection(inspectionId as string, {
     enabled: !!inspectionId,
   });
-
-  const appliedAiDraftRef = useRef(false);
 
   const form = useForm<InspectionFormData>({
     resolver: zodResolver(inspectionSchema),
@@ -169,21 +172,111 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
     }
   }, [weatherData, form, isDateInFuture, selectedHive?.apiaryId]);
 
+  const [aiMergeState, setAiMergeState] = useState<AiMergeState | null>(null);
+  const initializedAiMergeRef = useRef(false);
+
   useEffect(() => {
-    if (!aiDraft || appliedAiDraftRef.current) return;
+    if (!aiDraft || initializedAiMergeRef.current) return;
 
-    Object.entries(aiDraft).forEach(([key, value]) => {
-      if (value === undefined) return;
+    const currentValues = form.getValues();
+    const mergeState = buildAiMergeState(currentValues, aiDraft);
 
-      form.setValue(key as keyof InspectionFormData, value as never, {
-        shouldDirty: true,
-        shouldTouch: false,
-        shouldValidate: false,
-      });
+    setAiMergeState(mergeState);
+    initializedAiMergeRef.current = true;
+  }, [aiDraft, form]);
+
+  const acceptAiSuggestion = (field: keyof InspectionFormData) => {
+    const suggestion = aiMergeState?.suggestions[field as string];
+    if (!suggestion) return;
+
+    form.setValue(field, suggestion.aiValue as never, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
     });
 
-    appliedAiDraftRef.current = true;
-  }, [aiDraft, form]);
+    setAiMergeState(prev => {
+      if (!prev) return prev;
+
+      return {
+        suggestions: {
+          ...prev.suggestions,
+          [field]: {
+            ...prev.suggestions[field as string],
+            status: 'accepted',
+          },
+        },
+      };
+    });
+  };
+
+  const dismissAiSuggestion = (field: keyof InspectionFormData) => {
+    setAiMergeState(prev => {
+      if (!prev) return prev;
+
+      return {
+        suggestions: {
+          ...prev.suggestions,
+          [field]: {
+            ...prev.suggestions[field as string],
+            status: 'dismissed',
+          },
+        },
+      };
+    });
+  };
+
+  const acceptAllAiSuggestions = () => {
+    if (!aiMergeState) return;
+
+    Object.values(aiMergeState.suggestions).forEach(suggestion => {
+      if (suggestion.status !== 'pending') return;
+
+      form.setValue(
+        suggestion.field as keyof InspectionFormData,
+        suggestion.aiValue as never,
+        {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true,
+        },
+      );
+    });
+
+    setAiMergeState({
+      suggestions: Object.fromEntries(
+        Object.entries(aiMergeState.suggestions).map(([field, suggestion]) => [
+          field,
+          { ...suggestion, status: 'accepted' },
+        ]),
+      ),
+    });
+  };
+
+  const dismissAllAiSuggestions = () => {
+    if (!aiMergeState) return;
+
+    setAiMergeState({
+      suggestions: Object.fromEntries(
+        Object.entries(aiMergeState.suggestions).map(([field, suggestion]) => [
+          field,
+          { ...suggestion, status: 'dismissed' },
+        ]),
+      ),
+    });
+  };
+
+  const pendingSuggestionCount = aiMergeState
+    ? Object.values(aiMergeState.suggestions).filter(
+        suggestion => suggestion.status === 'pending',
+      ).length
+    : 0;
+
+  const conflictSuggestionCount = aiMergeState
+    ? Object.values(aiMergeState.suggestions).filter(
+        suggestion => suggestion.status === 'pending' && suggestion.hasConflict,
+      ).length
+    : 0;
 
   const onSubmit = useUpsertInspection(inspectionId);
 
@@ -219,6 +312,15 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
       </h1>
 
       <Separator className="my-2" />
+
+      {aiMergeState && pendingSuggestionCount > 0 && (
+        <AiMergeBanner
+          pendingCount={pendingSuggestionCount}
+          conflictCount={conflictSuggestionCount}
+          onAcceptAll={acceptAllAiSuggestions}
+          onDismissAll={dismissAllAiSuggestions}
+        />
+      )}
 
       <Form {...form}>
         <form onSubmit={e => e.preventDefault()} className="space-y-6">
@@ -316,19 +418,44 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
               />
 
               <hr className="border-t border-border" />
-              <WeatherSection isAiSuggested={isAiSuggested} />
+              <WeatherSection
+                isAiSuggested={isAiSuggested}
+                aiMergeState={aiMergeState}
+                onAcceptSuggestion={acceptAiSuggestion}
+                onDismissSuggestion={dismissAiSuggestion}
+              />
 
               <hr className="border-t border-border" />
-              <ObservationsSection isAiSuggested={isAiSuggested} />
+              <ObservationsSection
+                isAiSuggested={isAiSuggested}
+                aiMergeState={aiMergeState}
+                onAcceptSuggestion={acceptAiSuggestion}
+                onDismissSuggestion={dismissAiSuggestion}
+              />
 
               <hr className="border-t border-border" />
-              <ScorePreviewSection isAiSuggested={isAiSuggested} />
+              <ScorePreviewSection
+                isAiSuggested={isAiSuggested}
+                aiMergeState={aiMergeState}
+                onAcceptSuggestion={acceptAiSuggestion}
+                onDismissSuggestion={dismissAiSuggestion}
+              />
 
               <hr className="border-t border-border" />
-              <ActionsSection isAiSuggested={isAiSuggested} />
+              <ActionsSection
+                isAiSuggested={isAiSuggested}
+                aiMergeState={aiMergeState}
+                onAcceptSuggestion={acceptAiSuggestion}
+                onDismissSuggestion={dismissAiSuggestion}
+              />
 
               <hr className="border-t border-border" />
-              <NotesSection isAiSuggested={isAiSuggested} />
+              <NotesSection
+                isAiSuggested={isAiSuggested}
+                aiMergeState={aiMergeState}
+                onAcceptSuggestion={acceptAiSuggestion}
+                onDismissSuggestion={dismissAiSuggestion}
+              />
             </>
           )}
 

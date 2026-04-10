@@ -13,6 +13,8 @@ import { X } from 'lucide-react';
 import { InspectionFormData } from './schema';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { AiBadge } from './ai-badge';
+import { AiFieldControls } from './ai-field-controls';
+import type { AiMergeState } from '@/pages/inspection/lib/inspection-ai-merge';
 
 type ObservationItemProps<T> = {
   name: T;
@@ -135,14 +137,22 @@ const ObservationItem = <TName extends FieldPath<InspectionFormData>>({
 
 type ObservationsSectionProps = {
   isAiSuggested?: (field: keyof InspectionFormData) => boolean;
+  aiMergeState?: AiMergeState | null;
+  onAcceptSuggestion?: (field: keyof InspectionFormData) => void;
+  onDismissSuggestion?: (field: keyof InspectionFormData) => void;
 };
 
 export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
   isAiSuggested,
+  aiMergeState,
+  onAcceptSuggestion,
+  onDismissSuggestion,
 }) => {
   const { t } = useTranslation('inspection');
   const { control } = useFormContext<InspectionFormData>();
   const queenCells = useWatch({ name: 'observations.queenCells', control });
+
+  const observationSuggestion = aiMergeState?.suggestions.observations;
 
   return (
     <div className="space-y-4">
@@ -152,6 +162,14 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
           {isAiSuggested?.('observations') && <AiBadge />}
         </h3>
       </div>
+
+      <AiFieldControls
+        isVisible={Boolean(observationSuggestion)}
+        hasConflict={observationSuggestion?.hasConflict}
+        status={observationSuggestion?.status}
+        onAccept={() => onAcceptSuggestion?.('observations')}
+        onDismiss={() => onDismissSuggestion?.('observations')}
+      />
 
       <div className="grid grid-cols-2 space-2 md:grid-cols-3">
         <FormField
