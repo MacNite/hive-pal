@@ -25,7 +25,7 @@
         "unknown": "Ukendt",
         "inactive": "Inaktiv",
         "queenless": "Dronningeløs",
-        "weak": "Svag",
+        "weak": "Bagefter",
         "strong": "Stærk",
         "sold": "Solgt",
         "archived": "Arkiveret"
@@ -59,7 +59,7 @@
     "plural": "Stader",
     "list": {
         "title": "Stade liste",
-        "caption": "Liste med alle dine stader",
+        "caption": "En liste af alle dine stader",
         "captionFiltered": "Viser {{count}} {{status}} stade",
         "captionFilteredPlural": "Viser {{count}} {{status}} stader",
         "searchPlaceholder": "Søg i stader...",
@@ -178,7 +178,16 @@
             "extra": "På lager",
             "needed": "Behov",
             "status": "Status",
-            "actions": "Handlinger"
+            "actions": "Handlinger",
+            "deleteItem": "Slet emne fra materiel",
+            "hideItem": "Skjul emne fra materiel",
+            "deleteConfirm": "Er du sikker på at du vil slette \"{{name}}\"? Denne handling kan ikke fortrydes.",
+            "hideConfirm": "Dette vil skjule \"{{name}}\" fra din liste af materiel. Du kan genskabe den senere.",
+            "cancel": "Afbryd",
+            "delete": "Slet",
+            "hide": "Skjul",
+            "showHidden": "Vis {{count}} skjult(e) emne(r)",
+            "restore": "Genskab"
         }
     },
     "llmPrompt": {
@@ -261,7 +270,9 @@
             "frameManagement": "Administrer rammer",
             "harvested": "Høstet {{amount}} {{unit}}",
             "harvest": "Høst",
-            "note": "Notat"
+            "note": "Notat",
+            "maintenance": "{{status}} {{component}}",
+            "maintenanceDefault": "Vedligehold"
         }
     }
 }
