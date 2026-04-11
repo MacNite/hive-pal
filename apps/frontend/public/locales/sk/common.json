@@ -154,7 +154,8 @@
     "password": "Heslo",
     "changePassword": "Zmeniť heslo účtu",
     "saveSettings": "Uložiť nastavenia",
-    "preferencesUpdated": "Vaše nastavenia boli úspešne aktualizované."
+    "preferencesUpdated": "Vaše nastavenia boli úspešne aktualizované.",
+    "saving": "Ukladanie..."
   },
   "feedback": {
     "title": "Poslať spätnú väzbu",
@@ -279,5 +280,8 @@
       "viewReports": "Zobraziť reporty",
       "noApiary": "Vyberte včelnicu na zobrazenie štatistík"
     }
+  },
+  "footer": {
+    "privacyPolicy": "Zásady ochrany osobných údajov"
   }
 }

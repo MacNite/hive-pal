@@ -28,6 +28,11 @@ import { HiveStatus, HiveActionSidebar } from './components';
 import { ChevronRight, Search } from 'lucide-react';
 import { useHives } from '@/api/hooks';
 import { HiveResponse, HiveStatus as HiveStatusEnum } from 'shared-schemas';
+import { useUserPreferences } from '@/api/hooks/useUserPreferences';
+import {
+  formatDateWithPreference,
+  DateFormatPreference,
+} from '@/utils/date-format';
 
 export const HiveListPage = () => {
   const { t } = useTranslation(['hive', 'common']);
@@ -35,6 +40,11 @@ export const HiveListPage = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const { data: userPreferences } = useUserPreferences();
+  const dateFormat = (userPreferences?.dateFormat ?? 'MM/DD/YYYY') as DateFormatPreference;
+
+  const formatDate = (date: string | null | undefined) =>
+    date ? formatDateWithPreference(date, dateFormat) : null;
 
   const handleRefreshData = useCallback(() => {
     refetch();
@@ -135,31 +145,30 @@ export const HiveListPage = () => {
             </TableHeader>
             <TableBody>
               {hives.map(hive => (
-                <TableRow key={hive.id}>
+                <TableRow
+                  key={hive.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => navigate(`/hives/${hive.id}`)}
+                >
                   <TableCell className="font-medium">{hive.name}</TableCell>
                   <TableCell>
                     <HiveStatus status={hive.status} />
                   </TableCell>
                   <TableCell>
-                    {hive.installationDate ?? t('hive:fields.notSpecified')}
+                    {formatDate(hive.installationDate) ?? t('hive:fields.notSpecified')}
                   </TableCell>
                   <TableCell>
-                    {hive.lastInspectionDate ??
+                    {formatDate(hive.lastInspectionDate) ??
                       t('hive:fields.noInspectionYet')}
                   </TableCell>
                   <TableCell className="max-w-[200px] truncate">
                     {hive.notes ?? t('hive:fields.noNotes')}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate(`/hives/${hive.id}`)}
-                      className="flex items-center"
-                    >
-                      {t('hive:actions.details')}{' '}
+                    <span className="inline-flex items-center text-sm text-muted-foreground">
+                      {t('hive:actions.details')}
                       <ChevronRight className="ml-1 h-4 w-4" />
-                    </Button>
+                    </span>
                   </TableCell>
                 </TableRow>
               ))}

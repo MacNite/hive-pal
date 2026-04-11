@@ -158,7 +158,8 @@
     "password": "Password",
     "changePassword": "Change your account password",
     "saveSettings": "Save Settings",
-    "preferencesUpdated": "Your preferences have been updated successfully."
+    "preferencesUpdated": "Your preferences have been updated successfully.",
+    "saving": "Saving..."
   },
   "feedback": {
     "title": "Send Feedback",
@@ -433,5 +434,8 @@
       "apiaryDetails": "Apiary Details",
       "noApiary": "Select an apiary to view statistics"
     }
+  },
+  "footer": {
+    "privacyPolicy": "Privacy Policy"
   }
 }

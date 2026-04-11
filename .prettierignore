@@ -1,0 +1,3 @@
+# Locale files are managed by Weblate and have their own formatting conventions.
+# Reformatting them causes merge conflicts when Weblate pushes translation updates.
+apps/frontend/public/locales/**/*.json

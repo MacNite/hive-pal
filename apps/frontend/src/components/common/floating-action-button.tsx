@@ -97,7 +97,10 @@ export const FloatingActionButton = () => {
 
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
         {/* Action buttons */}
-        <div className="flex flex-col items-end gap-3 mb-3">
+        <div className={cn(
+          "flex flex-col items-end gap-3 mb-3 bg-background/95 backdrop-blur-sm rounded-2xl p-3 shadow-lg border border-border transition-all duration-300",
+          isOpen && actions.length > 1 ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}>
           {actions.map((action, index) => (
             <div
               key={action.id}
@@ -114,7 +117,7 @@ export const FloatingActionButton = () => {
               }}
             >
               <div className="flex items-center justify-end gap-3">
-                <span className="bg-black/80 text-white px-3 py-1 rounded-full text-sm whitespace-nowrap hidden md:block">
+                <span className="text-sm font-medium whitespace-nowrap text-foreground">
                   {action.label}
                 </span>
                 <Button

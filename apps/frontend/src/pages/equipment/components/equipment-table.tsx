@@ -514,7 +514,7 @@ export const EquipmentTable = ({
   ];
   const { t } = useTranslation('hive');
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-[700px]">
       {/* Add Equipment Button */}
       {onCreate && (
         <div className="flex justify-end">

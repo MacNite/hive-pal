@@ -106,7 +106,9 @@
         "doInspection": "Esegui Ispezione",
         "reschedule": "Riprogramma",
         "cancel": "Annulla",
-        "completeInspection": "Completa Ispezione"
+        "completeInspection": "Completa Ispezione",
+        "print": "Stampa",
+        "share": "Condividi"
     },
     "sidebar": {
         "actions": "Azioni",

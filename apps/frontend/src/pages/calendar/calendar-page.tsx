@@ -238,35 +238,41 @@ export const CalendarPage = () => {
     <PageGrid>
       <MainContent>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-2xl font-bold">
               {t('common:calendar.sevenDayViewTitle', {
                 date: formatLongDate(selectedDate),
                 defaultValue: '{{date}} - 7 Day View',
               })}
             </h1>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePreviousWeek}
+                aria-label={t('common:calendar.previousWeek', { defaultValue: 'Previous Week' })}
                 className="flex items-center gap-1"
               >
                 <ChevronLeft className="h-4 w-4" />
-                {t('common:calendar.previousWeek', {
-                  defaultValue: 'Previous Week',
-                })}
+                <span className="hidden sm:inline">
+                  {t('common:calendar.previousWeek', {
+                    defaultValue: 'Previous Week',
+                  })}
+                </span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePreviousDay}
+                aria-label={t('common:calendar.previousDay', { defaultValue: 'Previous Day' })}
                 className="flex items-center gap-1"
               >
                 <ChevronLeft className="h-4 w-4" />
-                {t('common:calendar.previousDay', {
-                  defaultValue: 'Previous Day',
-                })}
+                <span className="hidden sm:inline">
+                  {t('common:calendar.previousDay', {
+                    defaultValue: 'Previous Day',
+                  })}
+                </span>
               </Button>
               <Button
                 variant="outline"
@@ -281,22 +287,28 @@ export const CalendarPage = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleNextDay}
+                aria-label={t('common:calendar.nextDay', { defaultValue: 'Next Day' })}
                 className="flex items-center gap-1"
               >
-                {t('common:calendar.nextDay', {
-                  defaultValue: 'Next Day',
-                })}
+                <span className="hidden sm:inline">
+                  {t('common:calendar.nextDay', {
+                    defaultValue: 'Next Day',
+                  })}
+                </span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNextWeek}
+                aria-label={t('common:calendar.nextWeek', { defaultValue: 'Next Week' })}
                 className="flex items-center gap-1"
               >
-                {t('common:calendar.nextWeek', {
-                  defaultValue: 'Next Week',
-                })}
+                <span className="hidden sm:inline">
+                  {t('common:calendar.nextWeek', {
+                    defaultValue: 'Next Week',
+                  })}
+                </span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

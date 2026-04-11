@@ -111,7 +111,9 @@
     "doInspection": "Do Inspection",
     "reschedule": "Reschedule",
     "cancel": "Cancel",
-    "completeInspection": "Complete Inspection"
+    "completeInspection": "Complete Inspection",
+    "print": "Print",
+    "share": "Share"
   },
   "sidebar": {
     "actions": "Actions",

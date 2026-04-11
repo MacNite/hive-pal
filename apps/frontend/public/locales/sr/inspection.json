@@ -11,7 +11,9 @@
         "shareList": "Подели листу",
         "doInspection": "Изврши преглед",
         "reschedule": "Промени термин",
-        "completeInspection": "Заврши преглед"
+        "completeInspection": "Заврши преглед",
+        "print": "Штампај",
+        "share": "Подели"
     },
     "messages": {
         "exportComingSoon": "Функционалност извоза ускоро стиже",

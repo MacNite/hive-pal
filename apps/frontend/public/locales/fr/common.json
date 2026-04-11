@@ -158,7 +158,8 @@
         "password": "Mot de passe",
         "changePassword": "Modifier le mot de passe de votre compte",
         "saveSettings": "Enregistrer les paramètres",
-        "preferencesUpdated": "Vos préférences ont été mises à jour avec succès."
+        "preferencesUpdated": "Vos préférences ont été mises à jour avec succès.",
+        "saving": "Enregistrement..."
     },
     "feedback": {
         "title": "Envoyer un retour",

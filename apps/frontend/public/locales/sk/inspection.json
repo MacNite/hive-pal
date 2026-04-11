@@ -106,7 +106,8 @@
         "doInspection": "Vykonať prehliadku",
         "reschedule": "Preplánovať",
         "cancel": "Zrušiť",
-        "completeInspection": "Dokončiť prehliadku"
+        "completeInspection": "Dokončiť prehliadku",
+        "print": "Tlačiť"
     },
     "sidebar": {
         "actions": "Akcie",

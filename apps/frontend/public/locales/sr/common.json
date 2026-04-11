@@ -151,7 +151,8 @@
         "password": "Лозинка",
         "changePassword": "Промените лозинку вашег налога",
         "saveSettings": "Сачувај подешавања",
-        "preferencesUpdated": "Ваша подешавања су успешно ажурирана."
+        "preferencesUpdated": "Ваша подешавања су успешно ажурирана.",
+        "saving": "Чување..."
     },
     "feedback": {
         "title": "Пошаљи повратне информације",
@@ -334,5 +335,8 @@
         "size": "Величина",
         "download": "Преузми",
         "delete": "Избриши"
+    },
+    "footer": {
+        "privacyPolicy": "Politika privatnosti"
     }
 }

@@ -39,7 +39,7 @@ export const useReleaseNotesNotification = () => {
       ),
       {
         duration: 10000, // Auto-dismiss after 10 seconds
-        position: 'top-right',
+        position: 'bottom-center',
       },
     );
   }, [

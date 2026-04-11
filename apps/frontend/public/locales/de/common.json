@@ -154,7 +154,8 @@
     "password": "Passwort",
     "changePassword": "Kontopasswort ändern",
     "saveSettings": "Einstellungen speichern",
-    "preferencesUpdated": "Ihre Einstellungen wurden erfolgreich aktualisiert."
+    "preferencesUpdated": "Ihre Einstellungen wurden erfolgreich aktualisiert.",
+    "saving": "Speichern..."
   },
   "feedback": {
     "title": "Feedback senden",
@@ -199,63 +200,6 @@
     "noEvents": "Keine Events",
     "overdueInspections": "Überfällige Inspektionen ({{overdueInspectionsSize}})",
     "viewInspection": "Inspektion anzeigen"
-  },
-  "quickAdd": {
-    "title": "Eintrag hinzufügen",
-    "quickCheck": "Schnellprüfung",
-    "action": "Aktion",
-    "photo": "Foto",
-    "document": "Dokument"
-  },
-  "photo": {
-    "title": "Foto hinzufügen",
-    "description": "Lade ein Foto hoch, optional mit einer Bildunterschrift.",
-    "caption": "Bildunterschrift",
-    "optional": "optional",
-    "captionPlaceholder": "Beschreibe das Foto...",
-    "selectPhoto": "Wähle ein Foto aus",
-    "upload": "Foto hochladen",
-    "uploading": "Wird hochgeladen...",
-    "uploadSuccess": "Foto hochgeladen",
-    "uploadFailed": "Upload des Fotos fehlgeschlagen",
-    "deleteTitle": "Foto löschen?",
-    "deleteDescription": "Dieser Vorgang kann nicht rückgängig gemacht werden. Das Foto wird dadurch endgültig gelöscht.",
-    "deleted": "Foto gelöscht",
-    "deleteFailed": "Das Foto konnte nicht gelöscht werden"
-  },
-  "document": {
-    "title": "Dokument hinzufügen",
-    "description": "PDF oder gescanntes Dokument hochladen.",
-    "titleField": "Titel",
-    "titlePlaceholder": "Dokumenttitel",
-    "notes": "Anmerkungen",
-    "optional": "optional",
-    "notesPlaceholder": "Notizen zu diesem Dokument hinzufügen...",
-    "selectFile": "Wählen Sie eine Datei aus (PDF, JPEG, PNG)",
-    "upload": "Dokument hochladen",
-    "uploading": "Wird hochgeladen...",
-    "uploadSuccess": "Dokument hochgeladen",
-    "uploadFailed": "Das Dokument konnte nicht hochgeladen werden",
-    "deleteTitle": "Dokument löschen?",
-    "deleteDescription": "Dieser Vorgang kann nicht rückgängig gemacht werden. Das Dokument wird dadurch endgültig gelöscht.",
-    "deleted": "Dokument gelöscht",
-    "deleteFailed": "Dokument konnte nicht gelöscht werden"
-  },
-  "files": {
-    "title": "Dateien",
-    "allFiles": "Alle Dateien",
-    "photos": "Fotos",
-    "documents": "Dokumente",
-    "search": "Dateien suchen...",
-    "filterByHive": "Nach Bienenstock filtern",
-    "filterByType": "Nach Typ filtern",
-    "noFiles": "Es wurden noch keine Dateien hochgeladen",
-    "name": "Name",
-    "type": "Typ",
-    "hive": "Bienenstock",
-    "size": "Größe",
-    "download": "Herunterladen",
-    "delete": "Löschen"
   },
   "quickCheck": {
     "title": "Schnellprüfung",
@@ -406,5 +350,8 @@
     "action": "Aktion",
     "photo": "Foto",
     "document": "Dokument"
+  },
+  "footer": {
+    "privacyPolicy": "Datenschutzrichtlinie"
   }
 }

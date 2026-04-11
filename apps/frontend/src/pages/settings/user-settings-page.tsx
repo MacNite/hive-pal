@@ -301,7 +301,7 @@ export const UserSettingsPage = () => {
             <CardDescription>{t('settings.manageAccountInfo')}</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-medium">{t('settings.password')}</p>
                 <p className="text-sm text-muted-foreground">

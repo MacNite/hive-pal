@@ -80,7 +80,7 @@ const DashboardLayout = () => {
         <div className="px-4 pt-4">
           <Breadcrumbs />
         </div>
-        <main className="flex-1 overflow-y-auto p-4">
+        <main className="flex-1 overflow-y-auto p-4 pb-24 md:pb-4">
           <Outlet />
         </main>
         <FloatingActionButton />

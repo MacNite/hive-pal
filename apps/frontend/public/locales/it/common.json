@@ -150,7 +150,8 @@
     "password": "Password",
     "changePassword": "Cambia la password dell'account",
     "saveSettings": "Salva Impostazioni",
-    "preferencesUpdated": "Le tue preferenze sono state aggiornate con successo."
+    "preferencesUpdated": "Le tue preferenze sono state aggiornate con successo.",
+    "saving": "Salvataggio in corso..."
   },
   "feedback": {
     "title": "Invia Feedback",
@@ -221,5 +222,8 @@
       "viewReports": "Visualizza Report",
       "noApiary": "Seleziona un apiario per visualizzare le statistiche"
     }
+  },
+  "footer": {
+    "privacyPolicy": "Informativa sulla privacy"
   }
 }

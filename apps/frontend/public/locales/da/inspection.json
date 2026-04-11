@@ -142,7 +142,9 @@
         "doInspection": "Udfør inspektion",
         "reschedule": "Omlægge",
         "completeInspection": "Færdiggør inspektion",
-        "addInspection": "Tilføj inspektion"
+        "addInspection": "Tilføj inspektion",
+        "print": "Udskriv",
+        "share": "Del"
     },
     "messages": {
         "exportComingSoon": "Funktionen \"eksporter\" kommer snart",

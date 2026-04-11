@@ -69,13 +69,18 @@ export function LanguageSwitcher({
 
   if (variant === 'buttons') {
     return (
-      <div className={`flex gap-2 ${className}`}>
+      <div className={`flex flex-wrap justify-center gap-2 ${className}`}>
         {LANGUAGES.map(language => (
           <Button
             key={language.code}
-            variant={currentLanguage === language.code ? 'default' : 'outline'}
+            variant="ghost"
             size="sm"
             onClick={() => handleLanguageChange(language.code)}
+            className={
+              currentLanguage === language.code
+                ? 'bg-amber-500/80 text-white hover:bg-amber-500 border border-amber-400'
+                : 'text-white/80 hover:text-white border border-white/30 hover:bg-white/10'
+            }
           >
             {language.code.toUpperCase()}
           </Button>
