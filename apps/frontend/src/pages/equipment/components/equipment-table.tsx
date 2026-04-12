@@ -2,7 +2,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Info, RotateCcw, Edit2, Save, X, Trash2, Plus, Eye,
+  Info, RotateCcw, Edit2, Save, X, Trash2, Eye,
   Box, Home, LayoutGrid, Droplets, FlaskConical,
   Wrench, Shield, Container, Star,
 } from 'lucide-react';
@@ -540,6 +540,18 @@ export const EquipmentTable = ({
   const [showAddFormLocal, setShowAddFormLocal] = useState(false);
   const showAddForm = showAddFormProp ?? showAddFormLocal;
   const setShowAddForm = (v: boolean) => {
+    if (v) {
+      setNewItemData({
+        itemId: '',
+        name: '',
+        category: EquipmentCategory.CUSTOM,
+        unit: 'pieces',
+        perHive: 0,
+        extra: 0,
+        enabled: true,
+        displayOrder: 999,
+      });
+    }
     setShowAddFormLocal(v);
     onShowAddFormChange?.(v);
   };
@@ -555,20 +567,6 @@ export const EquipmentTable = ({
     enabled: true,
     displayOrder: 999,
   });
-
-  const handleAddEquipment = () => {
-    setNewItemData({
-      itemId: '',
-      name: '',
-      category: EquipmentCategory.CUSTOM,
-      unit: 'pieces',
-      perHive: 0,
-      extra: 0,
-      enabled: true,
-      displayOrder: 999,
-    });
-    setShowAddForm(true);
-  };
 
   const handleSaveNewItem = async () => {
     if (!onCreate || !newItemData.name?.trim()) return;
