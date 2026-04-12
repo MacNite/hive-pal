@@ -8,6 +8,7 @@ import { LoggerModule } from '../logger/logger.module';
 import { ActionsModule } from '../actions/actions.module';
 import { UsersModule } from '../users/users.module';
 import { InspectionAudioModule } from '../inspection-audio/inspection-audio.module';
+import { PhotosModule } from '../photos/photos.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { InspectionAudioModule } from '../inspection-audio/inspection-audio.modu
     ActionsModule,
     UsersModule,
     forwardRef(() => InspectionAudioModule),
+    PhotosModule,
   ],
   controllers: [InspectionsController],
   providers: [

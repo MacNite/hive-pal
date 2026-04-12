@@ -195,12 +195,15 @@ export const useDeleteInspection = () => {
   });
 };
 
-export const useUpsertInspection = (inspectionId?: string) => {
-  const { mutate: createInspectionMutation } = useCreateInspection();
-  const { mutate: updateInspectionMutation } = useUpdateInspection();
+export const useUpsertInspection = (
+  inspectionId?: string,
+  options?: { onBeforeNavigate?: (inspectionId: string) => Promise<void> },
+) => {
+  const { mutateAsync: createInspectionMutation } = useCreateInspection();
+  const { mutateAsync: updateInspectionMutation } = useUpdateInspection();
   const getUrl = (inspectionId?: string) => `/inspections/${inspectionId}`;
   const navigate = useNavigate();
-  return (data: InspectionFormData, status?: InspectionStatus) => {
+  return async (data: InspectionFormData, status?: InspectionStatus) => {
     // Transform actions to match API format
     const transformedActions = data.actions
       ?.map((action): CreateAction | null => {
@@ -272,22 +275,19 @@ export const useUpsertInspection = (inspectionId?: string) => {
     };
 
     if (!inspectionId) {
-      createInspectionMutation(formattedData, {
-        onSuccess: res => navigate(getUrl(res.id)),
-      });
+      const res = await createInspectionMutation(formattedData);
+      await options?.onBeforeNavigate?.(res.id);
+      navigate(getUrl(res.id));
     } else {
-      updateInspectionMutation(
-        {
+      const res = await updateInspectionMutation({
+        id: inspectionId,
+        data: {
+          ...formattedData,
           id: inspectionId,
-          data: {
-            ...formattedData,
-            id: inspectionId,
-          },
         },
-        {
-          onSuccess: res => navigate(getUrl(res.id)),
-        },
-      );
+      });
+      await options?.onBeforeNavigate?.(res.id);
+      navigate(getUrl(res.id));
     }
   };
 };

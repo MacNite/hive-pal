@@ -186,6 +186,7 @@ model Inspection {
   status            InspectionStatus @default(COMPLETED)
   batchInspectionHive BatchInspectionHive?
   audioRecordings   InspectionAudio[]
+  photos            Photo[]
   createdByUserId   String?
   createdByUser     User?            @relation("InspectionCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
 
@@ -764,25 +765,28 @@ model ShareLink {
 
 // Standalone photo attached to an apiary or hive
 model Photo {
-  id         String   @id @default(uuid())
-  hiveId     String?
-  hive       Hive?    @relation(fields: [hiveId], references: [id], onDelete: Cascade)
-  apiaryId   String
-  apiary     Apiary   @relation(fields: [apiaryId], references: [id], onDelete: Cascade)
-  caption    String?  @db.Text
-  storageKey String
-  fileName   String
-  mimeType   String
-  fileSize   Int
-  date       DateTime @default(now())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String      @id @default(uuid())
+  hiveId       String?
+  hive         Hive?       @relation(fields: [hiveId], references: [id], onDelete: Cascade)
+  apiaryId     String
+  apiary       Apiary      @relation(fields: [apiaryId], references: [id], onDelete: Cascade)
+  inspectionId String?
+  inspection   Inspection? @relation(fields: [inspectionId], references: [id], onDelete: Cascade)
+  caption      String?     @db.Text
+  storageKey   String
+  fileName     String
+  mimeType     String
+  fileSize     Int
+  date         DateTime    @default(now())
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   featureOfApiary Apiary? @relation("ApiaryFeaturePhoto")
   featureOfHive   Hive?   @relation("HiveFeaturePhoto")
 
   @@index([hiveId])
   @@index([apiaryId])
+  @@index([inspectionId])
   @@index([hiveId, date])
 }
 

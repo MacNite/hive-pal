@@ -44,6 +44,9 @@ import { mapWeatherConditionToForm } from '@/utils/weather-mapping';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 import { AudioSection } from './audio-section';
+import { PhotosSection, PendingPhoto } from './photos-section';
+import { uploadPendingPhotos } from './upload-pending-photos';
+import { uploadPendingRecordings } from './upload-pending-recordings';
 import { ScorePreviewSection } from './score-preview';
 import { InspectionDateTimePicker } from '@/components/inspection-date-time-picker';
 
@@ -80,6 +83,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
   const [pendingRecordings, setPendingRecordings] = useState<
     PendingRecording[]
   >([]);
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
 
   // Use our new custom hooks
   const { data: inspection } = useInspection(inspectionId as string, {
@@ -164,7 +168,18 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
     }
   }, [weatherData, form, isDateInFuture, selectedHive?.apiaryId]);
 
-  const onSubmit = useUpsertInspection(inspectionId);
+  const onSubmit = useUpsertInspection(inspectionId, {
+    onBeforeNavigate: async (id: string) => {
+      await Promise.all([
+        pendingRecordings.length > 0
+          ? uploadPendingRecordings(id, pendingRecordings)
+          : Promise.resolve(),
+        pendingPhotos.length > 0
+          ? uploadPendingPhotos(id, pendingPhotos)
+          : Promise.resolve(),
+      ]);
+    },
+  });
 
   // Handler for regular save button
   const handleSave = form.handleSubmit(data => {
@@ -312,6 +327,12 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                 inspectionId={inspectionId}
                 pendingRecordings={pendingRecordings}
                 onPendingRecordingsChange={setPendingRecordings}
+              />
+              <hr className={'border-t border-border'} />
+              <PhotosSection
+                inspectionId={inspectionId}
+                pendingPhotos={pendingPhotos}
+                onPendingPhotosChange={setPendingPhotos}
               />
               <hr className={'border-t border-border'} />
               <WeatherSection />

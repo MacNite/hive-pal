@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PhotosController } from './photos.controller';
+import { InspectionPhotosController } from './inspection-photos.controller';
 import { PhotosService } from './photos.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoggerModule } from '../logger/logger.module';
@@ -20,7 +21,7 @@ import { LoggerModule } from '../logger/logger.module';
       inject: [ConfigService],
     }),
   ],
-  controllers: [PhotosController],
+  controllers: [PhotosController, InspectionPhotosController],
   providers: [PhotosService, PrismaService],
   exports: [PhotosService],
 })

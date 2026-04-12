@@ -14,6 +14,7 @@ import { CustomLoggerService } from '../logger/logger.service';
 import { InspectionCreatedEvent } from '../events/hive.events';
 import { InspectionStatusUpdaterService } from './inspection-status-updater.service';
 import { InspectionAudioService } from '../inspection-audio/inspection-audio.service';
+import { PhotosService } from '../photos/photos.service';
 
 type InspectionWithIncludes = Prisma.InspectionGetPayload<{
   include: {
@@ -70,6 +71,7 @@ export class InspectionsService {
     private inspectionStatusUpdater: InspectionStatusUpdaterService,
     @Inject(forwardRef(() => InspectionAudioService))
     private audioService: InspectionAudioService,
+    private photosService: PhotosService,
   ) {}
 
   async create(
@@ -558,8 +560,9 @@ export class InspectionsService {
       );
     }
 
-    // Delete audio files from S3 before transaction (outside DB transaction)
+    // Delete files from S3 before transaction (outside DB transaction)
     await this.audioService.deleteAllForInspection(id);
+    await this.photosService.deleteAllForInspection(id);
 
     return this.prisma.$transaction(async (tx) => {
       // Delete related actions first

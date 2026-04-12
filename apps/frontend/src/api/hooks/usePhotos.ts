@@ -70,6 +70,101 @@ export const useDeletePhoto = () => {
   });
 };
 
+// --- Inspection Photo Hooks ---
+
+export const INSPECTION_PHOTO_KEYS = {
+  all: (inspectionId: string) =>
+    ['inspection-photos', inspectionId] as const,
+  downloadUrl: (inspectionId: string, photoId: string) =>
+    ['inspection-photos', inspectionId, 'download-url', photoId] as const,
+};
+
+export const useInspectionPhotos = (
+  inspectionId?: string,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<PhotoResponse[]>({
+    queryKey: INSPECTION_PHOTO_KEYS.all(inspectionId!),
+    queryFn: async () => {
+      const response = await apiClient.get<PhotoResponse[]>(
+        `/api/inspections/${inspectionId}/photos`,
+      );
+      return response.data;
+    },
+    enabled: !!inspectionId && options?.enabled !== false,
+  });
+};
+
+export const useUploadInspectionPhoto = (inspectionId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<PhotoResponse, Error, FormData>({
+    mutationFn: async formData => {
+      const response = await apiClient.post<PhotoResponse>(
+        `/api/inspections/${inspectionId}/photos`,
+        formData,
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: INSPECTION_PHOTO_KEYS.all(inspectionId),
+      });
+    },
+  });
+};
+
+export const useDeleteInspectionPhoto = (inspectionId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: async photoId => {
+      await apiClient.delete(
+        `/api/inspections/${inspectionId}/photos/${photoId}`,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: INSPECTION_PHOTO_KEYS.all(inspectionId),
+      });
+    },
+  });
+};
+
+export const useInspectionPhotoDownloadUrl = (
+  inspectionId: string,
+  photoId: string,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<{ downloadUrl: string; expiresIn: number }>({
+    queryKey: INSPECTION_PHOTO_KEYS.downloadUrl(inspectionId, photoId),
+    queryFn: async () => {
+      const response = await apiClient.get<{
+        downloadUrl: string;
+        expiresIn: number;
+      }>(
+        `/api/inspections/${inspectionId}/photos/${photoId}/download-url`,
+      );
+      return response.data;
+    },
+    enabled: options?.enabled !== false && !!inspectionId && !!photoId,
+    staleTime: 1000 * 60 * 50,
+  });
+};
+
+export const getInspectionPhotoDownloadUrl = async (
+  inspectionId: string,
+  photoId: string,
+): Promise<string> => {
+  const response = await apiClient.get<{
+    downloadUrl: string;
+    expiresIn: number;
+  }>(
+    `/api/inspections/${inspectionId}/photos/${photoId}/download-url`,
+  );
+  return response.data.downloadUrl;
+};
+
 export const useStandalonePhotoDownloadUrl = (
   id: string,
   options?: { enabled?: boolean },
