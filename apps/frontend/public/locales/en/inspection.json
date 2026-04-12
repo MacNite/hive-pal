@@ -314,6 +314,14 @@
       "title": "Audio Notes",
       "pendingUpload": "{{count}} pending upload",
       "uploadWarning": "Audio recordings will be uploaded when you save the inspection."
+    },
+    "photos": {
+      "title": "Photos",
+      "addPhoto": "Add Photo",
+      "pendingUpload": "{{count}} pending upload",
+      "uploadWarning": "Photos will be uploaded when you save the inspection.",
+      "deleteConfirm": "Delete this photo?",
+      "maxReached": "Maximum {{max}} photos per inspection"
     }
   },
   "detailSidebar": {

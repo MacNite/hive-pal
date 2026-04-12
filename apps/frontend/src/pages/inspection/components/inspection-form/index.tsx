@@ -44,6 +44,9 @@ import { mapWeatherConditionToForm } from '@/utils/weather-mapping';
 import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { AudioSection } from './audio-section';
+import { PhotosSection, PendingPhoto } from './photos-section';
+import { uploadPendingPhotos } from './upload-pending-photos';
+import { uploadPendingRecordings } from './upload-pending-recordings';
 import { ScorePreviewSection } from './score-preview';
 import {
   buildAiMergeState,
@@ -89,6 +92,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
   const [pendingRecordings, setPendingRecordings] = useState<
     PendingRecording[]
   >([]);
+  const [pendingPhotos, setPendingPhotos] = useState<PendingPhoto[]>([]);
 
   const { data: inspection } = useInspection(inspectionId as string, {
     enabled: !!inspectionId,
@@ -499,6 +503,12 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                 onPendingRecordingsChange={setPendingRecordings}
               />
 
+              <hr className={'border-t border-border'} />
+              <PhotosSection
+                inspectionId={inspectionId}
+                pendingPhotos={pendingPhotos}
+                onPendingPhotosChange={setPendingPhotos}
+              />
               <hr className="border-t border-border" />
               <WeatherSection
                 isAiSuggested={isAiSuggested}

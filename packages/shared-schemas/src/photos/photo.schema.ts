@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const createPhotoSchema = z.object({
   apiaryId: z.string().uuid(),
   hiveId: z.string().uuid().optional(),
+  inspectionId: z.string().uuid().optional(),
   caption: z.string().max(500).optional(),
   date: z.string().datetime().optional(),
 });
@@ -13,6 +14,7 @@ export const photoResponseSchema = z.object({
   id: z.string().uuid(),
   hiveId: z.string().uuid().nullable(),
   apiaryId: z.string().uuid(),
+  inspectionId: z.string().uuid().nullable(),
   caption: z.string().nullable(),
   fileName: z.string(),
   mimeType: z.string(),
@@ -27,6 +29,7 @@ export type PhotoResponse = z.infer<typeof photoResponseSchema>;
 export const photoFilterSchema = z.object({
   hiveId: z.string().uuid().optional(),
   apiaryId: z.string().uuid().optional(),
+  inspectionId: z.string().uuid().optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
 });
