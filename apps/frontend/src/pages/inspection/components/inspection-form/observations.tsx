@@ -202,6 +202,10 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
   const broodPatternSuggestion =
     aiMergeState?.suggestions['observations.broodPattern'];
   const strengthSuggestion = aiMergeState?.suggestions['observations.strength'];
+
+  console.log('strengthSuggestion', strengthSuggestion);
+  console.log('current strength', currentObservations?.strength);
+
   const uncappedBroodSuggestion =
     aiMergeState?.suggestions['observations.uncappedBrood'];
   const cappedBroodSuggestion =
@@ -250,15 +254,12 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
     currentValue: unknown,
   ) => {
     const suggestion = aiMergeState?.suggestions[`observations.${key}`];
+
     if (!hasAiField(key)) return false;
     if (suggestion?.status !== 'pending') return false;
     if (dirtyObservationFields[key]) return false;
 
-    return (
-      typeof currentValue === 'number' ||
-      currentValue === null ||
-      currentValue === undefined
-    );
+    return currentValue === 0 || currentValue === null || currentValue === undefined;
   };
 
   return (
