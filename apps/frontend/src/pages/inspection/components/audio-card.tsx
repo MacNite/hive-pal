@@ -14,7 +14,6 @@ import {
   useInspectionAudioAiResult,
 } from '@/api/hooks/useInspectionAudioAi';
 import { useNavigate } from 'react-router-dom';
-import { mapAiDraftToInspectionForm } from '@/pages/inspection/lib/map-ai-draft-to-inspection-form';
 
 interface AudioCardProps {
   inspectionId: string;
@@ -83,6 +82,9 @@ function RecordingRow({
   );
   const navigate = useNavigate();
 
+  const aiResult = resultQuery.data;
+  const transcriptText = aiResult?.transcript?.text ?? '';
+
   const handlePrefillInspection = () => {
     if (!aiResult?.inspectionDraft) {
       setPrefillMessage('Run analysis first.');
@@ -90,19 +92,13 @@ function RecordingRow({
       return;
     }
 
-    const mapped = mapAiDraftToInspectionForm(aiResult.inspectionDraft);
-
     navigate(`/inspections/${inspectionId}/edit?from=ai`, {
       state: {
-        aiDraft: mapped.values,
-        aiSuggestedFields: mapped.suggestedFields,
+        aiDraft: aiResult.inspectionDraft,
         aiSourceAudioId: recording.id,
       },
     });
   };
-
-  const aiResult = resultQuery.data;
-  const transcriptText = aiResult?.transcript?.text ?? '';
 
   const shouldShowAiPanel =
     effectiveStatus !== 'NONE' || isPollingEnabled || Boolean(aiResult);
