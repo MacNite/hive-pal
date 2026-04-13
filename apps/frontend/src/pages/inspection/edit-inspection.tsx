@@ -13,6 +13,54 @@ type EditInspectionLocationState = {
   aiSourceAudioId?: string;
 };
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isMeaningfulValue(value: unknown): boolean {
+  if (value === null || value === undefined) return false;
+  if (typeof value === 'string') return value.trim() !== '';
+  if (Array.isArray(value)) return value.length > 0;
+  return true;
+}
+
+function flattenSuggestedFields(
+  value: Record<string, unknown>,
+  prefix = '',
+): string[] {
+  const result: string[] = [];
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    const path = prefix ? `${prefix}.${key}` : key;
+
+    if (isPlainObject(nestedValue)) {
+      result.push(...flattenSuggestedFields(nestedValue, path));
+      continue;
+    }
+
+    if (isMeaningfulValue(nestedValue)) {
+      result.push(path);
+    }
+  }
+
+  return result;
+}
+
+function getSuggestedFields(
+  aiDraft?: Partial<InspectionFormData>,
+  aiSuggestedFields?: string[],
+): string[] {
+  if (Array.isArray(aiSuggestedFields) && aiSuggestedFields.length > 0) {
+    return aiSuggestedFields;
+  }
+
+  if (!aiDraft || !isPlainObject(aiDraft)) {
+    return [];
+  }
+
+  return flattenSuggestedFields(aiDraft as Record<string, unknown>);
+}
+
 export const EditInspectionPage = () => {
   const { t } = useTranslation('inspection');
   const { id } = useParams<{ id: string }>();
@@ -25,6 +73,11 @@ export const EditInspectionPage = () => {
   const { data: inspection } = useInspection(id || '', {
     enabled: !!id && fromScheduled,
   });
+
+  const resolvedAiSuggestedFields = getSuggestedFields(
+    state.aiDraft,
+    state.aiSuggestedFields,
+  );
 
   return (
     <div className="space-y-4">
@@ -48,7 +101,7 @@ export const EditInspectionPage = () => {
       <InspectionForm
         inspectionId={id}
         aiDraft={state.aiDraft}
-        aiSuggestedFields={state.aiSuggestedFields ?? []}
+        aiSuggestedFields={resolvedAiSuggestedFields}
       />
     </div>
   );

@@ -182,8 +182,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
     [aiSuggestedFields],
   );
 
-  const isAiSuggested = (field: keyof InspectionFormData) =>
-    aiSuggestedFieldSet.has(field as string);
+  const isAiSuggested = (field: string) => aiSuggestedFieldSet.has(field);
 
   useEffect(() => {
     if (weatherData && !isDateInFuture && selectedHive?.apiaryId) {
@@ -207,11 +206,11 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
     initializedAiMergeRef.current = true;
   }, [aiDraft, form]);
 
-  const acceptAiSuggestion = (field: keyof InspectionFormData) => {
-    const suggestion = aiMergeState?.suggestions[field as string];
+  const acceptAiSuggestion = (field: string) => {
+    const suggestion = aiMergeState?.suggestions[field];
     if (!suggestion) return;
 
-    form.setValue(field, suggestion.aiValue as never, {
+    form.setValue(field as never, suggestion.aiValue as never, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
@@ -219,12 +218,11 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
 
     setAiMergeState(prev => {
       if (!prev) return prev;
-
       return {
         suggestions: {
           ...prev.suggestions,
           [field]: {
-            ...prev.suggestions[field as string],
+            ...prev.suggestions[field],
             status: 'accepted',
           },
         },
@@ -232,15 +230,14 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
     });
   };
 
-  const dismissAiSuggestion = (field: keyof InspectionFormData) => {
+  const dismissAiSuggestion = (field: string) => {
     setAiMergeState(prev => {
       if (!prev) return prev;
-
       return {
         suggestions: {
           ...prev.suggestions,
           [field]: {
-            ...prev.suggestions[field as string],
+            ...prev.suggestions[field],
             status: 'dismissed',
           },
         },
@@ -255,15 +252,11 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
       if (suggestion.status !== 'pending') return;
       if (suggestion.hasConflict) return;
 
-      form.setValue(
-        suggestion.field as keyof InspectionFormData,
-        suggestion.aiValue as never,
-        {
-          shouldDirty: true,
-          shouldTouch: true,
-          shouldValidate: true,
-        },
-      );
+      form.setValue(suggestion.field as never, suggestion.aiValue as never, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
     });
 
     setAiMergeState(prev => {
