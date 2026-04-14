@@ -37,19 +37,6 @@ export default defineConfig({
               },
             },
           },
-          {
-            // API calls — network first, fall back to cache
-            urlPattern: /\/api\/.*/,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'api-cache',
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24,
-              },
-              networkTimeoutSeconds: 5,
-            },
-          },
         ],
       },
     }),
