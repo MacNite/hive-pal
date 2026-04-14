@@ -21,6 +21,9 @@ function isMeaningfulValue(value: unknown): boolean {
   if (value === null || value === undefined) return false;
   if (typeof value === 'string') return value.trim() !== '';
   if (Array.isArray(value)) return value.length > 0;
+
+  // Important:
+  // false and 0 are valid AI suggestions, so they must count as meaningful.
   return true;
 }
 
@@ -68,16 +71,19 @@ export const EditInspectionPage = () => {
   const [searchParams] = useSearchParams();
 
   const fromScheduled = searchParams.get('from') === 'scheduled';
+  const fromAi = searchParams.get('from') === 'ai';
+
   const state = (location.state ?? {}) as EditInspectionLocationState;
 
   const { data: inspection } = useInspection(id || '', {
     enabled: !!id && fromScheduled,
   });
 
-  const resolvedAiSuggestedFields = getSuggestedFields(
-    state.aiDraft,
-    state.aiSuggestedFields,
-  );
+  const resolvedAiSuggestedFields = fromAi
+    ? getSuggestedFields(state.aiDraft, state.aiSuggestedFields)
+    : [];
+
+  const aiDraft = fromAi ? state.aiDraft : undefined;
 
   return (
     <div className="space-y-4">
@@ -100,7 +106,7 @@ export const EditInspectionPage = () => {
 
       <InspectionForm
         inspectionId={id}
-        aiDraft={state.aiDraft}
+        aiDraft={aiDraft}
         aiSuggestedFields={resolvedAiSuggestedFields}
       />
     </div>
