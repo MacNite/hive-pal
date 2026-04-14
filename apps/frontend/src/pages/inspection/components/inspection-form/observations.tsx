@@ -31,6 +31,57 @@ type ObservationItemProps<TName extends FieldPath<InspectionFormData>> = {
   onDismissSuggestion?: (field: string) => void;
 };
 
+const formatPreviewValue = (value: unknown): string => {
+  if (value === null || value === undefined) return '—';
+  if (Array.isArray(value)) return value.length ? value.join(', ') : '—';
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (value === '') return '—';
+  return String(value);
+};
+
+const PreviewValuePill: React.FC<{
+  label: string;
+  value: unknown;
+  variant?: 'current' | 'ai';
+}> = ({ label, value, variant = 'current' }) => {
+  return (
+    <div
+      className={cn(
+        'rounded-md border px-2 py-1 text-xs',
+        variant === 'ai'
+          ? 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300'
+          : 'border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300',
+      )}
+    >
+      <span className="mr-1 font-medium">{label}:</span>
+      <span>{formatPreviewValue(value)}</span>
+    </div>
+  );
+};
+
+const AiValuePreview: React.FC<{
+  isVisible: boolean;
+  hasConflict?: boolean;
+  currentValue: unknown;
+  aiValue: unknown;
+  className?: string;
+}> = ({ isVisible, hasConflict, currentValue, aiValue, className }) => {
+  if (!isVisible) return null;
+
+  return (
+    <div className={cn('flex flex-wrap items-center gap-2', className)}>
+      {hasConflict ? (
+        <>
+          <PreviewValuePill label="Current" value={currentValue} />
+          <PreviewValuePill label="AI" value={aiValue} variant="ai" />
+        </>
+      ) : (
+        <PreviewValuePill label="AI" value={aiValue} variant="ai" />
+      )}
+    </div>
+  );
+};
+
 const ObservationItem = <TName extends FieldPath<InspectionFormData>>({
   name,
   label,
@@ -66,23 +117,24 @@ const ObservationItem = <TName extends FieldPath<InspectionFormData>>({
           return (
             <FormItem>
               <FormControl>
-                <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:gap-2">
-                  <div className="mr-4 min-w-32 w-32">
+                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:gap-4">
+                  <div className="min-w-32 w-32 pt-1">
                     <div className="flex items-center gap-2">
                       <label className="text-sm font-medium">{label}</label>
                       {showAi && <AiBadge />}
                     </div>
                   </div>
 
-                  <div className="flex-1">
-                    <div className="mb-2 flex items-center">
+                  <div className="flex-1 space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
-                        className={`mr-2 flex h-8 w-8 items-center justify-center rounded-lg ${
+                        className={cn(
+                          'flex h-8 w-8 items-center justify-center rounded-lg',
                           displayValue === 0
                             ? 'bg-gray-600 text-white dark:bg-gray-300 dark:text-gray-900'
-                            : 'bg-gray-100 dark:bg-gray-800'
-                        }`}
+                            : 'bg-gray-100 dark:bg-gray-800',
+                        )}
                         onClick={e => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -93,7 +145,7 @@ const ObservationItem = <TName extends FieldPath<InspectionFormData>>({
                         0
                       </button>
 
-                      <div className="grid h-8 grow grid-cols-10 gap-1">
+                      <div className="grid h-8 min-w-[220px] grow grid-cols-10 gap-1">
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(fullValue => {
                           let color = 'bg-gray-200 dark:bg-gray-700';
 
@@ -110,11 +162,13 @@ const ObservationItem = <TName extends FieldPath<InspectionFormData>>({
                             <button
                               key={fullValue}
                               type="button"
-                              className={`w-full rounded text-xs transition-colors duration-300 ${color} ${
+                              className={cn(
+                                'w-full rounded text-xs transition-colors duration-300',
+                                color,
                                 hoveredValue === fullValue
                                   ? 'text-gray-700 dark:text-gray-300'
-                                  : 'text-transparent'
-                              }`}
+                                  : 'text-transparent',
+                              )}
                               onMouseEnter={() => setHoveredValue(fullValue)}
                               onMouseLeave={() => setHoveredValue(null)}
                               onClick={e => {
@@ -133,7 +187,7 @@ const ObservationItem = <TName extends FieldPath<InspectionFormData>>({
                         })}
                       </div>
 
-                      <div className="ml-4 h-8 w-8 text-center">
+                      <div className="h-8 w-8 text-center">
                         <span className="block h-8 rounded bg-gray-100 px-2 py-1 text-sm dark:bg-gray-800">
                           {displayValue ?? '-'}
                         </span>
@@ -143,7 +197,7 @@ const ObservationItem = <TName extends FieldPath<InspectionFormData>>({
                         variant="ghost"
                         type="button"
                         disabled={displayValue == null}
-                        className="ml-2 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
+                        className="text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400"
                         onClick={e => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -153,6 +207,15 @@ const ObservationItem = <TName extends FieldPath<InspectionFormData>>({
                       >
                         <X size={16} />
                       </Button>
+                    </div>
+
+                    <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                      <AiValuePreview
+                        isVisible={Boolean(suggestionField)}
+                        hasConflict={suggestionConflict}
+                        currentValue={currentValue}
+                        aiValue={aiValue}
+                      />
 
                       <AiFieldControls
                         isVisible={Boolean(suggestionField)}
@@ -202,10 +265,6 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
   const broodPatternSuggestion =
     aiMergeState?.suggestions['observations.broodPattern'];
   const strengthSuggestion = aiMergeState?.suggestions['observations.strength'];
-
-  console.log('strengthSuggestion', strengthSuggestion);
-  console.log('current strength', currentObservations?.strength);
-
   const uncappedBroodSuggestion =
     aiMergeState?.suggestions['observations.uncappedBrood'];
   const cappedBroodSuggestion =
@@ -230,9 +289,8 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
     Record<keyof NonNullable<InspectionFormData['observations']>, unknown>
   >;
 
-  const getSuggestionAiValue = (
-    field: string,
-  ): unknown => aiMergeState?.suggestions[field]?.aiValue;
+  const getSuggestionAiValue = (field: string): unknown =>
+    aiMergeState?.suggestions[field]?.aiValue;
 
   const hasAiField = (
     key: keyof NonNullable<InspectionFormData['observations']>,
@@ -287,9 +345,11 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
           control={control}
           name="observations.queenSeen"
           render={({ field }) => {
+            const currentValue = Boolean(field.value ?? false);
+            const aiValue = Boolean(queenSeenSuggestion?.aiValue);
             const displayChecked = shouldPrefillField('queenSeen', field.value)
-              ? Boolean(queenSeenSuggestion?.aiValue)
-              : Boolean(field.value ?? false);
+              ? aiValue
+              : currentValue;
 
             return (
               <FormItem
@@ -305,11 +365,20 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
-                <div className="space-y-1">
+
+                <div className="min-w-0 flex-1 space-y-2">
                   <FormLabel className="flex items-center gap-2">
                     <span>{t('observations.queenSeen')}</span>
                     {isAiSuggested?.('observations.queenSeen') && <AiBadge />}
                   </FormLabel>
+
+                  <AiValuePreview
+                    isVisible={Boolean(queenSeenSuggestion)}
+                    hasConflict={queenSeenSuggestion?.hasConflict}
+                    currentValue={currentValue}
+                    aiValue={aiValue}
+                  />
+
                   <AiFieldControls
                     isVisible={Boolean(queenSeenSuggestion)}
                     hasConflict={queenSeenSuggestion?.hasConflict}
@@ -322,6 +391,7 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                     }
                   />
                 </div>
+
                 <FormMessage />
               </FormItem>
             );
@@ -428,13 +498,20 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
 
                 return (
                   <FormItem>
-                    <div className="mb-2 flex items-center justify-between gap-4">
+                    <div className="mb-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                       <FormLabel className="flex items-center gap-2 text-sm font-medium">
                         <span>{t('observations.broodPattern')}</span>
                         {isAiSuggested?.('observations.broodPattern') && (
                           <AiBadge />
                         )}
                       </FormLabel>
+
+                      <AiValuePreview
+                        isVisible={Boolean(broodPatternSuggestion)}
+                        hasConflict={broodPatternSuggestion?.hasConflict}
+                        currentValue={currentValue}
+                        aiValue={aiBroodPattern}
+                      />
 
                       <AiFieldControls
                         isVisible={Boolean(broodPatternSuggestion)}
@@ -551,12 +628,14 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 control={control}
                 name="observations.swarmCells"
                 render={({ field }) => {
+                  const currentValue = Boolean(field.value ?? false);
+                  const aiValue = Boolean(swarmCellsSuggestion?.aiValue);
                   const displayChecked = shouldPrefillField(
                     'swarmCells',
                     field.value,
                   )
-                    ? Boolean(swarmCellsSuggestion?.aiValue)
-                    : Boolean(field.value ?? false);
+                    ? aiValue
+                    : currentValue;
 
                   return (
                     <FormItem
@@ -572,13 +651,22 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <div className="space-y-1">
+
+                      <div className="min-w-0 flex-1 space-y-2">
                         <FormLabel className="flex items-center gap-2">
                           <span>{t('observations.swarmCells')}</span>
                           {isAiSuggested?.('observations.swarmCells') && (
                             <AiBadge />
                           )}
                         </FormLabel>
+
+                        <AiValuePreview
+                          isVisible={Boolean(swarmCellsSuggestion)}
+                          hasConflict={swarmCellsSuggestion?.hasConflict}
+                          currentValue={currentValue}
+                          aiValue={aiValue}
+                        />
+
                         <AiFieldControls
                           isVisible={Boolean(swarmCellsSuggestion)}
                           hasConflict={swarmCellsSuggestion?.hasConflict}
@@ -591,6 +679,7 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                           }
                         />
                       </div>
+
                       <FormMessage />
                     </FormItem>
                   );
@@ -601,12 +690,14 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 control={control}
                 name="observations.supersedureCells"
                 render={({ field }) => {
+                  const currentValue = Boolean(field.value ?? false);
+                  const aiValue = Boolean(supersedureCellsSuggestion?.aiValue);
                   const displayChecked = shouldPrefillField(
                     'supersedureCells',
                     field.value,
                   )
-                    ? Boolean(supersedureCellsSuggestion?.aiValue)
-                    : Boolean(field.value ?? false);
+                    ? aiValue
+                    : currentValue;
 
                   return (
                     <FormItem
@@ -622,13 +713,22 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <div className="space-y-1">
+
+                      <div className="min-w-0 flex-1 space-y-2">
                         <FormLabel className="flex items-center gap-2">
                           <span>{t('observations.supersedureCells')}</span>
                           {isAiSuggested?.(
                             'observations.supersedureCells',
                           ) && <AiBadge />}
                         </FormLabel>
+
+                        <AiValuePreview
+                          isVisible={Boolean(supersedureCellsSuggestion)}
+                          hasConflict={supersedureCellsSuggestion?.hasConflict}
+                          currentValue={currentValue}
+                          aiValue={aiValue}
+                        />
+
                         <AiFieldControls
                           isVisible={Boolean(supersedureCellsSuggestion)}
                           hasConflict={supersedureCellsSuggestion?.hasConflict}
@@ -645,6 +745,7 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                           }
                         />
                       </div>
+
                       <FormMessage />
                     </FormItem>
                   );
@@ -660,13 +761,29 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 'border border-blue-200 bg-blue-50/40 dark:border-blue-900 dark:bg-blue-950/20',
             )}
           >
-            <div className="mb-3 flex items-center justify-between gap-4">
+            <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <h4 className="flex items-center gap-2 text-md font-medium">
                 <span>{t('observations.additionalObservations')}</span>
                 {isAiSuggested?.('observations.additionalObservations') && (
                   <AiBadge />
                 )}
               </h4>
+
+              <AiValuePreview
+                isVisible={Boolean(additionalSuggestion)}
+                hasConflict={additionalSuggestion?.hasConflict}
+                currentValue={
+                  Array.isArray(currentObservations?.additionalObservations)
+                    ? currentObservations.additionalObservations
+                    : []
+                }
+                aiValue={
+                  Array.isArray(additionalSuggestion?.aiValue)
+                    ? additionalSuggestion.aiValue
+                    : []
+                }
+              />
+
               <AiFieldControls
                 isVisible={Boolean(additionalSuggestion)}
                 hasConflict={additionalSuggestion?.hasConflict}
@@ -760,13 +877,29 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
                 'border border-blue-200 bg-blue-50/40 dark:border-blue-900 dark:bg-blue-950/20',
             )}
           >
-            <div className="mb-3 flex items-center justify-between gap-4">
+            <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <h4 className="flex items-center gap-2 text-md font-medium">
                 <span>{t('observations.reminderObservations')}</span>
                 {isAiSuggested?.('observations.reminderObservations') && (
                   <AiBadge />
                 )}
               </h4>
+
+              <AiValuePreview
+                isVisible={Boolean(reminderSuggestion)}
+                hasConflict={reminderSuggestion?.hasConflict}
+                currentValue={
+                  Array.isArray(currentObservations?.reminderObservations)
+                    ? currentObservations.reminderObservations
+                    : []
+                }
+                aiValue={
+                  Array.isArray(reminderSuggestion?.aiValue)
+                    ? reminderSuggestion.aiValue
+                    : []
+                }
+              />
+
               <AiFieldControls
                 isVisible={Boolean(reminderSuggestion)}
                 hasConflict={reminderSuggestion?.hasConflict}
