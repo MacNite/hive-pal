@@ -45,11 +45,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { AudioSection } from './audio-section';
 import { PhotosSection, PendingPhoto } from './photos-section';
-import { uploadPendingPhotos } from './upload-pending-photos';
-import { uploadPendingRecordings } from './upload-pending-recordings';
-import { PhotosSection, PendingPhoto } from './photos-section';
 import { ScorePreviewSection } from './score-preview';
-import { InspectionDateTimePicker } from '@/components/inspection-date-time-picker';
 import {
   buildAiMergeState,
   type AiMergeState,
@@ -342,18 +338,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
       ).length
     : 0;
 
-  const onSubmit = useUpsertInspection(inspectionId, {
-    onBeforeNavigate: async (id: string) => {
-      await Promise.all([
-        pendingRecordings.length > 0
-          ? uploadPendingRecordings(id, pendingRecordings)
-          : Promise.resolve(),
-        pendingPhotos.length > 0
-          ? uploadPendingPhotos(id, pendingPhotos)
-          : Promise.resolve(),
-      ]);
-    },
-  });
+  const onSubmit = useUpsertInspection(inspectionId);
 
   const handleSave = form.handleSubmit(data => {
     if (mode === 'batch' && onSubmitSuccess) {
@@ -476,32 +461,10 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                           }
                           field.onChange(selected);
                         }}
-                        onSelect={selected => {
-                          if (!selected) return;
-                          if (!isAllDay && field.value) {
-                            selected.setHours(
-                              field.value.getHours(),
-                              field.value.getMinutes(),
-                              0,
-                              0,
-                            );
-                          }
-                          field.onChange(selected);
-                        }}
                         initialFocus
                       />
                     </PopoverContent>
                   </Popover>
-
-                  <div className="flex items-center gap-2 mt-1">
-                    <InspectionDateTimePicker
-                      date={field.value ?? new Date()}
-                      isAllDay={isAllDay}
-                      onDateChange={field.onChange}
-                      onIsAllDayChange={checked => form.setValue('isAllDay', checked)}
-                    />
-                  </div>
-
 
                   <div className="mt-1 flex items-center gap-2">
                     <InspectionDateTimePicker
@@ -539,8 +502,21 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                 pendingRecordings={pendingRecordings}
                 onPendingRecordingsChange={setPendingRecordings}
               />
-              <hr className={'border-t border-border'} />
-              <WeatherSection />
+
+              <hr className="border-t border-border" />
+              <PhotosSection
+                inspectionId={inspectionId}
+                pendingPhotos={pendingPhotos}
+                onPendingPhotosChange={setPendingPhotos}
+              />
+
+              <hr className="border-t border-border" />
+              <WeatherSection
+                isAiSuggested={isAiSuggested}
+                aiMergeState={aiMergeState}
+                onAcceptSuggestion={acceptAiSuggestion}
+                onDismissSuggestion={dismissAiSuggestion}
+              />
 
               <hr className="border-t border-border" />
               <ObservationsSection
