@@ -26,6 +26,17 @@ type RecordingAiStatus =
   | 'COMPLETED'
   | 'FAILED';
 
+type CopyState = 'idle' | 'copied' | 'error';
+
+/** ✅ FIXED: replaces `any` */
+type InspectionAiResult = {
+  error?: unknown;
+  transcript?: {
+    text?: string | null;
+  } | null;
+  inspectionDraft?: unknown;
+};
+
 interface RecordingRowProps {
   inspectionId: string;
   recording: {
@@ -39,8 +50,6 @@ interface RecordingRowProps {
   onDelete: (audioId: string) => Promise<void>;
   isDeleting: boolean;
 }
-
-type CopyState = 'idle' | 'copied' | 'error';
 
 function getAnalyzeButtonLabel(
   isPending: boolean,
@@ -76,7 +85,7 @@ function AiPanel({
   effectiveStatus: RecordingAiStatus;
   showAiOutput: boolean;
   setShowAiOutput: React.Dispatch<React.SetStateAction<boolean>>;
-  aiResult: any;
+  aiResult: InspectionAiResult | undefined;
   transcriptText: string;
   copyTranscriptState: CopyState;
   copyJsonState: CopyState;
@@ -87,7 +96,10 @@ function AiPanel({
 }) {
   const shouldShowLoading =
     showAiOutput && effectiveStatus === 'COMPLETED' && isLoadingResult;
-  const structuredJson = getSafeJson(aiResult?.inspectionDraft ?? aiResult);
+
+  const structuredJson = getSafeJson(
+    aiResult?.inspectionDraft ?? aiResult,
+  );
 
   return (
     <div className="space-y-4 rounded-md border p-4">
@@ -103,7 +115,9 @@ function AiPanel({
         </Button>
       </div>
 
-      <div className="text-sm text-muted-foreground">Status: {effectiveStatus}</div>
+      <div className="text-sm text-muted-foreground">
+        Status: {effectiveStatus}
+      </div>
 
       {effectiveStatus === 'FAILED' && (
         <div className="text-sm text-red-600">
@@ -132,8 +146,8 @@ function AiPanel({
                 {copyTranscriptState === 'copied'
                   ? 'Copied'
                   : copyTranscriptState === 'error'
-                    ? 'Copy failed'
-                    : 'Copy Transcript'}
+                  ? 'Copy failed'
+                  : 'Copy Transcript'}
               </Button>
             </div>
 
@@ -154,8 +168,8 @@ function AiPanel({
                 {copyJsonState === 'copied'
                   ? 'Copied'
                   : copyJsonState === 'error'
-                    ? 'Copy failed'
-                    : 'Copy JSON'}
+                  ? 'Copy failed'
+                  : 'Copy JSON'}
               </Button>
             </div>
 
@@ -176,7 +190,9 @@ function AiPanel({
       )}
 
       {shouldShowLoading && (
-        <div className="text-sm text-muted-foreground">Loading AI result...</div>
+        <div className="text-sm text-muted-foreground">
+          Loading AI result...
+        </div>
       )}
     </div>
   );
@@ -196,11 +212,17 @@ function RecordingRow({
     recording.transcriptionStatus !== undefined &&
       recording.transcriptionStatus !== 'NONE',
   );
-  const [copyTranscriptState, setCopyTranscriptState] = useState<CopyState>('idle');
-  const [copyJsonState, setCopyJsonState] = useState<CopyState>('idle');
-  const [prefillMessage, setPrefillMessage] = useState<string | null>(null);
+  const [copyTranscriptState, setCopyTranscriptState] =
+    useState<CopyState>('idle');
+  const [copyJsonState, setCopyJsonState] =
+    useState<CopyState>('idle');
+  const [prefillMessage, setPrefillMessage] =
+    useState<string | null>(null);
 
-  const startAiMutation = useStartInspectionAudioAi(inspectionId, recording.id);
+  const startAiMutation = useStartInspectionAudioAi(
+    inspectionId,
+    recording.id,
+  );
 
   const statusQuery = useInspectionAudioAiStatus(
     inspectionId,
@@ -220,6 +242,7 @@ function RecordingRow({
   );
 
   const navigate = useNavigate();
+
   const aiResult = resultQuery.data;
   const transcriptText = aiResult?.transcript?.text ?? '';
 
@@ -299,7 +322,9 @@ function RecordingRow({
   };
 
   const handleCopyJson = async () => {
-    const json = getSafeJson(aiResult?.inspectionDraft ?? aiResult);
+    const json = getSafeJson(
+      aiResult?.inspectionDraft ?? aiResult,
+    );
 
     try {
       await navigator.clipboard.writeText(json);
@@ -331,9 +356,9 @@ function RecordingRow({
           fileName={recording.fileName}
           duration={recording.duration ?? undefined}
           onDelete={() => onDelete(recording.id)}
-          onDownload={() => {
-            window.open(audioUrl, '_blank', 'noopener,noreferrer');
-          }}
+          onDownload={() =>
+            window.open(audioUrl, '_blank', 'noopener,noreferrer')
+          }
           isDeleting={isDeleting}
         />
       ) : (
@@ -353,7 +378,10 @@ function RecordingRow({
               effectiveStatus === 'PENDING'
             }
           >
-            {getAnalyzeButtonLabel(startAiMutation.isPending, effectiveStatus)}
+            {getAnalyzeButtonLabel(
+              startAiMutation.isPending,
+              effectiveStatus,
+            )}
           </Button>
 
           <Button
@@ -366,7 +394,9 @@ function RecordingRow({
         </div>
 
         {prefillMessage && (
-          <div className="text-sm text-muted-foreground">{prefillMessage}</div>
+          <div className="text-sm text-muted-foreground">
+            {prefillMessage}
+          </div>
         )}
       </div>
 
@@ -390,7 +420,8 @@ function RecordingRow({
 }
 
 export function AudioCard({ inspectionId }: AudioCardProps) {
-  const { data: recordings = [], isLoading } = useInspectionAudio(inspectionId);
+  const { data: recordings = [], isLoading } =
+    useInspectionAudio(inspectionId);
   const deleteAudio = useDeleteInspectionAudio(inspectionId);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -407,7 +438,8 @@ export function AudioCard({ inspectionId }: AudioCardProps) {
   );
 
   const getDownloadUrl = useCallback(
-    async (audioId: string) => getAudioDownloadUrl(inspectionId, audioId),
+    async (audioId: string) =>
+      getAudioDownloadUrl(inspectionId, audioId),
     [inspectionId],
   );
 
@@ -424,7 +456,9 @@ export function AudioCard({ inspectionId }: AudioCardProps) {
           {recordings.length > 0 && (
             <span className="text-sm font-normal text-muted-foreground">
               ({recordings.length}{' '}
-              {recordings.length === 1 ? 'recording' : 'recordings'})
+              {recordings.length === 1
+                ? 'recording'
+                : 'recordings'})
             </span>
           )}
         </CardTitle>
