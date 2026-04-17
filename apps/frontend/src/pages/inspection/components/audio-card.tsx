@@ -40,6 +40,148 @@ interface RecordingRowProps {
   isDeleting: boolean;
 }
 
+type CopyState = 'idle' | 'copied' | 'error';
+
+function getAnalyzeButtonLabel(
+  isPending: boolean,
+  status: RecordingAiStatus,
+): string {
+  if (isPending) return 'Starting...';
+  if (status === 'PENDING') return 'Queued...';
+  if (status === 'PROCESSING') return 'Analyzing...';
+  return 'Analyze using AI';
+}
+
+function getSafeJson(value: unknown): string {
+  return JSON.stringify(value ?? {}, null, 2);
+}
+
+function scheduleCopyStateReset(setter: (value: CopyState) => void) {
+  window.setTimeout(() => setter('idle'), 1500);
+}
+
+function AiPanel({
+  effectiveStatus,
+  showAiOutput,
+  setShowAiOutput,
+  aiResult,
+  transcriptText,
+  copyTranscriptState,
+  copyJsonState,
+  handleCopyTranscript,
+  handleCopyJson,
+  statusQueryError,
+  isLoadingResult,
+}: {
+  effectiveStatus: RecordingAiStatus;
+  showAiOutput: boolean;
+  setShowAiOutput: React.Dispatch<React.SetStateAction<boolean>>;
+  aiResult: any;
+  transcriptText: string;
+  copyTranscriptState: CopyState;
+  copyJsonState: CopyState;
+  handleCopyTranscript: () => Promise<void>;
+  handleCopyJson: () => Promise<void>;
+  statusQueryError?: string | null;
+  isLoadingResult: boolean;
+}) {
+  const shouldShowLoading =
+    showAiOutput && effectiveStatus === 'COMPLETED' && isLoadingResult;
+  const structuredJson = getSafeJson(aiResult?.inspectionDraft ?? aiResult);
+
+  return (
+    <div className="space-y-4 rounded-md border p-4">
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium">AI Output</h4>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setShowAiOutput((prev) => !prev)}
+        >
+          {showAiOutput ? 'Hide' : 'Show'}
+        </Button>
+      </div>
+
+      <div className="text-sm text-muted-foreground">Status: {effectiveStatus}</div>
+
+      {effectiveStatus === 'FAILED' && (
+        <div className="text-sm text-red-600">
+          AI analysis failed: {statusQueryError ?? 'Unknown error'}
+        </div>
+      )}
+
+      {showAiOutput && aiResult && (
+        <>
+          {aiResult?.error && (
+            <div className="text-sm text-yellow-600">
+              AI structuring failed, but transcript is available.
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <h5 className="text-sm font-medium">Transcript</h5>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCopyTranscript}
+                disabled={!transcriptText}
+              >
+                {copyTranscriptState === 'copied'
+                  ? 'Copied'
+                  : copyTranscriptState === 'error'
+                    ? 'Copy failed'
+                    : 'Copy Transcript'}
+              </Button>
+            </div>
+
+            <div className="whitespace-pre-wrap rounded bg-muted p-3 text-sm">
+              {transcriptText || 'No transcript returned.'}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <h5 className="text-sm font-medium">Structured JSON</h5>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCopyJson}
+              >
+                {copyJsonState === 'copied'
+                  ? 'Copied'
+                  : copyJsonState === 'error'
+                    ? 'Copy failed'
+                    : 'Copy JSON'}
+              </Button>
+            </div>
+
+            <pre className="overflow-x-auto rounded bg-muted p-3 text-xs">
+              {structuredJson}
+            </pre>
+          </div>
+
+          <details className="rounded-md border p-3 text-xs">
+            <summary className="cursor-pointer font-medium">
+              Debug / Raw AI Response
+            </summary>
+            <pre className="mt-3 overflow-x-auto whitespace-pre-wrap">
+              {getSafeJson(aiResult)}
+            </pre>
+          </details>
+        </>
+      )}
+
+      {shouldShowLoading && (
+        <div className="text-sm text-muted-foreground">Loading AI result...</div>
+      )}
+    </div>
+  );
+}
+
 function RecordingRow({
   inspectionId,
   recording,
@@ -54,12 +196,8 @@ function RecordingRow({
     recording.transcriptionStatus !== undefined &&
       recording.transcriptionStatus !== 'NONE',
   );
-  const [copyTranscriptState, setCopyTranscriptState] = useState<
-    'idle' | 'copied' | 'error'
-  >('idle');
-  const [copyJsonState, setCopyJsonState] = useState<'idle' | 'copied' | 'error'>(
-    'idle',
-  );
+  const [copyTranscriptState, setCopyTranscriptState] = useState<CopyState>('idle');
+  const [copyJsonState, setCopyJsonState] = useState<CopyState>('idle');
   const [prefillMessage, setPrefillMessage] = useState<string | null>(null);
 
   const startAiMutation = useStartInspectionAudioAi(inspectionId, recording.id);
@@ -80,25 +218,10 @@ function RecordingRow({
     recording.id,
     effectiveStatus === 'COMPLETED',
   );
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const aiResult = resultQuery.data;
   const transcriptText = aiResult?.transcript?.text ?? '';
-
-  const handlePrefillInspection = () => {
-    if (!aiResult?.inspectionDraft) {
-      setPrefillMessage('Run analysis first.');
-      window.setTimeout(() => setPrefillMessage(null), 2000);
-      return;
-    }
-
-    navigate(`/inspections/${inspectionId}/edit?from=ai`, {
-      state: {
-        aiDraft: aiResult.inspectionDraft,
-        aiSourceAudioId: recording.id,
-      },
-    });
-  };
 
   const shouldShowAiPanel =
     effectiveStatus !== 'NONE' || isPollingEnabled || Boolean(aiResult);
@@ -108,6 +231,7 @@ function RecordingRow({
 
     const loadUrl = async () => {
       if (audioUrl) return;
+
       setIsLoadingUrl(true);
       try {
         const url = await getDownloadUrl(recording.id);
@@ -137,18 +261,27 @@ function RecordingRow({
   }, [effectiveStatus]);
 
   useEffect(() => {
-    if (
-      isPollingEnabled &&
-      (effectiveStatus === 'COMPLETED' || effectiveStatus === 'FAILED')
-    ) {
+    const isFinished =
+      effectiveStatus === 'COMPLETED' || effectiveStatus === 'FAILED';
+
+    if (isPollingEnabled && isFinished) {
       setIsPollingEnabled(false);
     }
   }, [effectiveStatus, isPollingEnabled]);
 
-  const resetCopyStateLater = (
-    setter: (value: 'idle' | 'copied' | 'error') => void,
-  ) => {
-    window.setTimeout(() => setter('idle'), 1500);
+  const handlePrefillInspection = () => {
+    if (!aiResult?.inspectionDraft) {
+      setPrefillMessage('Run analysis first.');
+      window.setTimeout(() => setPrefillMessage(null), 2000);
+      return;
+    }
+
+    navigate(`/inspections/${inspectionId}/edit?from=ai`, {
+      state: {
+        aiDraft: aiResult.inspectionDraft,
+        aiSourceAudioId: recording.id,
+      },
+    });
   };
 
   const handleCopyTranscript = async () => {
@@ -161,12 +294,12 @@ function RecordingRow({
       console.error('Failed to copy transcript:', error);
       setCopyTranscriptState('error');
     } finally {
-      resetCopyStateLater(setCopyTranscriptState);
+      scheduleCopyStateReset(setCopyTranscriptState);
     }
   };
 
   const handleCopyJson = async () => {
-    const json = JSON.stringify(aiResult?.inspectionDraft ?? aiResult ?? {}, null, 2);
+    const json = getSafeJson(aiResult?.inspectionDraft ?? aiResult);
 
     try {
       await navigator.clipboard.writeText(json);
@@ -175,7 +308,7 @@ function RecordingRow({
       console.error('Failed to copy JSON:', error);
       setCopyJsonState('error');
     } finally {
-      resetCopyStateLater(setCopyJsonState);
+      scheduleCopyStateReset(setCopyJsonState);
     }
   };
 
@@ -220,13 +353,7 @@ function RecordingRow({
               effectiveStatus === 'PENDING'
             }
           >
-            {startAiMutation.isPending
-              ? 'Starting...'
-              : effectiveStatus === 'PENDING'
-                ? 'Queued...'
-                : effectiveStatus === 'PROCESSING'
-                  ? 'Analyzing...'
-                  : 'Analyze using AI'}
+            {getAnalyzeButtonLabel(startAiMutation.isPending, effectiveStatus)}
           </Button>
 
           <Button
@@ -244,101 +371,19 @@ function RecordingRow({
       </div>
 
       {shouldShowAiPanel && (
-        <div className="space-y-4 rounded-md border p-4">
-          <div className="flex items-center justify-between">
-            <h4 className="font-medium">AI Output</h4>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAiOutput((prev) => !prev)}
-            >
-              {showAiOutput ? 'Hide' : 'Show'}
-            </Button>
-          </div>
-
-          <div className="text-sm text-muted-foreground">
-            Status: {effectiveStatus}
-          </div>
-
-          {effectiveStatus === 'FAILED' && (
-            <div className="text-sm text-red-600">
-              AI analysis failed: {statusQuery.data?.analysisError ?? 'Unknown error'}
-            </div>
-          )}
-
-          {showAiOutput && aiResult && (
-            <>
-              {aiResult?.error && (
-                <div className="text-sm text-yellow-600">
-                  AI structuring failed, but transcript is available.
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <h5 className="text-sm font-medium">Transcript</h5>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyTranscript}
-                    disabled={!transcriptText}
-                  >
-                    {copyTranscriptState === 'copied'
-                      ? 'Copied'
-                      : copyTranscriptState === 'error'
-                        ? 'Copy failed'
-                        : 'Copy Transcript'}
-                  </Button>
-                </div>
-
-                <div className="rounded bg-muted p-3 text-sm whitespace-pre-wrap">
-                  {transcriptText || 'No transcript returned.'}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <h5 className="text-sm font-medium">Structured JSON</h5>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyJson}
-                  >
-                    {copyJsonState === 'copied'
-                      ? 'Copied'
-                      : copyJsonState === 'error'
-                        ? 'Copy failed'
-                        : 'Copy JSON'}
-                  </Button>
-                </div>
-
-                <pre className="overflow-x-auto rounded bg-muted p-3 text-xs">
-                  {JSON.stringify(aiResult.inspectionDraft ?? aiResult, null, 2)}
-                </pre>
-              </div>
-
-              <details className="rounded-md border p-3 text-xs">
-                <summary className="cursor-pointer font-medium">
-                  Debug / Raw AI Response
-                </summary>
-                <pre className="mt-3 overflow-x-auto whitespace-pre-wrap">
-                  {JSON.stringify(aiResult, null, 2)}
-                </pre>
-              </details>
-            </>
-          )}
-
-          {showAiOutput &&
-            effectiveStatus === 'COMPLETED' &&
-            resultQuery.isLoading && (
-              <div className="text-sm text-muted-foreground">
-                Loading AI result...
-              </div>
-            )}
-        </div>
+        <AiPanel
+          effectiveStatus={effectiveStatus}
+          showAiOutput={showAiOutput}
+          setShowAiOutput={setShowAiOutput}
+          aiResult={aiResult}
+          transcriptText={transcriptText}
+          copyTranscriptState={copyTranscriptState}
+          copyJsonState={copyJsonState}
+          handleCopyTranscript={handleCopyTranscript}
+          handleCopyJson={handleCopyJson}
+          statusQueryError={statusQuery.data?.analysisError}
+          isLoadingResult={resultQuery.isLoading}
+        />
       )}
     </div>
   );
@@ -362,9 +407,7 @@ export function AudioCard({ inspectionId }: AudioCardProps) {
   );
 
   const getDownloadUrl = useCallback(
-    async (audioId: string) => {
-      return getAudioDownloadUrl(inspectionId, audioId);
-    },
+    async (audioId: string) => getAudioDownloadUrl(inspectionId, audioId),
     [inspectionId],
   );
 

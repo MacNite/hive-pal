@@ -22,6 +22,10 @@ type NotesSectionProps = {
   onDismissSuggestion?: (field: keyof InspectionFormData) => void;
 };
 
+function getSuggestedNotesValue(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
 export function NotesSection({
   isAiSuggested,
   aiMergeState,
@@ -37,6 +41,7 @@ export function NotesSection({
 
   const isPending = notesSuggestion?.status === 'pending';
   const isDirty = Boolean(form.formState.dirtyFields.notes);
+  const suggestedNotesValue = getSuggestedNotesValue(notesSuggestion?.aiValue);
 
   return (
     <div
@@ -58,11 +63,13 @@ export function NotesSection({
         control={form.control}
         name="notes"
         render={({ field }) => {
-          const displayValue =
-            notesSuggestion &&
-            shouldUseAiPrefill(field.value, isDirty, notesSuggestion)
-              ? String(notesSuggestion.aiValue ?? '')
-              : (field.value ?? '');
+          const shouldPrefill =
+            Boolean(notesSuggestion) &&
+            shouldUseAiPrefill(field.value, isDirty, notesSuggestion);
+
+          const displayValue = shouldPrefill
+            ? suggestedNotesValue ?? ''
+            : (field.value ?? '');
 
           return (
             <FormItem>
@@ -89,7 +96,7 @@ export function NotesSection({
                   title="Notes"
                   summary="Review AI-generated notes before applying them."
                   currentValue={field.value}
-                  suggestedValue={notesSuggestion.aiValue as string | undefined}
+                  suggestedValue={suggestedNotesValue}
                   hasConflict={notesSuggestion.hasConflict}
                   status={notesSuggestion.status}
                   onAccept={() => onAcceptSuggestion?.('notes')}

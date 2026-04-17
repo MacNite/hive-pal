@@ -188,6 +188,7 @@ SCHEMA = {
     ]
 }
 
+
 def empty_form_draft():
     return {
         "temperature": None,
@@ -209,6 +210,7 @@ def empty_form_draft():
         },
         "actions": [],
     }
+
 
 def truncate_transcript(text: str, max_chars: int = MAX_TRANSCRIPT_CHARS) -> str:
     text = (text or "").strip()
@@ -372,6 +374,153 @@ Transcript:
 """.strip()
 
 
+def _normalize_string_list(values, mapping, valid_values):
+    if not isinstance(values, list):
+        return []
+
+    normalized_values = []
+    for item in values:
+        mapped = mapping.get(item)
+        if mapped in valid_values:
+            normalized_values.append(mapped)
+
+    return normalized_values
+
+
+def _normalize_action(action):
+    if not isinstance(action, dict):
+        return None
+
+    action_type = action.get("type")
+    details = action.get("details") or {}
+    notes = action.get("notes")
+
+    if action_type == "FEEDING":
+        return {
+            "type": "FEEDING",
+            "notes": notes,
+            "details": {
+                "type": "FEEDING",
+                "feedType": details.get("feedType"),
+                "amount": details.get("amount"),
+                "unit": details.get("unit"),
+                "concentration": details.get("concentration"),
+            },
+        }
+
+    if action_type == "TREATMENT":
+        return {
+            "type": "TREATMENT",
+            "notes": notes,
+            "details": {
+                "type": "TREATMENT",
+                "product": details.get("product"),
+                "quantity": details.get("quantity"),
+                "unit": details.get("unit"),
+                "duration": details.get("duration"),
+            },
+        }
+
+    if action_type == "FRAME":
+        return {
+            "type": "FRAME",
+            "notes": notes,
+            "details": {
+                "type": "FRAME",
+                "quantity": details.get("quantity"),
+            },
+        }
+
+    if action_type == "MAINTENANCE":
+        return {
+            "type": "MAINTENANCE",
+            "notes": notes,
+            "details": {
+                "type": "MAINTENANCE",
+                "component": details.get("component"),
+                "status": details.get("status"),
+            },
+        }
+
+    if action_type == "NOTE":
+        return {
+            "type": "NOTE",
+            "notes": notes,
+            "details": {
+                "type": "NOTE",
+                "content": details.get("content"),
+            },
+        }
+
+    if action_type == "OTHER":
+        return {
+            "type": "OTHER",
+            "notes": notes,
+            "details": {
+                "type": "OTHER",
+            },
+        }
+
+    return None
+
+
+def _map_action_to_form(action):
+    if not isinstance(action, dict):
+        return None
+
+    action_type = action.get("type")
+    details = action.get("details") or {}
+    notes = action.get("notes") or ""
+
+    if action_type == "FEEDING":
+        return {
+            "type": "FEEDING",
+            "feedType": details.get("feedType") or "",
+            "quantity": details.get("amount"),
+            "unit": details.get("unit") or "",
+            "concentration": details.get("concentration") or "",
+            "notes": notes,
+        }
+
+    if action_type == "TREATMENT":
+        return {
+            "type": "TREATMENT",
+            "treatmentType": details.get("product") or "",
+            "amount": details.get("quantity"),
+            "unit": details.get("unit") or "",
+            "notes": notes,
+        }
+
+    if action_type == "FRAME":
+        return {
+            "type": "FRAME",
+            "frames": details.get("quantity"),
+            "notes": notes,
+        }
+
+    if action_type == "MAINTENANCE":
+        return {
+            "type": "MAINTENANCE",
+            "component": details.get("component") or "",
+            "status": details.get("status") or "",
+            "notes": notes,
+        }
+
+    if action_type == "NOTE":
+        return {
+            "type": "NOTE",
+            "notes": notes or details.get("content") or "",
+        }
+
+    if action_type == "OTHER":
+        return {
+            "type": "OTHER",
+            "notes": notes,
+        }
+
+    return None
+
+
 def normalize_recommendation(data: dict) -> dict:
     if not isinstance(data, dict):
         data = {}
@@ -444,122 +593,39 @@ def normalize_recommendation(data: dict) -> dict:
         "weatherConditions": data.get("weatherConditions"),
         "notes": data.get("notes"),
         "observations": {
-            "strength": None,
-            "uncappedBrood": None,
-            "cappedBrood": None,
-            "honeyStores": None,
-            "pollenStores": None,
-            "queenCells": None,
-            "swarmCells": None,
-            "supersedureCells": None,
-            "queenSeen": None,
-            "broodPattern": None,
-            "additionalObservations": [],
-            "reminderObservations": [],
+            "strength": observations.get("strength"),
+            "uncappedBrood": observations.get("uncappedBrood"),
+            "cappedBrood": observations.get("cappedBrood"),
+            "honeyStores": observations.get("honeyStores"),
+            "pollenStores": observations.get("pollenStores"),
+            "queenCells": observations.get("queenCells"),
+            "swarmCells": observations.get("swarmCells"),
+            "supersedureCells": observations.get("supersedureCells"),
+            "queenSeen": observations.get("queenSeen"),
+            "broodPattern": brood_pattern_map.get(observations.get("broodPattern")),
+            "additionalObservations": _normalize_string_list(
+                observations.get("additionalObservations", []),
+                additional_map,
+                valid_additional,
+            ),
+            "reminderObservations": _normalize_string_list(
+                observations.get("reminderObservations", []),
+                reminder_map,
+                valid_reminders,
+            ),
         },
         "actions": [],
     }
-    normalized["hiveId"] = data.get("hiveId")
-    normalized["date"] = data.get("date")
-    normalized["temperature"] = data.get("temperature")
-    normalized["weatherConditions"] = data.get("weatherConditions")
-    normalized["notes"] = data.get("notes")
-
-    normalized["observations"] = {
-        "strength": observations.get("strength"),
-        "uncappedBrood": observations.get("uncappedBrood"),
-        "cappedBrood": observations.get("cappedBrood"),
-        "honeyStores": observations.get("honeyStores"),
-        "pollenStores": observations.get("pollenStores"),
-        "queenCells": observations.get("queenCells"),
-        "swarmCells": observations.get("swarmCells"),
-        "supersedureCells": observations.get("supersedureCells"),
-        "queenSeen": observations.get("queenSeen"),
-        "broodPattern": brood_pattern_map.get(observations.get("broodPattern"), None),
-        "additionalObservations": [
-            additional_map[item]
-            for item in observations.get("additionalObservations", [])
-            if item in additional_map and additional_map[item] in valid_additional
-        ],
-        "reminderObservations": [
-            reminder_map[item]
-            for item in observations.get("reminderObservations", [])
-            if item in reminder_map and reminder_map[item] in valid_reminders
-        ],
-    }
 
     normalized_actions = []
-
     for action in actions:
-        if not isinstance(action, dict):
-            continue
-
-        action_type = action.get("type")
-        details = action.get("details") or {}
-
-        if action_type == "FEEDING":
-            normalized_actions.append({
-                "type": "FEEDING",
-                "notes": action.get("notes"),
-                "details": {
-                    "type": "FEEDING",
-                    "feedType": details.get("feedType"),
-                    "amount": details.get("amount"),
-                    "unit": details.get("unit"),
-                    "concentration": details.get("concentration"),
-                },
-            })
-        elif action_type == "TREATMENT":
-            normalized_actions.append({
-                "type": "TREATMENT",
-                "notes": action.get("notes"),
-                "details": {
-                    "type": "TREATMENT",
-                    "product": details.get("product"),
-                    "quantity": details.get("quantity"),
-                    "unit": details.get("unit"),
-                    "duration": details.get("duration"),
-                },
-            })
-        elif action_type == "FRAME":
-            normalized_actions.append({
-                "type": "FRAME",
-                "notes": action.get("notes"),
-                "details": {
-                    "type": "FRAME",
-                    "quantity": details.get("quantity"),
-                },
-            })
-        elif action_type == "MAINTENANCE":
-            normalized_actions.append({
-                "type": "MAINTENANCE",
-                "notes": action.get("notes"),
-                "details": {
-                    "type": "MAINTENANCE",
-                    "component": details.get("component"),
-                    "status": details.get("status"),
-                },
-            })
-        elif action_type == "NOTE":
-            normalized_actions.append({
-                "type": "NOTE",
-                "notes": action.get("notes"),
-                "details": {
-                    "type": "NOTE",
-                    "content": details.get("content"),
-                },
-            })
-        elif action_type == "OTHER":
-            normalized_actions.append({
-                "type": "OTHER",
-                "notes": action.get("notes"),
-                "details": {
-                    "type": "OTHER",
-                },
-            })
+        normalized_action = _normalize_action(action)
+        if normalized_action is not None:
+            normalized_actions.append(normalized_action)
 
     normalized["actions"] = normalized_actions
     return normalized
+
 
 def map_ai_to_form_draft(ai: dict) -> dict:
     draft = empty_form_draft()
@@ -586,62 +652,14 @@ def map_ai_to_form_draft(ai: dict) -> dict:
     }
 
     mapped_actions = []
-
     for action in ai.get("actions", []):
-        if not isinstance(action, dict):
-            continue
-
-        action_type = action.get("type")
-        details = action.get("details") or {}
-
-        if action_type == "FEEDING":
-            mapped_actions.append({
-                "type": "FEEDING",
-                "feedType": details.get("feedType") or "",
-                "quantity": details.get("amount"),
-                "unit": details.get("unit") or "",
-                "concentration": details.get("concentration") or "",
-                "notes": action.get("notes") or "",
-            })
-
-        elif action_type == "TREATMENT":
-            mapped_actions.append({
-                "type": "TREATMENT",
-                "treatmentType": details.get("product") or "",
-                "amount": details.get("quantity"),
-                "unit": details.get("unit") or "",
-                "notes": action.get("notes") or "",
-            })
-
-        elif action_type == "FRAME":
-            mapped_actions.append({
-                "type": "FRAME",
-                "frames": details.get("quantity"),
-                "notes": action.get("notes") or "",
-            })
-
-        elif action_type == "MAINTENANCE":
-            mapped_actions.append({
-                "type": "MAINTENANCE",
-                "component": details.get("component") or "",
-                "status": details.get("status") or "",
-                "notes": action.get("notes") or "",
-            })
-
-        elif action_type == "NOTE":
-            mapped_actions.append({
-                "type": "NOTE",
-                "notes": action.get("notes") or details.get("content") or "",
-            })
-
-        elif action_type == "OTHER":
-            mapped_actions.append({
-                "type": "OTHER",
-                "notes": action.get("notes") or "",
-            })
+        mapped_action = _map_action_to_form(action)
+        if mapped_action is not None:
+            mapped_actions.append(mapped_action)
 
     draft["actions"] = mapped_actions
     return draft
+
 
 def recommend_from_transcript(transcript: str):
     payload = {
@@ -737,6 +755,7 @@ def process_audio_file(audio_path: str):
         "analysis_error": analysis_error,
         "files": files,
     }
+
 
 @app.post("/process-upload")
 def process_upload():
