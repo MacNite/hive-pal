@@ -20,7 +20,7 @@ Currently the folder-setup below is expected:
                     ollama/
 ```
 
-Below is the docker file I use for the AI Container. I just added it to the docker stack for hivepal so everything runs together. I recently switched the model from qwen3:8b to qwen2.5:3b as I currently only use CPU-computing. The code in general is model-agnostic - you can set your desired model using the OLLAMA_MODEL enviroment variable.
+Below is the docker file I use for the AI Container. I just added it to the docker stack for hivepal so everything runs together. I recently switched the model from qwen3:8b to qwen2.5:3b as I currently only use CPU-computing. The code in general is model-agnostic - you can set your desired model using the OLLAMA_MODEL enviroment variable. The image runs as user appuser (ID:999). This user needs r+w permissions to the path  mounted for data.
 
 Whisper is currently set to auto-detect the language.
 
