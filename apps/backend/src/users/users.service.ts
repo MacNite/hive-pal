@@ -12,7 +12,7 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.prismaService.user.findUnique({
-      where: { email },
+      where: { email: email.trim().toLowerCase() },
     });
   }
 
@@ -46,7 +46,9 @@ export class UsersService {
    * Used by the swarm alert scheduler to iterate over users that
    * may have swarm alerts configured.
    */
-  async getAllUsers(): Promise<Array<{ id: string; email: string; name: string | null }>> {
+  async getAllUsers(): Promise<
+    Array<{ id: string; email: string; name: string | null }>
+  > {
     return this.prismaService.user.findMany({
       select: {
         id: true,

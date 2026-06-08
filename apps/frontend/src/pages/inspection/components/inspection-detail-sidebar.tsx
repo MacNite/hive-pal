@@ -69,7 +69,9 @@ export const InspectionDetailSidebar: React.FC<
 
   return (
     <ActionSidebarContainer>
-      <ActionSidebarGroup title={t('inspection:detailSidebar.inspectionActions')}>
+      <ActionSidebarGroup
+        title={t('inspection:detailSidebar.inspectionActions')}
+      >
         {canEdit && (
           <MenuItemButton
             icon={<Pencil className="h-4 w-4" />}
@@ -95,7 +97,7 @@ export const InspectionDetailSidebar: React.FC<
         )}
       </ActionSidebarGroup>
 
-<ActionSidebarGroup title={t('inspection:detailSidebar.relatedActions')}>
+      <ActionSidebarGroup title={t('inspection:detailSidebar.relatedActions')}>
         <MenuItemButton
           icon={<Home className="h-4 w-4" />}
           label={t('inspection:detailSidebar.viewHive')}
@@ -112,7 +114,7 @@ export const InspectionDetailSidebar: React.FC<
         )}
       </ActionSidebarGroup>
 
-<ActionSidebarGroup title={t('inspection:detailSidebar.navigation')}>
+      <ActionSidebarGroup title={t('inspection:detailSidebar.navigation')}>
         <MenuItemButton
           icon={<ClipboardList className="h-4 w-4" />}
           label={t('inspection:detailSidebar.allInspections')}

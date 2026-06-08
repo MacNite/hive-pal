@@ -27,12 +27,13 @@ import {
   ApiaryListPage,
 } from '@/pages/apiaries';
 import { ReleasesPage } from '@/pages/releases';
-import { UserSettingsPage } from '@/pages/settings';
+import { DataTransferPage, UserSettingsPage } from '@/pages/settings';
 import { FeedbackPage } from '@/pages/feedback';
 import { PrivacyPolicyPage } from '@/pages/privacy-policy-page';
 import { SharedPage } from '@/pages/shared/shared-page';
 import { JoinApiaryPage } from '@/pages/join/join-apiary-page';
 import { EditableRoute } from './editable-route';
+import { ToolRoute } from './tool-route';
 import { lazyWithRetry } from '@/lib/lazy-with-retry';
 
 // Lazy loaded components - heavy pages that benefit from code splitting
@@ -138,6 +139,11 @@ const FilesPage = lazyWithRetry(() =>
     default: m.FilesPage,
   })),
 );
+const ToolsIndexPage = lazyWithRetry(() =>
+  import('@/pages/tools/tools-index-page').then(m => ({
+    default: m.ToolsIndexPage,
+  })),
+);
 const SyrupCalculatorPage = lazyWithRetry(() =>
   import('@/pages/tools/syrup-calculator-page').then(m => ({
     default: m.SyrupCalculatorPage,
@@ -168,6 +174,18 @@ const HiveScalePage = lazyWithRetry(() =>
 const AssistantPage = lazyWithRetry(() =>
   import('@/pages/assistant/assistant-page').then(m => ({
     default: m.AssistantPage,
+  })),
+);
+
+// Fullscreen mobile inspection flows (no dashboard chrome).
+const MobileWizardPage = lazyWithRetry(() =>
+  import('@/pages/inspection/mobile-wizard/mobile-wizard-page').then(m => ({
+    default: m.MobileWizardPage,
+  })),
+);
+const AudioQuickPage = lazyWithRetry(() =>
+  import('@/pages/inspection/audio-quick/audio-quick-page').then(m => ({
+    default: m.AudioQuickPage,
   })),
 );
 
@@ -388,6 +406,22 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: '/hivescale',
+        element: (
+          <LazyPage>
+            <HiveScalePage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: '/assistant',
+        element: (
+          <LazyPage>
+            <AssistantPage />
+          </LazyPage>
+        ),
+      },
+      {
         path: '/files',
         element: (
           <LazyPage>
@@ -396,40 +430,12 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: '/tools/syrup-calculator',
-        element: (
-          <LazyPage>
-            <SyrupCalculatorPage />
-          </LazyPage>
-        ),
-      },
-      {
-        path: '/tools/brood-timeline',
-        element: (
-          <LazyPage>
-            <BroodTimelinePage />
-          </LazyPage>
-        ),
-      },
-      {
-        path: '/tools/swarm-management',
-        element: (
-          <LazyPage>
-            <SwarmManagementOverviewPage />
-          </LazyPage>
-        ),
-      },
-      {
-        path: '/tools/swarm-management/demaree',
-        element: (
-          <LazyPage>
-            <DemareeMethodPage />
-          </LazyPage>
-        ),
-      },
-      {
         path: '/settings',
         element: <UserSettingsPage />,
+      },
+      {
+        path: '/settings/data-transfer',
+        element: <DataTransferPage />,
       },
       {
         path: '/feedback',
@@ -538,8 +544,79 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: '/tools',
+    element: <ToolRoute />,
+    errorElement: <GenericErrorPage />,
+    children: [
+      {
+        index: true,
+        element: (
+          <LazyPage>
+            <ToolsIndexPage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'syrup-calculator',
+        element: (
+          <LazyPage>
+            <SyrupCalculatorPage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'brood-timeline',
+        element: (
+          <LazyPage>
+            <BroodTimelinePage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'swarm-management',
+        element: (
+          <LazyPage>
+            <SwarmManagementOverviewPage />
+          </LazyPage>
+        ),
+      },
+      {
+        path: 'swarm-management/demaree',
+        element: (
+          <LazyPage>
+            <DemareeMethodPage />
+          </LazyPage>
+        ),
+      },
+    ],
+  },
+  {
     path: '/releases',
     element: <ReleasesPage />,
+  },
+  {
+    path: '/hives/:hiveId/inspect/mobile',
+    element: (
+      <ProtectedRoute>
+        <EditableRoute redirectTo="/inspections">
+          <LazyPage>
+            <MobileWizardPage />
+          </LazyPage>
+        </EditableRoute>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/hives/:hiveId/inspect/audio',
+    element: (
+      <ProtectedRoute>
+        <EditableRoute redirectTo="/inspections">
+          <LazyPage>
+            <AudioQuickPage />
+          </LazyPage>
+        </EditableRoute>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/shared/:token',

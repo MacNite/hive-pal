@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Beaker, Droplets, Scale, Lightbulb, CookingPot } from 'lucide-react';
+import { Beaker, Droplets, Ruler, Scale, Lightbulb, CookingPot } from 'lucide-react';
 import {
   PageGrid,
   MainContent,
@@ -15,7 +15,9 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Pill } from '@/components/common/pill';
+import { ToolMeta, ToolPageHeader, TipsCard } from '@/components/tool-page';
 import { useUnitFormat } from '@/hooks/use-unit-format';
+import type { UnitPreference } from '@/utils/unit-conversion';
 
 type Ratio = '1:1' | '3:2' | '2:1';
 
@@ -75,7 +77,16 @@ function calculateSyrup(containerLiters: number, sugar: number, water: number) {
 
 export function SyrupCalculatorPage() {
   const { t } = useTranslation('common');
-  const { isImperial } = useUnitFormat();
+  const { unitPreference } = useUnitFormat();
+
+  const [units, setUnits] = useState<UnitPreference>(unitPreference);
+
+  // Sync with user preference once it loads (logged-in users)
+  useEffect(() => {
+    setUnits(unitPreference);
+  }, [unitPreference]);
+
+  const isImperial = units === 'imperial';
 
   const [ratio, setRatio] = useState<Ratio>('1:1');
   const [selectedContainer, setSelectedContainer] = useState<number | null>(1);
@@ -138,15 +149,164 @@ export function SyrupCalculatorPage() {
     }
   };
 
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebApplication',
+        name: 'Sugar Syrup Calculator',
+        url: 'https://hivepal.app/tools/syrup-calculator',
+        applicationCategory: 'UtilitiesApplication',
+        applicationSubCategory: 'Beekeeping Calculator',
+        operatingSystem: 'Web',
+        browserRequirements: 'Requires JavaScript',
+        description:
+          'Free calculator for bee feeding syrup. Computes exact sugar and water amounts for 1:1, 3:2, or 2:1 ratios at any container size, in metric or imperial units.',
+        isAccessibleForFree: true,
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'Hive Pal',
+          url: 'https://hivepal.app',
+        },
+      },
+      {
+        '@type': 'HowTo',
+        name: 'How to make sugar syrup for bees',
+        description:
+          'Step-by-step recipe for preparing 1:1, 3:2, or 2:1 sugar syrup for feeding honey bees, with sugar and water amounts calculated for any container size.',
+        step: [
+          {
+            '@type': 'HowToStep',
+            name: 'Measure the water',
+            text: `Measure ${waterDisplay} (${waterWeightDisplay}) of water.`,
+          },
+          {
+            '@type': 'HowToStep',
+            name: 'Warm the water',
+            text: 'Heat the water until warm (not boiling).',
+          },
+          {
+            '@type': 'HowToStep',
+            name: 'Add the sugar',
+            text: `Add ${sugarDisplay} of white granulated sugar.`,
+          },
+          {
+            '@type': 'HowToStep',
+            name: 'Stir to dissolve',
+            text: 'Stir until the sugar is completely dissolved.',
+          },
+          {
+            '@type': 'HowToStep',
+            name: 'Cool before feeding',
+            text: 'Let the syrup cool to room temperature before feeding.',
+          },
+        ],
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'What sugar-to-water ratio should I use to feed bees?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Use 1:1 syrup (equal parts sugar and water by weight) in spring to stimulate brood rearing, 3:2 as a general-purpose feed, and 2:1 (two parts sugar to one part water) in fall to build winter stores. Thick syrup is easier for bees to convert to capped stores; thin syrup mimics a nectar flow.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'When should I feed bees thin (1:1) syrup?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Feed 1:1 syrup in spring or whenever you want to stimulate brood rearing. Its water content mimics a natural nectar flow, encouraging the queen to lay and the colony to build up.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'When should I feed bees thick (2:1) syrup?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Feed 2:1 syrup in late summer and fall to help colonies build winter stores. The lower water content means bees spend less energy evaporating it before capping.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Can I use brown sugar, honey, or molasses to make bee syrup?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'No. Use only white granulated cane or beet sugar. Brown sugar, molasses, and unrefined sweeteners contain compounds that cause dysentery in bees. Honey from unknown sources can also transmit disease.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'Should I boil sugar syrup for bees?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'No. Heat the water until warm enough to dissolve the sugar, but do not boil. Boiling sugar syrup produces hydroxymethylfurfural (HMF), which is toxic to bees.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'How much sugar do I need for one liter of 1:1 syrup?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'For one liter of finished 1:1 syrup, you need roughly 715 g of water and 715 g of white granulated sugar. The exact amounts depend on the ratio and final volume — this calculator computes them based on sucrose displacement.',
+            },
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <PageGrid>
+      <ToolMeta
+        title="Sugar Syrup Calculator for Beekeepers — Hive Pal"
+        description="Free sugar syrup calculator for beekeepers. Compute exact sugar and water amounts for 1:1, 3:2, or 2:1 syrup at any container size, in metric or imperial units."
+        ogDescription="Free calculator for bee sugar syrup. Get precise sugar and water amounts for 1:1, 3:2, or 2:1 ratios at any container size."
+        path="/tools/syrup-calculator"
+        structuredData={structuredData}
+      />
       <MainContent>
-        <h1 className="text-2xl font-bold mb-1">
-          {t('syrupCalculator.title')}
-        </h1>
-        <p className="text-muted-foreground mb-6">
-          {t('syrupCalculator.description')}
-        </p>
+        <ToolPageHeader
+          title={t('syrupCalculator.title')}
+          description={t('syrupCalculator.description')}
+          intro={t('syrupCalculator.intro')}
+        />
+
+        {/* Units */}
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Ruler className="h-5 w-5" />
+              {t('syrupCalculator.units')}
+            </CardTitle>
+            <CardDescription>
+              {t('syrupCalculator.unitsDescription')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              <Pill
+                active={units === 'metric'}
+                onClick={() => setUnits('metric')}
+              >
+                {t('syrupCalculator.metric')}
+              </Pill>
+              <Pill
+                active={units === 'imperial'}
+                onClick={() => setUnits('imperial')}
+              >
+                {t('syrupCalculator.imperial')}
+              </Pill>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Ratio Selection */}
         <Card className="mb-4">
@@ -309,51 +469,14 @@ export function SyrupCalculatorPage() {
       </MainContent>
 
       <PageAside>
-        {/* Tips */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5" />
-              {t('syrupCalculator.tips')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-semibold">
-                  {t('syrupCalculator.tip1Title')}
-                </h4>
-                <p className="text-muted-foreground">
-                  {t('syrupCalculator.tip1Description')}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold">
-                  {t('syrupCalculator.tip2Title')}
-                </h4>
-                <p className="text-muted-foreground">
-                  {t('syrupCalculator.tip2Description')}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold">
-                  {t('syrupCalculator.tip3Title')}
-                </h4>
-                <p className="text-muted-foreground">
-                  {t('syrupCalculator.tip3Description')}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold">
-                  {t('syrupCalculator.tip4Title')}
-                </h4>
-                <p className="text-muted-foreground">
-                  {t('syrupCalculator.tip4Description')}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <TipsCard
+          icon={<Lightbulb className="h-5 w-5" />}
+          title={t('syrupCalculator.tips')}
+          items={[1, 2, 3, 4].map(n => ({
+            title: t(`syrupCalculator.tip${n}Title`),
+            description: t(`syrupCalculator.tip${n}Description`),
+          }))}
+        />
       </PageAside>
     </PageGrid>
   );
