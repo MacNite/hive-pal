@@ -56,6 +56,12 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { BeeLoadingMessages } from './hivescale-loading-messages';
+import {
+  getHiveReadings,
+  hiveHumidityPercent,
+  hiveWeightKg,
+  type HiveScaleHiveSlot,
+} from './hive-readings';
 import type {
   HiveScaleDevice,
   HiveScaleMeasurement,
@@ -89,38 +95,27 @@ type SeriesAxis =
   | 'beecount'
   | 'vibration';
 
-type SeriesKey =
-  | 'scale1Weight'
-  | 'scale1Temperature'
-  | 'scale1Humidity'
-  | 'scale1Pressure'
-  | 'scale2Weight'
-  | 'scale2Temperature'
-  | 'scale2Humidity'
-  | 'scale2Pressure'
-  | 'ambientTemperature'
-  | 'ambientHumidity'
-  | 'batteryVoltage'
-  | 'batterySoc'
-  | 'solarLoadVoltage'
-  | 'solarCurrent'
-  | 'solarPower'
-  | 'micLeftRms'
-  | 'micRightRms'
-  | 'beeCounter1In'
-  | 'beeCounter1Out'
-  | 'beeCounter1Net'
-  | 'beeCounter2In'
-  | 'beeCounter2Out'
-  | 'beeCounter2Net'
-  | 'accel1Vibration'
-  | 'accel1SwarmBand'
-  | 'accel1FanningBand'
-  | 'accel1ActivityBand'
-  | 'accel2Vibration'
-  | 'accel2SwarmBand'
-  | 'accel2FanningBand'
-  | 'accel2ActivityBand';
+// Series keys are generated at runtime so the diagram can scale to any number
+// of hives. Per-hive keys take the form `hive:<index>:<metric>`; device-level
+// series (mic, ambient, off-grid) keep stable string keys.
+type SeriesKey = string;
+
+// The set of metrics every hive exposes. Mirrors the per-hive `hive_readings`
+// shape from the backend (weight / temp / humidity / pressure plus the
+// accelerometer and bee-counter blocks). The stereo microphone is intentionally
+// NOT here — it is a single device-level sensor, modelled as two fixed series.
+type HiveMetric =
+  | 'weight'
+  | 'temp'
+  | 'humidity'
+  | 'pressure'
+  | 'vibration'
+  | 'swarmBand'
+  | 'fanningBand'
+  | 'activityBand'
+  | 'beesIn'
+  | 'beesOut'
+  | 'netFlow';
 
 interface DiagramSeries {
   key: SeriesKey;
@@ -129,11 +124,14 @@ interface DiagramSeries {
   axis: SeriesAxis;
   unit: string;
   stroke: string;
+  // Display grouping: the hive name (or the ambient / off-grid group label) the
+  // series sits under in the toggle list.
   group: string;
-  // Layout: which of the three toggle columns this series belongs to, and the
-  // sub-heading it sits under within that column.
-  column: 1 | 2 | 3;
   subgroup: string;
+  // Set for per-hive series so the toggle list can be filtered by selected hive.
+  hiveIndex?: number;
+  // Whether the series should be on by default the first time a hive appears.
+  defaultVisible: boolean;
 }
 
 interface ChartMarker {
@@ -168,46 +166,19 @@ interface AxisScaleSettings {
 type AxisScaleSettingsMap = Record<SeriesAxis, AxisScaleSettings>;
 
 interface StoredDiagramSettings {
-  version: 6;
+  version: 7;
+  // Which hive indices are shown in the chart and toggle list. Empty means
+  // "fall back to the first couple of hives the device reports".
+  selectedHiveIndices: number[];
   visibleSeries: VisibleSeriesMap;
   axes: AxisScaleSettingsMap;
 }
 
 const diagramSettingsStoragePrefix = 'hivepal:hivescale-diagram:';
 
-const defaultVisibleSeries: VisibleSeriesMap = {
-  scale1Weight: true,
-  scale1Temperature: true,
-  scale1Humidity: false,
-  scale1Pressure: false,
-  scale2Weight: true,
-  scale2Temperature: true,
-  scale2Humidity: false,
-  scale2Pressure: false,
-  ambientTemperature: false,
-  ambientHumidity: false,
-  batteryVoltage: false,
-  batterySoc: false,
-  solarLoadVoltage: false,
-  solarCurrent: false,
-  solarPower: false,
-  micLeftRms: false,
-  micRightRms: false,
-  beeCounter1In: false,
-  beeCounter1Out: false,
-  beeCounter1Net: false,
-  beeCounter2In: false,
-  beeCounter2Out: false,
-  beeCounter2Net: false,
-  accel1Vibration: false,
-  accel1SwarmBand: false,
-  accel1FanningBand: false,
-  accel1ActivityBand: false,
-  accel2Vibration: false,
-  accel2SwarmBand: false,
-  accel2FanningBand: false,
-  accel2ActivityBand: false,
-};
+// Metrics shown by default the first time a hive is added to the chart. Other
+// per-hive metrics and all device-level series start hidden.
+const DEFAULT_VISIBLE_METRICS = new Set<HiveMetric>(['weight', 'temp']);
 
 const defaultAxisSettings: AxisScaleSettings = {
   scaleMode: 'maxRange',
@@ -217,8 +188,9 @@ const defaultAxisSettings: AxisScaleSettings = {
 };
 
 const getDefaultDiagramSettings = (): StoredDiagramSettings => ({
-  version: 6,
-  visibleSeries: { ...defaultVisibleSeries },
+  version: 7,
+  selectedHiveIndices: [],
+  visibleSeries: {},
   axes: {
     weight: { ...defaultAxisSettings, side: 'left' },
     temperature: { ...defaultAxisSettings, side: 'right' },
@@ -282,14 +254,6 @@ const axisPresentation: Record<
   vibration: { labelKey: 'diagram.axis.vibration', unit: 'mg', Icon: Waves },
 };
 
-type SeriesTuple = readonly [
-  key: SeriesKey,
-  labelKey: string,
-  axis: SeriesAxis,
-  unit: string,
-  stroke: string,
-];
-
 type GroupedSeriesTuple = readonly [
   key: SeriesKey,
   labelKey: string,
@@ -299,68 +263,99 @@ type GroupedSeriesTuple = readonly [
   groupKey: string,
 ];
 
-// Both per-hive scales expose the same set of series — identical labels, axes
-// and units. Only the concrete measurement keys and stroke colours differ, so
-// the shared shape lives here once and each scale supplies its keys/strokes
-// (in matching order) below.
-const scaleSeriesTemplate = [
-  { labelKey: 'diagram.series.weight', axis: 'weight', unit: 'kg' },
-  { labelKey: 'diagram.series.temp', axis: 'temperature', unit: '°C' },
-  { labelKey: 'diagram.series.humidity', axis: 'humidity', unit: '%' },
-  { labelKey: 'diagram.series.pressure', axis: 'pressure', unit: 'hPa' },
-  { labelKey: 'diagram.series.micRms', axis: 'dbfs', unit: 'dBFS' },
-  { labelKey: 'diagram.series.vibration', axis: 'vibration', unit: 'mg' },
-  { labelKey: 'diagram.series.swarmBand', axis: 'vibration', unit: 'mg' },
-  { labelKey: 'diagram.series.fanningBand', axis: 'vibration', unit: 'mg' },
-  { labelKey: 'diagram.series.activityBand', axis: 'vibration', unit: 'mg' },
-  { labelKey: 'diagram.series.beesIn', axis: 'beecount', unit: 'bees' },
-  { labelKey: 'diagram.series.beesOut', axis: 'beecount', unit: 'bees' },
-  { labelKey: 'diagram.series.netFlow', axis: 'beecount', unit: 'bees' },
-] as const satisfies readonly {
+// Every hive exposes the same set of metrics — identical labels, axes and
+// units. The series for each hive are generated from this list at runtime, so
+// the chart scales from 1 to 18 hives without per-scale boilerplate.
+const hiveMetricDefs: {
+  metric: HiveMetric;
   labelKey: string;
   axis: SeriesAxis;
   unit: string;
-}[];
+}[] = [
+  { metric: 'weight', labelKey: 'diagram.series.weight', axis: 'weight', unit: 'kg' },
+  { metric: 'temp', labelKey: 'diagram.series.temp', axis: 'temperature', unit: '°C' },
+  { metric: 'humidity', labelKey: 'diagram.series.humidity', axis: 'humidity', unit: '%' },
+  { metric: 'pressure', labelKey: 'diagram.series.pressure', axis: 'pressure', unit: 'hPa' },
+  { metric: 'vibration', labelKey: 'diagram.series.vibration', axis: 'vibration', unit: 'mg' },
+  { metric: 'swarmBand', labelKey: 'diagram.series.swarmBand', axis: 'vibration', unit: 'mg' },
+  { metric: 'fanningBand', labelKey: 'diagram.series.fanningBand', axis: 'vibration', unit: 'mg' },
+  { metric: 'activityBand', labelKey: 'diagram.series.activityBand', axis: 'vibration', unit: 'mg' },
+  { metric: 'beesIn', labelKey: 'diagram.series.beesIn', axis: 'beecount', unit: 'bees' },
+  { metric: 'beesOut', labelKey: 'diagram.series.beesOut', axis: 'beecount', unit: 'bees' },
+  { metric: 'netFlow', labelKey: 'diagram.series.netFlow', axis: 'beecount', unit: 'bees' },
+];
 
-type ScaleSeriesStyling = readonly [key: SeriesKey, stroke: string];
+const HIVE_PALETTE = [
+  'var(--primary)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+  'var(--chart-1)',
+  'var(--muted-foreground)',
+  'var(--destructive)',
+];
 
-const buildScaleSeriesTuples = (
-  styling: readonly ScaleSeriesStyling[],
-): SeriesTuple[] =>
-  scaleSeriesTemplate.map(({ labelKey, axis, unit }, i) => {
-    const [key, stroke] = styling[i];
-    return [key, labelKey, axis, unit, stroke];
-  });
+export const hiveSeriesKey = (index: number, metric: HiveMetric): SeriesKey =>
+  `hive:${index}:${metric}`;
 
-const scale1SeriesTuples: SeriesTuple[] = buildScaleSeriesTuples([
-  ['scale1Weight', 'var(--primary)'],
-  ['scale1Temperature', 'var(--chart-2)'],
-  ['scale1Humidity', 'var(--chart-3)'],
-  ['scale1Pressure', 'var(--chart-4)'],
-  ['micLeftRms', 'var(--chart-1)'],
-  ['accel1Vibration', 'var(--chart-1)'],
-  ['accel1SwarmBand', 'var(--chart-3)'],
-  ['accel1FanningBand', 'var(--chart-4)'],
-  ['accel1ActivityBand', 'var(--chart-5)'],
-  ['beeCounter1In', 'var(--chart-3)'],
-  ['beeCounter1Out', 'var(--chart-4)'],
-  ['beeCounter1Net', 'var(--chart-5)'],
-]);
+// Spread colours across both hive index and metric so two hives' weight lines
+// (or one hive's weight vs temperature) don't collide. Uniqueness isn't
+// guaranteed across 18 hives × 11 metrics, but the hive selector keeps only a
+// handful visible at once and the legend labels disambiguate the rest.
+const hiveStroke = (index: number, metricOffset: number): string =>
+  HIVE_PALETTE[(index - 1 + metricOffset) % HIVE_PALETTE.length];
 
-const scale2SeriesTuples: SeriesTuple[] = buildScaleSeriesTuples([
-  ['scale2Weight', 'var(--muted-foreground)'],
-  ['scale2Temperature', 'var(--chart-4)'],
-  ['scale2Humidity', 'var(--chart-5)'],
-  ['scale2Pressure', 'var(--chart-1)'],
-  ['micRightRms', 'var(--chart-2)'],
-  ['accel2Vibration', 'var(--chart-2)'],
-  ['accel2SwarmBand', 'var(--chart-4)'],
-  ['accel2FanningBand', 'var(--chart-1)'],
-  ['accel2ActivityBand', 'var(--chart-5)'],
-  ['beeCounter2In', 'var(--chart-3)'],
-  ['beeCounter2Out', 'var(--chart-5)'],
-  ['beeCounter2Net', 'var(--primary)'],
-]);
+const buildHiveSeries = (
+  slot: HiveScaleHiveSlot,
+  t: TFunction,
+): DiagramSeries[] =>
+  hiveMetricDefs.map((def, offset) => ({
+    key: hiveSeriesKey(slot.index, def.metric),
+    label: t(def.labelKey, { name: slot.name }),
+    dataKey: hiveSeriesKey(slot.index, def.metric),
+    axis: def.axis,
+    unit: def.unit,
+    stroke: hiveStroke(slot.index, offset),
+    group: slot.name,
+    subgroup: slot.name,
+    hiveIndex: slot.index,
+    defaultVisible: DEFAULT_VISIBLE_METRICS.has(def.metric),
+  }));
+
+// The stereo microphone is a single device-level sensor (left / right), not a
+// per-hive one. Map the two channels to the first two hive names for context.
+const buildMicSeries = (
+  leftName: string,
+  rightName: string,
+  t: TFunction,
+): DiagramSeries[] => {
+  const group = t('diagram.axis.sound');
+  return [
+    {
+      key: 'micLeftRms',
+      label: t('diagram.series.micRms', { name: leftName }),
+      dataKey: 'micLeftRms',
+      axis: 'dbfs',
+      unit: 'dBFS',
+      stroke: 'var(--chart-1)',
+      group,
+      subgroup: group,
+      defaultVisible: false,
+    },
+    {
+      key: 'micRightRms',
+      label: t('diagram.series.micRms', { name: rightName }),
+      dataKey: 'micRightRms',
+      axis: 'dbfs',
+      unit: 'dBFS',
+      stroke: 'var(--chart-2)',
+      group,
+      subgroup: group,
+      defaultVisible: false,
+    },
+  ];
+};
 
 const ambientAndOffGridSeriesTuples: GroupedSeriesTuple[] = [
   [
@@ -421,24 +416,6 @@ const ambientAndOffGridSeriesTuples: GroupedSeriesTuple[] = [
   ],
 ];
 
-const toHiveSeries = (
-  tuples: SeriesTuple[],
-  hiveName: string,
-  column: DiagramSeries['column'],
-  t: TFunction,
-): DiagramSeries[] =>
-  tuples.map(([key, labelKey, axis, unit, stroke]) => ({
-    key,
-    label: t(labelKey, { name: hiveName }),
-    dataKey: key,
-    axis,
-    unit,
-    stroke,
-    group: hiveName,
-    column,
-    subgroup: hiveName,
-  }));
-
 const toGroupedSeries = (
   tuples: GroupedSeriesTuple[],
   t: TFunction,
@@ -453,8 +430,8 @@ const toGroupedSeries = (
       unit,
       stroke,
       group,
-      column: 3,
       subgroup: group,
+      defaultVisible: false,
     };
   });
 
@@ -676,16 +653,22 @@ export const createPresetDateRange = (
   }
 };
 
-const mergeVisibleSeries = (value: unknown): VisibleSeriesMap => ({
-  ...defaultVisibleSeries,
-  ...(value && typeof value === 'object'
+// Series keys are dynamic now, so we can't validate them against a fixed map —
+// just keep any boolean-valued entries. Unknown keys are harmless; series
+// without a stored entry fall back to their `defaultVisible`.
+const mergeVisibleSeries = (value: unknown): VisibleSeriesMap =>
+  value && typeof value === 'object'
     ? Object.fromEntries(
         Object.entries(value as Record<string, unknown>).filter(
-          ([k]) => k in defaultVisibleSeries,
+          ([, v]) => typeof v === 'boolean',
         ),
       )
-    : {}),
-});
+    : {};
+
+const mergeSelectedHiveIndices = (value: unknown): number[] =>
+  Array.isArray(value)
+    ? value.filter((v): v is number => typeof v === 'number')
+    : [];
 
 const mergeAxisSettings = (value: unknown): AxisScaleSettingsMap => {
   const defaults = getDefaultDiagramSettings().axes;
@@ -709,10 +692,11 @@ const loadDiagramSettings = (deviceId: string): StoredDiagramSettings => {
     );
     if (!raw) return getDefaultDiagramSettings();
     const parsed = JSON.parse(raw) as Partial<StoredDiagramSettings>;
-    // version 6 adds accelerometer/vibration series — reset if older
-    if (parsed.version !== 6) return getDefaultDiagramSettings();
+    // version 7 moves to dynamic per-hive series + a hive selector — reset if older
+    if (parsed.version !== 7) return getDefaultDiagramSettings();
     return {
-      version: 6,
+      version: 7,
+      selectedHiveIndices: mergeSelectedHiveIndices(parsed.selectedHiveIndices),
       visibleSeries: mergeVisibleSeries(parsed.visibleSeries),
       axes: mergeAxisSettings(parsed.axes),
     };
@@ -899,14 +883,23 @@ const renderMarkerReferenceLine = ({
 // Component props
 // ---------------------------------------------------------------------------
 
+// A single row of charted values. Per-hive metrics live under their generated
+// `hive:<index>:<metric>` keys, so the row carries a string index signature
+// alongside the fixed timestamp / measuredAt fields.
+interface ChartRow {
+  timestamp: number;
+  measuredAt: string;
+  [key: string]: number | string | null;
+}
+
 interface HiveScaleDiagramPanelProps {
   selectedDevice: HiveScaleDevice;
   measurements: HiveScaleMeasurement[] | undefined;
   isLoading: boolean;
   dateRange: HiveScaleDateRange;
   onDateRangeChange: (range: HiveScaleDateRange) => void;
-  scale1Name: string;
-  scale2Name: string;
+  // Every hive this device exposes (index + display name), index-ascending.
+  hiveSlots: HiveScaleHiveSlot[];
   hives?: HiveWithBoxesResponse[];
   inspections?: InspectionResponse[];
 }
@@ -921,8 +914,7 @@ export const HiveScaleDiagramPanel = ({
   isLoading,
   dateRange,
   onDateRangeChange,
-  scale1Name,
-  scale2Name,
+  hiveSlots,
   hives,
   inspections,
 }: HiveScaleDiagramPanelProps) => {
@@ -932,6 +924,7 @@ export const HiveScaleDiagramPanel = ({
   );
 
   const { visibleSeries, axes: axisScaleSettings } = diagramSettings;
+  const { selectedHiveIndices } = diagramSettings;
 
   const [hoveredMarker, setHoveredMarker] = useState<{
     marker: ChartMarker;
@@ -948,17 +941,30 @@ export const HiveScaleDiagramPanel = ({
     setDiagramSettings(loadDiagramSettings(selectedDevice.device_id));
   }, [selectedDevice.device_id]);
 
+  // The hives shown in the chart. An empty stored selection falls back to the
+  // first couple of hives so a fresh device still renders something useful.
+  const selectedSlots = useMemo(() => {
+    const chosen = hiveSlots.filter(slot =>
+      selectedHiveIndices.includes(slot.index),
+    );
+    return chosen.length > 0 ? chosen : hiveSlots.slice(0, 2);
+  }, [hiveSlots, selectedHiveIndices]);
+
+  // The two microphone channels are labelled with the first two hive names.
+  const micLeftName = hiveSlots[0]?.name ?? t('sound.micLeftFallback');
+  const micRightName = hiveSlots[1]?.name ?? t('sound.micRightFallback');
+
   const series = useMemo<DiagramSeries[]>(
     () => [
-      ...toHiveSeries(scale1SeriesTuples, scale1Name, 1, t),
-      ...toHiveSeries(scale2SeriesTuples, scale2Name, 2, t),
+      ...selectedSlots.flatMap(slot => buildHiveSeries(slot, t)),
+      ...buildMicSeries(micLeftName, micRightName, t),
       ...toGroupedSeries(ambientAndOffGridSeriesTuples, t),
     ],
-    [scale1Name, scale2Name, t],
+    [selectedSlots, micLeftName, micRightName, t],
   );
 
   const activeSeries = useMemo(
-    () => series.filter(item => visibleSeries[item.key]),
+    () => series.filter(item => visibleSeries[item.key] ?? item.defaultVisible),
     [series, visibleSeries],
   );
   const activeAxes = useMemo(
@@ -966,7 +972,7 @@ export const HiveScaleDiagramPanel = ({
     [activeSeries],
   );
 
-  const chartData = useMemo(
+  const chartData = useMemo<ChartRow[]>(
     () =>
       [...(measurements ?? [])]
         .sort(
@@ -975,43 +981,11 @@ export const HiveScaleDiagramPanel = ({
             new Date(b.measured_at).getTime(),
         )
         .map(item => {
-          const bc1In = toFiniteNumber(item.bee_counter_1_interval_in);
-          const bc1Out = toFiniteNumber(item.bee_counter_1_interval_out);
-          const bc2In = toFiniteNumber(item.bee_counter_2_interval_in);
-          const bc2Out = toFiniteNumber(item.bee_counter_2_interval_out);
-          // Only emit net if both in and out are available
-          const bc1Net =
-            bc1In !== null && bc1Out !== null ? bc1In - bc1Out : null;
-          const bc2Net =
-            bc2In !== null && bc2Out !== null ? bc2In - bc2Out : null;
-          // Zero-counts from an ok counter are valid; only suppress if counter is not ok
-          const counter1Ok = item.bee_counter_1_ok !== false;
-          const counter2Ok = item.bee_counter_2_ok !== false;
-          // Same for the accelerometers: a missing/not-ok sensor must show as a
-          // gap, not a misleading 0 mg "perfectly still" reading.
-          const accel1Ok = item.accel_1_ok !== false;
-          const accel2Ok = item.accel_2_ok !== false;
-          return {
+          // Device-level series (mic / ambient / off-grid) are shared across
+          // hives and read straight from the measurement.
+          const row: ChartRow = {
             timestamp: new Date(item.measured_at).getTime(),
             measuredAt: item.measured_at,
-            // Prefer the temperature-compensated weight from the HiveScale
-            // backend. It defaults to the raw weight when compensation is off,
-            // so the fallback is only hit for older payloads that lack the field.
-            scale1Weight: toFiniteNumber(
-              item.scale_1_weight_kg_compensated ?? item.scale_1_weight_kg,
-            ),
-            scale2Weight: toFiniteNumber(
-              item.scale_2_weight_kg_compensated ?? item.scale_2_weight_kg,
-            ),
-            scale1Temperature: cleanTemperature(item.hive_1_temp_c),
-            scale2Temperature: cleanTemperature(item.hive_2_temp_c),
-            // In-hive humidity & barometric pressure from the paired HolyIot
-            // 25015 BLE sensor (per hive). The HiveScale backend promotes these
-            // to ble_N_* columns; older payloads without a BLE sensor send null.
-            scale1Humidity: toFiniteNumber(item.ble_1_humidity_percent),
-            scale2Humidity: toFiniteNumber(item.ble_2_humidity_percent),
-            scale1Pressure: toFiniteNumber(item.ble_1_pressure_hpa),
-            scale2Pressure: toFiniteNumber(item.ble_2_pressure_hpa),
             ambientTemperature: cleanTemperature(item.ambient_temp_c),
             ambientHumidity: toFiniteNumber(item.ambient_humidity_percent),
             batteryVoltage: toFiniteNumber(
@@ -1023,37 +997,51 @@ export const HiveScaleDiagramPanel = ({
             solarPower: toFiniteNumber(item.solar_power_mw),
             micLeftRms: toFiniteNumber(item.mic_left_rms_dbfs),
             micRightRms: toFiniteNumber(item.mic_right_rms_dbfs),
-            beeCounter1In: counter1Ok ? bc1In : null,
-            beeCounter1Out: counter1Ok ? bc1Out : null,
-            beeCounter1Net: counter1Ok ? bc1Net : null,
-            beeCounter2In: counter2Ok ? bc2In : null,
-            beeCounter2Out: counter2Ok ? bc2Out : null,
-            beeCounter2Net: counter2Ok ? bc2Net : null,
-            accel1Vibration: accel1Ok
-              ? toFiniteNumber(item.accel_1_rms_mg)
-              : null,
-            accel1SwarmBand: accel1Ok
-              ? toFiniteNumber(item.accel_1_band_swarm_mg)
-              : null,
-            accel1FanningBand: accel1Ok
-              ? toFiniteNumber(item.accel_1_band_fanning_mg)
-              : null,
-            accel1ActivityBand: accel1Ok
-              ? toFiniteNumber(item.accel_1_band_activity_mg)
-              : null,
-            accel2Vibration: accel2Ok
-              ? toFiniteNumber(item.accel_2_rms_mg)
-              : null,
-            accel2SwarmBand: accel2Ok
-              ? toFiniteNumber(item.accel_2_band_swarm_mg)
-              : null,
-            accel2FanningBand: accel2Ok
-              ? toFiniteNumber(item.accel_2_band_fanning_mg)
-              : null,
-            accel2ActivityBand: accel2Ok
-              ? toFiniteNumber(item.accel_2_band_activity_mg)
-              : null,
           };
+
+          // Per-hive series — generated from the normalized readings so this
+          // scales from 1 to 18 hives with no per-scale branching.
+          for (const reading of getHiveReadings(item)) {
+            const i = reading.index;
+            // A missing / not-ok sensor must show as a gap, not a misleading
+            // 0 reading; zero-counts from an ok sensor are valid.
+            const accelOk = reading.accel?.ok !== false;
+            const bcOk = reading.bee_counter?.ok !== false;
+            const bIn = toFiniteNumber(reading.bee_counter?.interval_in);
+            const bOut = toFiniteNumber(reading.bee_counter?.interval_out);
+            const bNet =
+              bIn !== null && bOut !== null ? bIn - bOut : null;
+
+            // weight keeps temperature compensation for hives 1–2 (see
+            // hiveWeightKg); humidity prefers the promoted column.
+            row[hiveSeriesKey(i, 'weight')] = toFiniteNumber(
+              hiveWeightKg(item, reading),
+            );
+            row[hiveSeriesKey(i, 'temp')] = cleanTemperature(reading.temp_c);
+            row[hiveSeriesKey(i, 'humidity')] = toFiniteNumber(
+              hiveHumidityPercent(reading),
+            );
+            row[hiveSeriesKey(i, 'pressure')] = toFiniteNumber(
+              reading.ble?.pressure_hpa,
+            );
+            row[hiveSeriesKey(i, 'vibration')] = accelOk
+              ? toFiniteNumber(reading.accel?.rms_mg)
+              : null;
+            row[hiveSeriesKey(i, 'swarmBand')] = accelOk
+              ? toFiniteNumber(reading.accel?.band_swarm_mg)
+              : null;
+            row[hiveSeriesKey(i, 'fanningBand')] = accelOk
+              ? toFiniteNumber(reading.accel?.band_fanning_mg)
+              : null;
+            row[hiveSeriesKey(i, 'activityBand')] = accelOk
+              ? toFiniteNumber(reading.accel?.band_activity_mg)
+              : null;
+            row[hiveSeriesKey(i, 'beesIn')] = bcOk ? bIn : null;
+            row[hiveSeriesKey(i, 'beesOut')] = bcOk ? bOut : null;
+            row[hiveSeriesKey(i, 'netFlow')] = bcOk ? bNet : null;
+          }
+
+          return row;
         })
         .filter(item => Number.isFinite(item.timestamp)),
     [measurements],
@@ -1108,11 +1096,9 @@ export const HiveScaleDiagramPanel = ({
 
   const mappedHives = useMemo(() => {
     const hiveList = hives ?? [];
-    const names = [normalizeName(scale1Name), normalizeName(scale2Name)].filter(
-      Boolean,
-    );
+    const names = hiveSlots.map(slot => normalizeName(slot.name)).filter(Boolean);
     return hiveList.filter(hive => names.includes(normalizeName(hive.name)));
-  }, [hives, scale1Name, scale2Name]);
+  }, [hives, hiveSlots]);
 
   const markers = useMemo(() => {
     const hiveList = hives ?? [];
@@ -1139,13 +1125,30 @@ export const HiveScaleDiagramPanel = ({
   }, [dateRange.endAt, dateRange.startAt, hives, inspections, mappedHives, t]);
 
   const toggleSeries = (key: SeriesKey) => {
-    setDiagramSettings(current => ({
-      ...current,
-      visibleSeries: {
-        ...current.visibleSeries,
-        [key]: !current.visibleSeries[key],
-      },
-    }));
+    setDiagramSettings(current => {
+      const target = series.find(item => item.key === key);
+      const currentlyVisible =
+        current.visibleSeries[key] ?? target?.defaultVisible ?? false;
+      return {
+        ...current,
+        visibleSeries: { ...current.visibleSeries, [key]: !currentlyVisible },
+      };
+    });
+  };
+
+  // Add / remove a hive from the chart. An empty stored selection means "first
+  // couple of hives", so seed from the effective selection before toggling.
+  const toggleHive = (index: number) => {
+    setDiagramSettings(current => {
+      const effective =
+        current.selectedHiveIndices.length > 0
+          ? current.selectedHiveIndices
+          : hiveSlots.slice(0, 2).map(slot => slot.index);
+      const next = effective.includes(index)
+        ? effective.filter(i => i !== index)
+        : [...effective, index].sort((a, b) => a - b);
+      return { ...current, selectedHiveIndices: next };
+    });
   };
 
   const updateAxisScaleSettings = (
@@ -1206,27 +1209,21 @@ export const HiveScaleDiagramPanel = ({
     setHoveredMarker({ marker, x: e.clientX, y: e.clientY });
   };
 
-  // Group series into the three fixed columns, preserving series order and
-  // splitting each column into its sub-headed sections.
-  const columns = useMemo(() => {
-    const byColumn: Record<
-      1 | 2 | 3,
-      { subgroup: string; items: DiagramSeries[] }[]
-    > = {
-      1: [],
-      2: [],
-      3: [],
-    };
+  // Group series into ordered, sub-headed sections (one per selected hive, plus
+  // the mic / ambient / off-grid device sections). Rendered in a responsive
+  // grid that wraps, so the layout scales with the number of selected hives
+  // instead of being capped at three fixed columns.
+  const sections = useMemo(() => {
+    const out: { subgroup: string; items: DiagramSeries[] }[] = [];
     for (const s of series) {
-      const colSections = byColumn[s.column];
-      let section = colSections[colSections.length - 1];
+      let section = out[out.length - 1];
       if (!section || section.subgroup !== s.subgroup) {
         section = { subgroup: s.subgroup, items: [] };
-        colSections.push(section);
+        out.push(section);
       }
       section.items.push(s);
     }
-    return byColumn;
+    return out;
   }, [series]);
 
   // Timestamp of the most recent measurement in the loaded range, used for the
@@ -1383,59 +1380,80 @@ export const HiveScaleDiagramPanel = ({
           </div>
         </div>
 
-        {/* Series toggles — fixed 3-column layout */}
-        <div className="grid gap-4 pt-2 md:grid-cols-3">
-          {([1, 2, 3] as const).map(column => (
-            <div key={column} className="space-y-3">
-              {columns[column].map(section => (
-                <div key={section.subgroup} className="space-y-1">
-                  <div className="text-xs font-medium text-muted-foreground">
-                    {section.subgroup}
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {section.items.map(s => {
-                      // Only grey out once we actually have measurements loaded —
-                      // while loading (empty data) every series would otherwise
-                      // appear unavailable.
-                      const hasData =
-                        !visibleChartData.length ||
-                        availableSeriesKeys.has(s.key);
-                      const isActive = visibleSeries[s.key];
-                      return (
-                        <Badge
-                          key={s.key}
-                          variant={isActive ? 'default' : 'outline'}
-                          aria-disabled={!hasData}
-                          title={
-                            hasData ? undefined : t('diagram.noDataForSeries')
-                          }
-                          className={cn(
-                            'select-none',
-                            hasData
-                              ? 'cursor-pointer'
-                              : 'cursor-not-allowed opacity-40',
-                          )}
-                          style={
-                            !hasData
-                              ? undefined
-                              : isActive
-                                ? {
-                                    backgroundColor: s.stroke,
-                                    borderColor: s.stroke,
-                                  }
-                                : { borderColor: s.stroke, color: s.stroke }
-                          }
-                          onClick={
-                            hasData ? () => toggleSeries(s.key) : undefined
-                          }
-                        >
-                          {s.label}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+        {/* Hive selector — choose which hives are charted. Hidden for a single
+            hive, where there is nothing to pick. */}
+        {hiveSlots.length > 1 && (
+          <div className="space-y-1 pt-2">
+            <div className="text-xs font-medium text-muted-foreground">
+              {t('diagram.hives', { defaultValue: 'Hives' })}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {hiveSlots.map(slot => {
+                const isSelected = selectedSlots.some(
+                  s => s.index === slot.index,
+                );
+                return (
+                  <Badge
+                    key={slot.index}
+                    variant={isSelected ? 'default' : 'outline'}
+                    className="cursor-pointer select-none"
+                    onClick={() => toggleHive(slot.index)}
+                  >
+                    {slot.name}
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Series toggles — one sub-headed section per selected hive plus the
+            device-level groups, in a responsive grid that wraps. */}
+        <div className="grid gap-4 pt-2 sm:grid-cols-2 lg:grid-cols-3">
+          {sections.map(section => (
+            <div key={section.subgroup} className="space-y-1">
+              <div className="text-xs font-medium text-muted-foreground">
+                {section.subgroup}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {section.items.map(s => {
+                  // Only grey out once we actually have measurements loaded —
+                  // while loading (empty data) every series would otherwise
+                  // appear unavailable.
+                  const hasData =
+                    !visibleChartData.length || availableSeriesKeys.has(s.key);
+                  const isActive = visibleSeries[s.key] ?? s.defaultVisible;
+                  return (
+                    <Badge
+                      key={s.key}
+                      variant={isActive ? 'default' : 'outline'}
+                      aria-disabled={!hasData}
+                      title={
+                        hasData ? undefined : t('diagram.noDataForSeries')
+                      }
+                      className={cn(
+                        'select-none',
+                        hasData
+                          ? 'cursor-pointer'
+                          : 'cursor-not-allowed opacity-40',
+                      )}
+                      style={
+                        !hasData
+                          ? undefined
+                          : isActive
+                            ? {
+                                backgroundColor: s.stroke,
+                                borderColor: s.stroke,
+                              }
+                            : { borderColor: s.stroke, color: s.stroke }
+                      }
+                      onClick={hasData ? () => toggleSeries(s.key) : undefined}
+                    >
+                      {s.label}
+                    </Badge>
+                  );
+                })}
+              </div>
             </div>
           ))}
         </div>

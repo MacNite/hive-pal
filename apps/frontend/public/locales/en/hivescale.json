@@ -287,6 +287,7 @@
   },
   "panel": {
     "weight": "Weight",
+    "hiveNumber": "Hive {{index}}",
     "hiveTemp": "Hive temp",
     "rmsSound": "RMS sound",
     "ambientTemperature": "Ambient temperature",
@@ -311,6 +312,7 @@
     "subtitle": "Weight, temperature, and entrance activity over time",
     "noMeasurements": "No measurements for the selected range.",
     "noDataForSeries": "No data in the selected range.",
+    "hives": "Hives",
     "meta": {
       "device": "Device:",
       "lastSeen": "Last seen:",

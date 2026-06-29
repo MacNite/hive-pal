@@ -107,6 +107,12 @@ import {
   severityConfig,
 } from './hivescale-insights-card';
 import { HiveScaleInsightsHistoryDialog } from './hivescale-insights-history-dialog';
+import {
+  getHiveReading,
+  getHiveSlots,
+  hiveHumidityPercent,
+  hiveWeightKg,
+} from './hive-readings';
 
 const numberOrDash = (value: number | null | undefined, digits = 1) =>
   typeof value === 'number' && Number.isFinite(value)
@@ -2767,6 +2773,20 @@ export function HiveScalePage() {
   const scale1Name = channelName(selectedDevice, 1, t('common.scale1'));
   const scale2Name = channelName(selectedDevice, 2, t('common.scale2'));
 
+  // The ordered set of hives this device exposes (up to 18), with display
+  // names. Drives both the per-hive latest-value cards and the diagram.
+  const hiveSlots = useMemo(
+    () =>
+      getHiveSlots(selectedDevice, measurements.data, index =>
+        index === 1
+          ? t('common.scale1')
+          : index === 2
+            ? t('common.scale2')
+            : t('panel.hiveNumber', { index, defaultValue: `Hive ${index}` }),
+      ),
+    [selectedDevice, measurements.data, t],
+  );
+
   const refreshHiveScaleData = async () => {
     setIsRefreshing(true);
 
@@ -2847,92 +2867,80 @@ export function HiveScalePage() {
 
       {selectedDevice && (
         <div className="grid gap-4 md:grid-cols-3">
-          <LatestValuePanel
-            title={scale1Name}
-            description={t('common.scale1')}
-            icon={Weight}
-            badge={
-              <HiveScaleSeverityPill
-                severity={channelSeverity[1].severity}
-                count={channelSeverity[1].count}
+          {hiveSlots.map(slot => {
+            const reading = getHiveReading(latest, slot.index);
+            const weightValue =
+              latest && reading ? hiveWeightKg(latest, reading) : null;
+            const humidityValue = reading
+              ? hiveHumidityPercent(reading)
+              : null;
+            // Insights / severity are currently only computed for the two
+            // legacy channels; hives 3–18 show readings without the alert block.
+            const channel: 1 | 2 | null =
+              slot.index === 1 ? 1 : slot.index === 2 ? 2 : null;
+            const severity = channel ? channelSeverity[channel] : null;
+            return (
+              <LatestValuePanel
+                key={slot.index}
+                title={slot.name}
+                description={
+                  channel
+                    ? t(`common.scale${channel}`)
+                    : t('panel.hiveNumber', {
+                        index: slot.index,
+                        defaultValue: `Hive ${slot.index}`,
+                      })
+                }
+                icon={Weight}
+                badge={
+                  severity ? (
+                    <HiveScaleSeverityPill
+                      severity={severity.severity}
+                      count={severity.count}
+                    />
+                  ) : undefined
+                }
+                rows={[
+                  {
+                    label: t('panel.weight'),
+                    value: `${numberOrDash(weightValue)} kg`,
+                  },
+                  {
+                    label: t('panel.hiveTemp'),
+                    value: `${numberOrDash(reading?.temp_c)} °C`,
+                  },
+                  {
+                    label: t('panel.humidity'),
+                    value: `${numberOrDash(humidityValue, 0)}%`,
+                  },
+                ]}
+                insight={
+                  severity
+                    ? {
+                        severity: severity.severity,
+                        count: severity.count,
+                        alerts: severity.alerts,
+                        scale1Name,
+                        scale2Name,
+                        isLoading: insights.isLoading,
+                        isError: insights.isError,
+                      }
+                    : undefined
+                }
+                historyAction={
+                  channel ? (
+                    <HiveScaleInsightsHistoryDialog
+                      deviceId={selectedDevice.device_id}
+                      scale1Name={scale1Name}
+                      scale2Name={scale2Name}
+                      channel={channel}
+                      compact
+                    />
+                  ) : undefined
+                }
               />
-            }
-            rows={[
-              {
-                label: t('panel.weight'),
-                value: `${numberOrDash(latest?.scale_1_weight_kg_compensated ?? latest?.scale_1_weight_kg)} kg`,
-              },
-              {
-                label: t('panel.hiveTemp'),
-                value: `${numberOrDash(latest?.hive_1_temp_c)} °C`,
-              },
-              {
-                label: t('panel.humidity'),
-                value: `${numberOrDash(latest?.ble_1_humidity_percent, 0)}%`,
-              },
-            ]}
-            insight={{
-              severity: channelSeverity[1].severity,
-              count: channelSeverity[1].count,
-              alerts: channelSeverity[1].alerts,
-              scale1Name,
-              scale2Name,
-              isLoading: insights.isLoading,
-              isError: insights.isError,
-            }}
-            historyAction={
-              <HiveScaleInsightsHistoryDialog
-                deviceId={selectedDevice.device_id}
-                scale1Name={scale1Name}
-                scale2Name={scale2Name}
-                channel={1}
-                compact
-              />
-            }
-          />
-          <LatestValuePanel
-            title={scale2Name}
-            description={t('common.scale2')}
-            icon={Weight}
-            badge={
-              <HiveScaleSeverityPill
-                severity={channelSeverity[2].severity}
-                count={channelSeverity[2].count}
-              />
-            }
-            rows={[
-              {
-                label: t('panel.weight'),
-                value: `${numberOrDash(latest?.scale_2_weight_kg_compensated ?? latest?.scale_2_weight_kg)} kg`,
-              },
-              {
-                label: t('panel.hiveTemp'),
-                value: `${numberOrDash(latest?.hive_2_temp_c)} °C`,
-              },
-              {
-                label: t('panel.humidity'),
-                value: `${numberOrDash(latest?.ble_2_humidity_percent, 0)}%`,
-              },
-            ]}
-            insight={{
-              severity: channelSeverity[2].severity,
-              count: channelSeverity[2].count,
-              alerts: channelSeverity[2].alerts,
-              scale1Name,
-              scale2Name,
-              isLoading: insights.isLoading,
-              isError: insights.isError,
-            }}
-            historyAction={
-              <HiveScaleInsightsHistoryDialog
-                deviceId={selectedDevice.device_id}
-                scale1Name={scale1Name}
-                scale2Name={scale2Name}
-                channel={2}
-                compact
-              />
-            }
-          />
+            );
+          })}
           <LatestValuePanel
             title={t('panel.general.title')}
             description={t('panel.general.description')}
@@ -2989,8 +2997,7 @@ export function HiveScalePage() {
           isLoading={measurements.isLoading}
           dateRange={dateRange}
           onDateRangeChange={setDateRange}
-          scale1Name={scale1Name}
-          scale2Name={scale2Name}
+          hiveSlots={hiveSlots}
           inspections={inspections.data}
           hives={hives.data}
         />
