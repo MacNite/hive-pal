@@ -523,17 +523,42 @@ const cleanTemperature = (value: unknown): number | null => {
   return n;
 };
 
+// Single-pass finite min/max. Deliberately avoids `Math.min(...arr)` /
+// `Math.max(...arr)`: spreading a large array as function arguments throws
+// `RangeError: Maximum call stack size exceeded` once it exceeds the engine's
+// argument limit (~65k in V8). A long date range (capped at MAX_MEASUREMENT_POINTS
+// = 20000) across several series on one axis easily clears that, so the spread
+// form could crash the whole chart.
+const finiteMinMax = (
+  values: unknown[],
+): { min: number; max: number } | null => {
+  let min = Infinity;
+  let max = -Infinity;
+  let found = false;
+  for (const v of values) {
+    if (typeof v === 'number' && Number.isFinite(v)) {
+      found = true;
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+  }
+  return found ? { min, max } : null;
+};
+
 const getAxisDomain = (
   settings: AxisScaleSettings,
   values: unknown[],
 ): AxisDomain | undefined => {
-  const finite = values.filter(
-    (v): v is number => typeof v === 'number' && Number.isFinite(v),
-  );
-  if (!finite.length) return undefined;
+  // 'maxRange' lets Recharts derive the domain itself, so there is no need to
+  // scan the values at all — skip the work (and any chance of a large-array
+  // crash) for the default mode.
+  if (settings.scaleMode !== 'zeroToMax' && settings.scaleMode !== 'custom') {
+    return undefined;
+  }
 
-  const min = Math.min(...finite);
-  const max = Math.max(...finite);
+  const bounds = finiteMinMax(values);
+  if (!bounds) return undefined;
+  const { min, max } = bounds;
 
   switch (settings.scaleMode) {
     case 'zeroToMax':
@@ -1508,6 +1533,10 @@ export const HiveScaleDiagramPanel = ({
                     connectNulls={false}
                     strokeWidth={1.5}
                     unit={` ${s.unit}`}
+                    // Animating thousands of points per series on every data
+                    // change is the main source of chart jank; the data is
+                    // dense enough that the entry animation adds no value.
+                    isAnimationActive={false}
                   />
                 ))}
               </LineChart>
