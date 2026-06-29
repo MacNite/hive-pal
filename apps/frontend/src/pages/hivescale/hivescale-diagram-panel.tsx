@@ -659,9 +659,9 @@ export const createPresetDateRange = (
 const mergeVisibleSeries = (value: unknown): VisibleSeriesMap =>
   value && typeof value === 'object'
     ? Object.fromEntries(
-        Object.entries(value as Record<string, unknown>).filter(
-          ([, v]) => typeof v === 'boolean',
-        ),
+        Object.entries(value as Record<string, unknown>)
+          .filter(([, v]) => typeof v === 'boolean')
+          .map(([k, v]) => [k, v as boolean]),
       )
     : {};
 
