@@ -12,7 +12,7 @@ import FormData from 'form-data';
 import { UsersService } from '../users/users.service';
 import { parseSdMeasurements } from './sd-import.parser';
 
-// The HiveScale backend accepts up to 20k measurements per import request; we
+// The HiveHub backend accepts up to 20k measurements per import request; we
 // forward the parsed SD file in chunks no larger than this so a multi-month
 // download (tens of thousands of rows) is split into several requests.
 const SD_IMPORT_CHUNK_SIZE = 5000;
@@ -24,7 +24,7 @@ export interface HiveScaleSdImportResult {
   parsed: number;
   /** Non-empty lines that could not be parsed as JSON. */
   skipped: number;
-  /** Records forwarded to the HiveScale backend. */
+  /** Records forwarded to the HiveHub backend. */
   received: number;
   /** New measurement rows actually stored. */
   inserted: number;
@@ -40,7 +40,11 @@ interface HiveScaleImportResponse {
   duplicates: number;
 }
 
-export type HiveScaleFirmwareTarget = 'hivescale' | 'beecounter' | 'hiveinside';
+export type HiveScaleFirmwareTarget =
+  | 'hivehub'
+  | 'hivescale'
+  | 'beecounter'
+  | 'hiveinside';
 
 export interface HiveScaleFirmwareUploadDto {
   version: string;
@@ -114,8 +118,8 @@ export interface HiveScaleConfigPatchDto {
   scale1_factor?: number;
   scale2_offset?: number;
   scale2_factor?: number;
-  // Load-cell temperature compensation (applied in the HiveScale backend on
-  // read; the device keeps sending raw weights). See HiveScale
+  // Load-cell temperature compensation (applied in the HiveHub backend on
+  // read; the device keeps sending raw weights). See HiveHub
   // docs/temperature-compensation.md.
   tempco_enabled?: boolean;
   tempco_source?: HiveScaleTempcoSource;
@@ -175,19 +179,23 @@ export class HiveScaleService {
     private readonly usersService: UsersService,
   ) {
     this.baseUrl = (
-      this.configService.get<string>('HIVESCALE_API_BASE_URL') ?? ''
+      this.configService.get<string>('HIVEHUB_API_BASE_URL') ??
+      this.configService.get<string>('HIVESCALE_API_BASE_URL') ??
+      ''
     )
       .trim()
       .replace(/\/$/, '');
     this.serviceApiKey = (
-      this.configService.get<string>('HIVESCALE_SERVICE_API_KEY') ?? ''
+      this.configService.get<string>('HIVEHUB_SERVICE_API_KEY') ??
+      this.configService.get<string>('HIVESCALE_SERVICE_API_KEY') ??
+      ''
     ).trim();
   }
 
   private requireBaseUrl(): string {
     if (!this.baseUrl) {
       throw new InternalServerErrorException(
-        'HIVESCALE_API_BASE_URL is not configured on the HivePal backend',
+        'HIVEHUB_API_BASE_URL or legacy HIVESCALE_API_BASE_URL is not configured on the HivePal backend',
       );
     }
     return this.baseUrl;
@@ -196,7 +204,7 @@ export class HiveScaleService {
   private requireServiceApiKey(): string {
     if (!this.serviceApiKey) {
       throw new InternalServerErrorException(
-        'HIVESCALE_SERVICE_API_KEY is not configured on the HivePal backend',
+        'HIVEHUB_SERVICE_API_KEY or legacy HIVESCALE_SERVICE_API_KEY is not configured on the HivePal backend',
       );
     }
     return this.serviceApiKey;
@@ -228,7 +236,7 @@ export class HiveScaleService {
       if (axios.isAxiosError(error)) {
         this.handleAxiosError(error);
       }
-      throw new BadGatewayException('HiveScale backend request failed');
+      throw new BadGatewayException('HiveHub backend request failed');
     }
   }
 
@@ -243,12 +251,12 @@ export class HiveScaleService {
           ? responseData
           : responseData?.detail ||
             responseData?.message ||
-            'HiveScale backend error';
+            'HiveHub backend error';
 
       throw new HttpException(message, error.response.status);
     }
 
-    throw new BadGatewayException('HiveScale backend is unavailable');
+    throw new BadGatewayException('HiveHub backend is unavailable');
   }
 
   claimDevice(accessToken: string, payload: HiveScaleClaimDeviceDto) {
@@ -354,7 +362,7 @@ export class HiveScaleService {
    * Queue the HiveInside OTA relay for both sensor slots, best-effort. Used after
    * a HiveInside firmware upload so a published release is pushed to the in-hive
    * sensors without a separate manual step. A slot with no paired sensor simply
-   * yields a no-op command on the HiveScale, so we always queue both and report
+   * yields a no-op command on the HiveHub, so we always queue both and report
    * the per-slot outcome instead of failing the upload.
    */
   private async queueHiveInsideUpdateAllSlots(
@@ -405,14 +413,15 @@ export class HiveScaleService {
       throw new BadRequestException('version is required');
     }
 
-    const target = dto.target ?? 'hivescale';
+    const target = dto.target ?? 'hivehub';
     if (
+      target !== 'hivehub' &&
       target !== 'hivescale' &&
       target !== 'beecounter' &&
       target !== 'hiveinside'
     ) {
       throw new BadRequestException(
-        "target must be 'hivescale', 'beecounter' or 'hiveinside'",
+        "target must be 'hivehub', 'hivescale', 'beecounter' or 'hiveinside'",
       );
     }
 
@@ -466,7 +475,7 @@ export class HiveScaleService {
       if (axios.isAxiosError(error)) {
         this.handleAxiosError(error);
       }
-      throw new BadGatewayException('HiveScale firmware upload failed');
+      throw new BadGatewayException('HiveHub firmware upload failed');
     }
   }
 
@@ -498,7 +507,7 @@ export class HiveScaleService {
 
     if (records.length === 0) {
       throw new BadRequestException(
-        'No measurements found in the uploaded file. Expected a HiveScale .ndjson backup or the .tar SD download.',
+        'No measurements found in the uploaded file. Expected a HiveHub .ndjson backup or the .tar SD download.',
       );
     }
 
