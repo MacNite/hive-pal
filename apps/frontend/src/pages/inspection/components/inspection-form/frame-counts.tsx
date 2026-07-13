@@ -19,6 +19,9 @@ type FrameCounterProps<T> = {
   label: string;
   color: string;
   totalFrames: number | null | undefined;
+  /** Frames still unassigned across every type (total − sum of all counts).
+      Shared by all counters and shown as the denominator (e.g. 6/5). */
+  remainingFrames: number | null;
   /** Pre-computed composition percentage (already rounded via largest-remainder) */
   pct: number | null;
   // AI merge wiring (optional so the component still works without AI context)
@@ -33,6 +36,7 @@ const FrameCounter = <TName extends FieldPath<InspectionFormData>>({
   label,
   color,
   totalFrames,
+  remainingFrames,
   pct,
   isAiSuggested,
   aiMergeState,
@@ -54,7 +58,9 @@ const FrameCounter = <TName extends FieldPath<InspectionFormData>>({
       name={name}
       render={({ field }) => {
         const currentValue = field.value as number | null | undefined;
-        const maxValue = hasTotalFrames ? totalFrames : 999;
+        // Frames still available to assign to any type. Once the shared pool
+        // is exhausted no counter can be raised further.
+        const framesLeft = remainingFrames ?? 0;
 
         const stopEvent = (e: React.MouseEvent) => {
           e.preventDefault();
@@ -66,15 +72,16 @@ const FrameCounter = <TName extends FieldPath<InspectionFormData>>({
           field.onChange(Math.max(0, (currentValue ?? 0) - 1));
         };
 
+        // With a known total, a frame assigned here comes out of the shared
+        // unassigned pool, so stop when nothing is left. Without a total there
+        // is no pool to draw from, so fall back to a generous per-field cap.
+        const canIncrement = hasTotalFrames ? framesLeft > 0 : (currentValue ?? 0) < 999;
+
         const increment = (e: React.MouseEvent) => {
           stopEvent(e);
-          const nextValue = (currentValue ?? 0) + 1;
-          // Each field can go up to totalFrames independently (overlapping is allowed)
-          if (nextValue > maxValue) return;
-          field.onChange(nextValue);
+          if (!canIncrement) return;
+          field.onChange((currentValue ?? 0) + 1);
         };
-
-        const canIncrement = (currentValue ?? 0) < maxValue;
 
         const clear = (e: React.MouseEvent) => {
           stopEvent(e);
@@ -125,10 +132,12 @@ const FrameCounter = <TName extends FieldPath<InspectionFormData>>({
                   <Minus className="h-6 w-6" />
                 </Button>
 
-                {/* Count display — shows "assigned / unassigned" (e.g. 3/13):
+                {/* Count display — shows "assigned / unassigned" (e.g. 6/5):
                     the number after the slash is how many of the hive's frames
-                    remain unassigned for this type (total minus assigned). Both
-                    update live as the +/- buttons change the value. */}
+                    are still unassigned across ALL types (total minus every
+                    count), so it is the same on every card and shrinks as any
+                    frame type is raised. Both update live as the +/- buttons
+                    change the value. */}
                 <div className="flex-1 flex flex-col items-center gap-0.5">
                   {hasTotalFrames && currentValue != null ? (
                     <Tooltip>
@@ -136,13 +145,13 @@ const FrameCounter = <TName extends FieldPath<InspectionFormData>>({
                         <span className="text-3xl font-bold tabular-nums leading-none cursor-default">
                           {currentValue}
                           <span className="text-base font-normal text-muted-foreground align-baseline">
-                            /{totalFrames - currentValue}
+                            /{framesLeft}
                           </span>
                         </span>
                       </TooltipTrigger>
                       <TooltipContent>
                         {t('observations.frameCounts.framesUnassigned', {
-                          count: totalFrames - currentValue,
+                          count: framesLeft,
                         })}
                       </TooltipContent>
                     </Tooltip>
@@ -268,6 +277,17 @@ export const FrameCountSection: React.FC<FrameCountSectionProps> = ({
   // Ordered counts for all frame types — same order as FRAME_FIELDS
   const frameCounts = frameValues.map(v => v ?? 0);
 
+  // Frames still unassigned = total minus everything already assigned across
+  // all types. This is a single shared pool: every counter shows it as the
+  // denominator (e.g. 6/5, 4/5, 1/5 for a 16-frame hive) and it shrinks as any
+  // frame type is raised. Clamped at 0 so pre-existing over-assignment never
+  // renders a negative remainder.
+  const assignedSum = frameCounts.reduce((sum, c) => sum + c, 0);
+  const remainingFrames =
+    effectiveTotalFrames != null
+      ? Math.max(0, effectiveTotalFrames - assignedSum)
+      : null;
+
   // Each frame type is shown as a share of the total frames (e.g. 1 of 10 →
   // 10%). Types overlap — a single frame can hold eggs and honey — so the
   // percentages are independent and intentionally need not sum to 100%.
@@ -348,6 +368,7 @@ export const FrameCountSection: React.FC<FrameCountSectionProps> = ({
             label={t(name)}
             color={color}
             totalFrames={effectiveTotalFrames}
+            remainingFrames={remainingFrames}
             pct={pcts[i]}
             isAiSuggested={isAiSuggested}
             aiMergeState={aiMergeState}
