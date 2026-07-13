@@ -125,10 +125,10 @@ const FrameCounter = <TName extends FieldPath<InspectionFormData>>({
                   <Minus className="h-6 w-6" />
                 </Button>
 
-                {/* Count display — shows "count / total" (e.g. 1/16) with a
-                    tooltip breaking down how many frames remain unassigned for
-                    this type. Both update live as the +/- buttons change the
-                    value. */}
+                {/* Count display — shows "assigned / unassigned" (e.g. 3/13):
+                    the number after the slash is how many of the hive's frames
+                    remain unassigned for this type (total minus assigned). Both
+                    update live as the +/- buttons change the value. */}
                 <div className="flex-1 flex flex-col items-center gap-0.5">
                   {hasTotalFrames && currentValue != null ? (
                     <Tooltip>
@@ -136,7 +136,7 @@ const FrameCounter = <TName extends FieldPath<InspectionFormData>>({
                         <span className="text-3xl font-bold tabular-nums leading-none cursor-default">
                           {currentValue}
                           <span className="text-base font-normal text-muted-foreground align-baseline">
-                            /{totalFrames}
+                            /{totalFrames - currentValue}
                           </span>
                         </span>
                       </TooltipTrigger>
