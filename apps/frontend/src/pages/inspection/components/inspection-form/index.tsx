@@ -53,7 +53,15 @@ import { uploadPendingPhotos } from './upload-pending-photos';
 import { uploadPendingRecordings } from './upload-pending-recordings';
 import { useInspectionAiMerge } from './use-inspection-ai-merge';
 import { applyInspectionModeToFormData } from './mode-behavior';
+import { AiSuggestionPreview } from './ai-suggestion-preview';
 import type { Box } from 'shared-schemas';
+
+const formatAiDateSuggestion = (value: unknown): string => {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return format(value, 'PPP HH:mm');
+  }
+  return String(value ?? '');
+};
 
 const normalizeBoxSummary = (
   boxesSummary:
@@ -443,7 +451,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
               control={form.control}
               name="date"
               render={({ field }) => (
-                <FormItem className="flex flex-col">
+                <FormItem className="flex flex-col" data-ai-field="date">
                   <FormLabel>{t('inspection:form.inspectionDate')}</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
@@ -497,6 +505,24 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                       }
                     />
                   </div>
+
+                  {isAiSuggested('date') &&
+                    aiMergeState?.suggestions.date && (
+                      <AiSuggestionPreview
+                        currentValue={
+                          field.value
+                            ? format(field.value, 'PPP HH:mm')
+                            : null
+                        }
+                        suggestedValue={formatAiDateSuggestion(
+                          aiMergeState.suggestions.date.aiValue,
+                        )}
+                        hasConflict={aiMergeState.suggestions.date.hasConflict}
+                        status={aiMergeState.suggestions.date.status}
+                        onAccept={() => acceptAiSuggestion('date')}
+                        onDismiss={() => dismissAiSuggestion('date')}
+                      />
+                    )}
 
                   {isInFuture && (
                     <div className="rounded p-4">
@@ -562,13 +588,7 @@ export const InspectionForm: React.FC<InspectionFormProps> = ({
                     onDismissSuggestion={dismissAiSuggestion}
                   />
                   <hr className="border-t border-border" />
-                  <ScorePreviewSection
-                    totalFrames={totalFrames}
-                    isAiSuggested={isAiSuggested}
-                    aiMergeState={aiMergeState}
-                    onAcceptSuggestion={acceptAiSuggestion}
-                    onDismissSuggestion={dismissAiSuggestion}
-                  />
+                  <ScorePreviewSection totalFrames={totalFrames} />
                   <hr className="border-t border-border" />
                 </>
               )}
