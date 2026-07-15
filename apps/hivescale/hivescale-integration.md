@@ -310,6 +310,17 @@ The user's JWT access token was rejected by HiveScale. This usually means the Hi
 
 The device has not sent its first measurement, the code is wrong, or the device is already claimed.
 
+**Also check:** if you rebuilt HiveScale from scratch (deleted the DB/containers) and the
+device was claimed against a *previous* install, older firmware latched a local
+"claim registered" flag on its first successful upload and then stopped sending the
+claim code — so the fresh backend never learns it, and this 404 is returned even though
+the device is happily uploading data. Fixes: (1) update to firmware that keeps sending
+the claim code until the server confirms the claim (it re-populates automatically), or
+(2) on the old firmware, bump `CLAIM_CODE_REVISION` in `secrets.h` (or set
+`FORCE_RESEED true`) and re-flash to force the code to be resent once, or (3) factory-reset
+the device. A plain re-flash with an unchanged `secrets.h` does **not** help, because the
+flag lives in NVS/Preferences which survives flashing.
+
 ### No measurements in HivePal
 
 Check the device's `last_seen_at`, HiveScale logs, ESP32 serial output, and whether HivePal can reach `HIVESCALE_API_BASE_URL` from the backend container.
